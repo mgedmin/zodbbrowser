@@ -74,7 +74,7 @@ class Content(Persistent):
     implements(IContent)
 
     __parent__ = None
-    __name__ = "containiero"
+    __name__ = "container"
 
     pass
 
