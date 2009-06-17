@@ -23,3 +23,7 @@ div.object h2 {
   color: black;
   margin: 2px;
 }
+
+div.object a {
+    font-size: 10px;
+}

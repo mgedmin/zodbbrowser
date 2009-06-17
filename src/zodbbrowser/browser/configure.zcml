@@ -10,8 +10,15 @@
     />
 
   <page
+    name="zodbtree.html"
+    class=".views.ZodbTreeView"
+    for="zope.interface.Interface"
+    permission="zope.View"
+  />
+
+  <page
     name="zodbinfo.html"
-    class=".views.ObjectTreeView"
+    class=".views.ZodbInfoView"
     for="zope.interface.Interface"
     permission="zope.View"
   />

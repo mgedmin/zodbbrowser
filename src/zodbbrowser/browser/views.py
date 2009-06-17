@@ -7,8 +7,28 @@ from zodbbrowser.interfaces import IZodbBrowser
 from zodbbrowser.app import ZodbObject
 
 
-class ObjectTreeView(BrowserView):
-    """Object tree view"""
+class ZodbTreeView(BrowserView):
+    """Zodb info view"""
+
+    adapts(IBrowserRequest, IZodbBrowser)
+
+    template = ViewPageTemplateFile('templates/zodbtree.pt')
+
+    # TODO(zv): create obj on init?
+    def obj(self):
+        return ZodbObject(self.context)
+
+    def __call__(self):
+
+        self.update()
+        return self.template()
+
+    def update(self, show_private=False, *args, **kw):
+        pass
+
+
+class ZodbInfoView(BrowserView):
+    """Zodb info view"""
 
     adapts(IBrowserRequest, IZodbBrowser)
 

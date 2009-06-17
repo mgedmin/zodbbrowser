@@ -2,6 +2,9 @@
 zodbbrowser application
 """
 
+import inspect
+import time
+
 import ZODB, ZODB.FileStorage
 
 from persistent import Persistent
@@ -15,13 +18,16 @@ from zodbbrowser.interfaces import IContent
 
 class ZodbObject(object):
 
-    def __init__(self, obj):
+    accessed_directly = True
+
+    def __init__(self, obj, accessed_directly=True):
         self.obj = obj
+        self.accessed_directly = accessed_directly
 
     def getId(self):
         """Try to determine some kind of name.
         """
-        return (getattr(self.obj, '__name__', None)
+        return str(getattr(self.obj, '__name__', None)
                or getattr(self.obj, 'id', None)
                or getattr(self.obj, '_o_id', None))
 
@@ -31,8 +37,13 @@ class ZodbObject(object):
     def getType(self):
         return str(getattr(self.obj, '__class__', None))
 
-    def children(self):
-        return []
+    def getPath(self):
+        path = "/"
+        o = self.obj
+        while o is not None and o.__parent__ is not None:
+            path = "/" + ZodbObject(o).id + path
+            o = o.__parent__
+        return path
 
     def getMappingItems(self):
         """Get the elements of a mapping.
@@ -47,11 +58,33 @@ class ZodbObject(object):
             return []
         for key, value in naked.items():
             # print str(value)
-            elems.append(ZodbObject(value))
+            elems.append(ZodbObject(value, False))
         return elems
 
+    def _gimmeHistory(self, storage, oid, size):
+        history = None
+        # XXX OMG ouch
+        if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
+            history = storage.history(oid, version='', length=size)
+        else: # FileStorage
+            history = storage.history(oid, size=size)
+        return history
+
+    def listHistory(self, size=20):
+        """List transactions that modified a persistent object."""
+        list = []
+        naked = removeSecurityProxy(self.obj)
+        storage = naked._p_jar._storage
+        history = self._gimmeHistory(storage, naked._p_oid, size)
+        for n, d in enumerate(history):
+            list.append(str(n) + " " + str(time.strftime('%Y-%m-%d %H:%M:%S',
+                time.localtime(d['time']))) + " " +  d['user_name'] + " " + d['description'])
+        return list
+
+    history = property(listHistory)
     id = property(getId)
-    instanceId = property(getInstanceId)
+    instance_id = property(getInstanceId)
+    path = property(getPath)
     type = property(getType)
     children = property(getMappingItems)
 
