@@ -1,0 +1,36 @@
+<metal:block metal:define-macro="page"><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head metal:define-macro="head">
+  <title>ZODB Browser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <link href="context/++resource++zodbbrowser.css" rel="stylesheet" type="text/css"
+        tal:attributes="href context/++resource++zodbbrowser.css" />
+</head>
+<body metal:define-macro="body">
+  <div metal:define-slot="content">
+  </div>
+</body>
+</html>
+</metal:block>
+
+<metal:block metal:define-macro="object">
+  <div class="object">
+    <!--
+    <h1 tal:content="object/class" />
+    <h2 tal:content="object/instance" />
+    -->
+    <h1 tal:content="object/id" />
+    <h2><i tal:content="object/type"/></h2>
+    <h2 tal:content="object/instanceId" />
+  </div>
+  <div style="padding-left:20px"
+      tal:repeat="child object/children">
+    <tal:block define="object child">
+      <metal:block metal:use-macro="view/@@standard_macros/object">
+      </metal:block>
+    </tal:block>
+  </div>
+</metal:block>

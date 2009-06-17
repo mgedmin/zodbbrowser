@@ -1,0 +1,11 @@
+<metal:block metal:use-macro="view/@@standard_macros/page">
+<metal:block fill-slot="content">
+
+<tal:block define="object view/obj">
+  <!-- <p tal:content="python: str(object)"></p> -->
+  <metal:block metal:use-macro="view/@@standard_macros/object">
+  </metal:block>
+</tal:block>
+
+</metal:block>
+</metal:block>

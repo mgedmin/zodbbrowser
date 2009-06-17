@@ -1,0 +1,25 @@
+* {
+  font-family: Tahoma, Verdana, sans-serif;
+}
+
+div.object {
+  background-color: white;
+  border: 1px dashed black;
+  width: 600px;
+  color: black;
+  padding: 5px;
+  margin-top: 5px;
+}
+
+div.object h1 {
+  font-size: 14px;
+  color: blue;
+  margin: 2px;
+}
+
+div.object h2 {
+  font-size: 10px;
+  font-weight: normal;
+  color: black;
+  margin: 2px;
+}
