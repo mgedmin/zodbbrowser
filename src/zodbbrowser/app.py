@@ -76,6 +76,21 @@ class ListValue(object):
         return '[%s]' % ', '.join(html)
 
 
+class DictValue(object):
+    adapts(dict)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self):
+        html = []
+        for key, value in sorted(self.context.items()):
+            html.append(IValueRenderer(key).render() + ': ' +
+                        IValueRenderer(value).render())
+        return '{%s}' % ', '.join(html)
+
+
 class PersistentValue(object):
     adapts(Persistent)
     implements(IValueRenderer)
