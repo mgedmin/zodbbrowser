@@ -96,7 +96,7 @@ class PersistentValue(object):
     implements(IValueRenderer)
 
     def __init__(self, context):
-        self.context = context
+        self.context = removeAllProxies(context)
 
     def render(self):
         url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
@@ -116,7 +116,10 @@ class ZodbObject(object):
             self.tid = self.obj._p_serial
 
     def getTreeURL(self):
-        return '/zodbtree.html?oid=%d' % u64(self.obj._p_oid)
+        if hasattr(self.obj, '_p_oid'):
+            return '/zodbtree.html?oid=%d' % u64(self.obj._p_oid)
+        else:
+            return '%s/zodbtree.html' % self.getPath()
 
     def getId(self):
         """Try to determine some kind of name."""
@@ -184,6 +187,8 @@ class ZodbObject(object):
     def listHistory(self, size=999999999999):
         """List transactions that modified a persistent object."""
         results = []
+        if not isinstance(self.obj, Persistent):
+            return results
         naked = removeSecurityProxy(self.obj)
         storage = naked._p_jar._storage
         history = self._gimmeHistory(storage, naked._p_oid, size)

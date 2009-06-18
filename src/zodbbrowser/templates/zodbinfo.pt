@@ -24,7 +24,7 @@
         <br />
       </tal:block>
     </div>
-    <div class="history">
+    <div class="history" tal:condition="object/listHistory">
       <h3>History</h3>
       <tal:block tal:repeat="history object/listHistory">
         <h4>
