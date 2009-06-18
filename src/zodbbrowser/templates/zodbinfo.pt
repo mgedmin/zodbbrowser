@@ -4,6 +4,7 @@
 <tal:block define="object view/obj">
   <div class="object">
     <h1 tal:content="object/getId" />
+    <h2><b tal:content="object/getPath"/></h2>
     <h2><i tal:content="object/getType"/></h2>
     <h2 tal:content="object/getInstanceId" />
     <a tal:attributes="href string:${object/getPath}zodbtree.html">[Zoom in]</a>
