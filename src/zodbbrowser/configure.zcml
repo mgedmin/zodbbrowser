@@ -7,5 +7,6 @@
   <adapter factory=".app.GenericValue" />
   <adapter factory=".app.PersistentValue" />
   <adapter factory=".app.TupleValue" />
+  <adapter factory=".app.ListValue" />
 
 </configure>

@@ -62,6 +62,20 @@ class TupleValue(object):
         return '(%s)' % ', '.join(html)
 
 
+class ListValue(object):
+    adapts(list)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self):
+        html = []
+        for item in self.context:
+            html.append(IValueRenderer(item).render())
+        return '[%s]' % ', '.join(html)
+
+
 class PersistentValue(object):
     adapts(Persistent)
     implements(IValueRenderer)
