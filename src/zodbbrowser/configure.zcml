@@ -2,17 +2,6 @@
     xmlns="http://namespaces.zope.org/zope"
     i18n_domain='pov'>
 
-  <class class=".app.ZodbBrowser">
-    <require
-      permission="zope.View"
-      interface="zope.app.container.interfaces.IWriteContainer" />
-    <require
-      permission="zope.View"
-      interface="zope.app.container.interfaces.IReadContainer" />
-  </class>
-
-  <!-- Include browser configuration -->
-
-  <include package=".browser" />
+  <include file="browser.zcml" />
 
 </configure>

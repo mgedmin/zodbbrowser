@@ -2,15 +2,15 @@ from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
+from zope.interface import Interface
 
-from zodbbrowser.interfaces import IZodbBrowser
 from zodbbrowser.app import ZodbObject
 
 
 class ZodbTreeView(BrowserView):
     """Zodb info view"""
 
-    adapts(IBrowserRequest, IZodbBrowser)
+    adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbtree.pt')
 
@@ -30,7 +30,7 @@ class ZodbTreeView(BrowserView):
 class ZodbInfoView(BrowserView):
     """Zodb info view"""
 
-    adapts(IBrowserRequest, IZodbBrowser)
+    adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
 

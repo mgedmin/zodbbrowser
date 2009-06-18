@@ -21,15 +21,15 @@
     <h1 tal:content="object/id" />
     <h2><i tal:content="object/type"/></h2>
     <h2 tal:content="object/instance_id" />
-    <a tal:attributes="href string:${object/path}zodbinfo.html">[Details]</a>
-    <a tal:attributes="href string:${object/path}zodbtree.html"
+    <a tal:attributes="href string:${object/getPath}zodbinfo.html">[Details]</a>
+    <a tal:attributes="href string:${object/getPath}zodbtree.html"
         tal:condition="not:object/accessed_directly">[Zoom in]</a>
     <a href="../zodbtree.html" tal:condition="object/accessed_directly">[Zoom out]</a>
   </div>
   <div style="padding-left:20px"
       tal:repeat="child object/children">
     <tal:block define="object child">
-      <metal:block metal:use-macro="view/@@standard_macros/object">
+      <metal:block metal:use-macro="view/@@zodbbrowser_macros/object">
       </metal:block>
     </tal:block>
   </div>

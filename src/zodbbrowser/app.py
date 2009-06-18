@@ -12,9 +12,6 @@ from zope.interface import implements
 from zope.app.container.sample import SampleContainer
 from zope.security.proxy import removeSecurityProxy
 
-from zodbbrowser.interfaces import IZodbBrowser
-from zodbbrowser.interfaces import IContent
-
 
 class ZodbObject(object):
 
@@ -87,27 +84,3 @@ class ZodbObject(object):
     path = property(getPath)
     type = property(getType)
     children = property(getMappingItems)
-
-
-class ZodbBrowser(Persistent, SampleContainer):
-    """ZODB browser"""
-
-    implements(IZodbBrowser)
-    __parent__ = None
-
-    def __init__(self):
-        SampleContainer.__init__(self)
-        self['content1'] = Content()
-        self['content2'] = Content()
-
-
-class Content(Persistent):
-    """Dummy object for container testing"""
-
-    implements(IContent)
-
-    __parent__ = None
-    __name__ = "container"
-
-    pass
-

@@ -1,4 +1,4 @@
-<metal:block metal:use-macro="view/@@standard_macros/page">
+<metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
 <metal:block fill-slot="content">
 
 <tal:block define="object view/obj">

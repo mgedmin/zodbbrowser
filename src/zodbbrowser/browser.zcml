@@ -1,0 +1,34 @@
+<configure
+    xmlns="http://namespaces.zope.org/browser"
+    xmlns:zope="http://namespaces.zope.org/zope"
+    i18n_domain='pov'>
+
+  <page
+    name="zodbtree.html"
+    class=".browser.ZodbTreeView"
+    for="zope.interface.Interface"
+    permission="zope.View"
+    menu="zmi_actions"
+    title="ZODB Browser"
+  />
+
+  <page
+    name="zodbinfo.html"
+    class=".browser.ZodbInfoView"
+    for="zope.interface.Interface"
+    permission="zope.View"
+  />
+
+  <page
+    name="zodbbrowser_macros"
+    for="*"
+    permission="zope.Public"
+    template="templates/view_macros.pt"
+  />
+
+  <resource
+    name="zodbbrowser.css"
+    file="resources/zodbbrowser.css"
+  />
+
+</configure>
