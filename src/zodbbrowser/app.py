@@ -109,7 +109,7 @@ class ZodbObject(object):
         attrs = []
         if not hasattr(self.obj, '__dict__'):
             return attrs
-        for name, value in self.obj.__dict__.items():
+        for name, value in sorted(self.obj.__dict__.items()):
             attrs.append(ZodbObjectAttribute(name=name, value=value))
         return attrs
 
@@ -117,7 +117,7 @@ class ZodbObject(object):
         elems = []
         if not hasattr(self.obj, 'items'):
             return []
-        for key, value in self.obj.items():
+        for key, value in sorted(self.obj.items()):
             elems.append(ZodbObjectAttribute(name=key, value=value))
         return elems
 
