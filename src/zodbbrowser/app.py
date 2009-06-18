@@ -106,15 +106,19 @@ class PersistentValue(object):
 
 class ZodbObject(object):
 
-    accessed_directly = True
+    tid = None
 
     def __init__(self, obj, accessed_directly=True):
-        self.obj = removeAllProxies(obj)
         self.accessed_directly = accessed_directly
+        self.obj = removeAllProxies(obj)
+        if isinstance(self.obj, Persistent):
+            self.obj._p_activate()
+            self.tid = self.obj._p_serial
 
     def getId(self):
         """Try to determine some kind of name."""
-        return unicode(getattr(self.obj, '__name__', None))
+        name = unicode(getattr(self.obj, '__name__', None))
+        return name
 
     def getInstanceId(self):
         return str(self.obj)
@@ -133,8 +137,6 @@ class ZodbObject(object):
         return "/???" + path
 
     def listAttributes(self):
-        if isinstance(self.obj, Persistent):
-            self.obj._p_activate()
         attrs = []
         if not hasattr(self.obj, '__dict__'):
             return attrs
@@ -150,6 +152,7 @@ class ZodbObject(object):
             elems.append(ZodbObjectAttribute(name=key, value=value))
         return elems
 
+    # XXX duplicates listItems somewhat
     def getMappingItems(self):
         """Get the elements of a mapping.
 
@@ -175,14 +178,62 @@ class ZodbObject(object):
             history = storage.history(oid, size=size)
         return history
 
-    def listHistory(self, size=20):
+    def listHistory(self, size=999999999999):
         """List transactions that modified a persistent object."""
-        list = []
+        results = []
         naked = removeSecurityProxy(self.obj)
         storage = naked._p_jar._storage
         history = self._gimmeHistory(storage, naked._p_oid, size)
         for n, d in enumerate(history):
-            list.append(str(n) + " " + str(time.strftime('%Y-%m-%d %H:%M:%S',
-                time.localtime(d['time']))) + " " +  d['user_name'] + " " + d['description'])
-        return list
+            short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
+                                         time.localtime(d['time']))) + " "
+                     + d['user_name'] + " "
+                     + d['description'])
+            # other interesting things: d['tid'], d['size']
+            if n == 0:
+                url = '/zodbinfo.html?oid=%d' % u64(naked._p_oid)
+            else:
+                url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(naked._p_oid),
+                                                        u64(d['tid']))
+            current = d['tid'] == self.tid
+            results.append(dict(short=short, href=url, current=current,
+                                **d))
+        return results
+
+
+
+class ZodbObjectState(ZodbObject):
+
+    def __init__(self, obj, state, tid=None):
+        ZodbObject.__init__(self, obj)
+        self.state = state
+        self.tid = tid
+
+    def getId(self):
+        name = ZodbObject.getId(self)
+        if self.tid:
+            name += ' (from transaction %d)' % (u64(self.tid)) 
+        return name
+
+    def getInstanceId(self):
+        return '???'
+
+    def getType(self):
+        return '???'
+
+    def getPath(self):
+        path = "???"
+
+    def listAttributes(self):
+        attrs = []
+        for name, value in sorted(self.state.items()):
+            attrs.append(ZodbObjectAttribute(name=name, value=value))
+        return attrs
+
+    def listItems(self):
+        return []
+
+    # XXX duplicates listItems somewhat
+    def getMappingItems(self):
+        return []
 

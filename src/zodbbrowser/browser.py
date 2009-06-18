@@ -6,17 +6,24 @@ from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
 from ZODB.utils import p64
 
-from zodbbrowser.app import ZodbObject
+from zodbbrowser.app import ZodbObject, ZodbObjectState
 
 
 class BaseZodbView(BrowserView):
 
     def obj(self):
-        if 'oid' in self.request:
-            oid = p64(int(self.request['oid']))
-            return ZodbObject(removeSecurityProxy(self.context)._p_jar.get(oid))
-        else:
+        if 'oid' not in self.request:
             return ZodbObject(self.context)
+        else:
+            oid = p64(int(self.request['oid']))
+            jar = removeSecurityProxy(self.context)._p_jar
+            obj = jar.get(oid)
+            if 'tid' not in self.request:
+                return ZodbObject(obj)
+            else:
+                tid = p64(int(self.request['tid']))
+                state = jar.oldstate(obj, tid)
+                return ZodbObjectState(obj, state, tid)
 
 
 class ZodbTreeView(BaseZodbView):

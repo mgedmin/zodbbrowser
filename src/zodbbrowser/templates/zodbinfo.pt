@@ -22,7 +22,14 @@
       <br />
     </tal:block>
     <h3>History</h3>
-    <h4 tal:repeat="history object/listHistory" tal:content="history" />
+    <tal:block tal:repeat="history object/listHistory">
+      <h4>
+        <span tal:condition="history/current">-&gt;</span>
+        <a tal:attributes="href history/href"
+          tal:content="string:#${repeat/history/index}"></a>
+        <span tal:content="history/short" />
+      </h4>
+    </tal:block>
   </div>
 </tal:block>
 
