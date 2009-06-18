@@ -1,0 +1,6 @@
+src/zodbbrowser.egg-info
+parts
+eggs
+develop-eggs
+bin
+.installed.cfg
