@@ -11,12 +11,13 @@ setup(
     zip_safe=False,
     package_dir={'': 'src'},
     install_requires=[
-        "ZODB3",
-        "zope.interface",
-        "zope.component",
-        "zope.security",
-        "zope.publisher",
         "zope.app.pagetemplate",
         "zope.app.publication",
+        "zope.component",
+        "zope.interface",
+        "zope.location",
+        "zope.publisher",
+        "zope.security",
+        "zope.traversing",
         ],
     )
