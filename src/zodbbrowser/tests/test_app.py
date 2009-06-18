@@ -26,6 +26,12 @@ class TestZodbObject(unittest.TestCase):
         self.foo = LocationStub('foo', self.root)
         self.foobar = LocationStub('bar', self.foo)
         self.baz = LocationStub('disembodied', None)
+        self.snowman = LocationStub(u'\N{SNOWMAN}', self.root)
+        self.unnamed = LocationStub(None, None)
+
+    def test_getId(self):
+        self.assertEqual(ZodbObject(self.snowman).getId(), u'\N{SNOWMAN}')
+        self.assertEqual(ZodbObject(self.unnamed).getId(), u'None')
 
     def test_getPath(self):
         self.assertEqual(ZodbObject(self.root).getPath(), '/')

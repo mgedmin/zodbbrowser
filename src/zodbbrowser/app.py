@@ -18,11 +18,8 @@ class ZodbObject(object):
         self.accessed_directly = accessed_directly
 
     def getId(self):
-        """Try to determine some kind of name.
-        """
-        return str(getattr(self.obj, '__name__', None)
-               or getattr(self.obj, 'id', None)
-               or getattr(self.obj, '_o_id', None))
+        """Try to determine some kind of name."""
+        return unicode(getattr(self.obj, '__name__', None))
 
     def getInstanceId(self):
         return str(self.obj)
