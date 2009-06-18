@@ -227,9 +227,10 @@ class ZodbObjectState(ZodbObject):
         return res + ' (maybe?)'
 
     def listAttributes(self):
-        attrs = []
         if not isinstance(self.state, dict):
-            return attrs
+            return [ZodbObjectAttribute(name='pickled state',
+                                        value=self.state)]
+        attrs = []
         for name, value in sorted(self.state.items()):
             attrs.append(ZodbObjectAttribute(name=name, value=value))
         return attrs
