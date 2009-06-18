@@ -4,9 +4,75 @@ zodbbrowser application
 
 import inspect
 import time
+from cgi import escape
 
+from ZODB.utils import u64
+from persistent import Persistent
 from zope.security.proxy import removeSecurityProxy
 from zope.traversing.interfaces import IContainmentRoot
+from zope.proxy import removeAllProxies
+from zope.component import adapts
+from zope.interface import implements
+from zope.interface import Interface
+
+
+class IValueRenderer(Interface):
+
+    def render(self):
+        """Render object value to HTML."""
+
+
+class ZodbObjectAttribute(object):
+
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def rendered_name(self):
+        return IValueRenderer(self.name).render()
+
+    def rendered_value(self):
+        return IValueRenderer(self.value).render()
+
+
+class GenericValue(object):
+    adapts(Interface)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self):
+        return escape(repr(self.context))
+
+
+class TupleValue(object):
+    adapts(tuple)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self):
+        html = []
+        for item in self.context:
+            html.append(IValueRenderer(item).render())
+        if len(html) == 1:
+            html.append('') # (item) -> (item, )
+        return '(%s)' % ', '.join(html)
+
+
+class PersistentValue(object):
+    adapts(Persistent)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self):
+        url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
+        value = GenericValue(self.context).render()
+        return '<a href="%s">%s</a>' % (url, value)
 
 
 class ZodbObject(object):
@@ -14,7 +80,7 @@ class ZodbObject(object):
     accessed_directly = True
 
     def __init__(self, obj, accessed_directly=True):
-        self.obj = obj
+        self.obj = removeAllProxies(obj)
         self.accessed_directly = accessed_directly
 
     def getId(self):
@@ -36,6 +102,24 @@ class ZodbObject(object):
             path = "/" + ZodbObject(o).getId() + path
             o = getattr(o, '__parent__', None)
         return "/???" + path
+
+    def listAttributes(self):
+        if isinstance(self.obj, Persistent):
+            self.obj._p_activate()
+        attrs = []
+        if not hasattr(self.obj, '__dict__'):
+            return attrs
+        for name, value in self.obj.__dict__.items():
+            attrs.append(ZodbObjectAttribute(name=name, value=value))
+        return attrs
+
+    def listItems(self):
+        elems = []
+        if not hasattr(self.obj, 'items'):
+            return []
+        for key, value in self.obj.items():
+            elems.append(ZodbObjectAttribute(name=key, value=value))
+        return elems
 
     def getMappingItems(self):
         """Get the elements of a mapping.

@@ -7,16 +7,16 @@
     name="zodbtree.html"
     class=".browser.ZodbTreeView"
     for="zope.interface.Interface"
-    permission="zope.View"
-    menu="zmi_actions"
-    title="ZODB Browser"
+    permission="zope.ManageContent"
   />
 
   <page
     name="zodbinfo.html"
     class=".browser.ZodbInfoView"
     for="zope.interface.Interface"
-    permission="zope.View"
+    permission="zope.ManageContent"
+    menu="zmi_actions"
+    title="ZODB Browser"
   />
 
   <page
