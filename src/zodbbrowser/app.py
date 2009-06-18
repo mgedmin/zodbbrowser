@@ -214,7 +214,6 @@ class ZodbObject(object):
         return results
 
 
-
 class ZodbObjectState(ZodbObject):
 
     def __init__(self, obj, state, tid=None):
