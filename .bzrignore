@@ -4,3 +4,6 @@ eggs
 develop-eggs
 bin
 .installed.cfg
+ID
+TAGS
+tags
