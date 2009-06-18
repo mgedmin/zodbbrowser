@@ -228,6 +228,8 @@ class ZodbObjectState(ZodbObject):
 
     def listAttributes(self):
         attrs = []
+        if not isinstance(self.state, dict):
+            return attrs
         for name, value in sorted(self.state.items()):
             attrs.append(ZodbObjectAttribute(name=name, value=value))
         return attrs
