@@ -11,6 +11,7 @@ from persistent import Persistent
 from zope.interface import implements
 from zope.app.container.sample import SampleContainer
 from zope.security.proxy import removeSecurityProxy
+from zope.traversing.interfaces import IContainmentRoot
 
 
 class ZodbObject(object):
@@ -37,10 +38,12 @@ class ZodbObject(object):
     def getPath(self):
         path = "/"
         o = self.obj
-        while o is not None and o.__parent__ is not None:
+        while o is not None:
+            if IContainmentRoot.providedBy(o):
+                return path
             path = "/" + ZodbObject(o).id + path
-            o = o.__parent__
-        return path
+            o = getattr(o, '__parent__', None)
+        return "/???" + path
 
     def getMappingItems(self):
         """Get the elements of a mapping.
