@@ -13,14 +13,15 @@ div.object {
 
 div.object h1 {
   font-size: 120%;
-  color: blue;
+  color: green;
   margin: 2px;
 }
 
 div.object h3 {
   font-size: 100%;
-  color: blue;
+  color: green;
   margin: 2px;
+  margin-top: 1em;
 }
 
 div.object h2,

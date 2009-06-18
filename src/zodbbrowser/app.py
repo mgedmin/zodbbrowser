@@ -115,6 +115,9 @@ class ZodbObject(object):
             self.obj._p_activate()
             self.tid = self.obj._p_serial
 
+    def getTreeURL(self):
+        return '/zodbtree.html?oid=%d' % u64(self.obj._p_oid)
+
     def getId(self):
         """Try to determine some kind of name."""
         name = unicode(getattr(self.obj, '__name__', None))
@@ -216,13 +219,12 @@ class ZodbObjectState(ZodbObject):
         return name
 
     def getInstanceId(self):
-        return '???'
-
-    def getType(self):
-        return '???'
+        res = ZodbObject.getId(self)
+        return res + ' (maybe?)'
 
     def getPath(self):
-        path = "???"
+        res = ZodbObject.getPath(self)
+        return res + ' (maybe?)'
 
     def listAttributes(self):
         attrs = []
@@ -231,6 +233,7 @@ class ZodbObjectState(ZodbObject):
         return attrs
 
     def listItems(self):
+        # XXX: this is bad for BTrees :/
         return []
 
     # XXX duplicates listItems somewhat

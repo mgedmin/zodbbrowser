@@ -7,29 +7,34 @@
     <h2><b tal:content="object/getPath"/></h2>
     <h2><i tal:content="object/getType"/></h2>
     <h2 tal:content="object/getInstanceId" />
-    <a tal:attributes="href string:${object/getPath}zodbtree.html">[Zoom in]</a>
-    <a href="../zodbtree.html">[Zoom out]</a>
-    <h3>Attributes</h3>
-    <tal:block tal:repeat="attr object/listAttributes">
-      <strong tal:content="attr/name" />:
-      <tal:block replace="structure attr/rendered_value" />
-      <br />
-    </tal:block>
-    <h3>Items</h3>
-    <tal:block tal:repeat="attr object/listItems">
-      <strong tal:content="structure attr/rendered_name" />:
-      <span tal:content="structure attr/rendered_value" />
-      <br />
-    </tal:block>
-    <h3>History</h3>
-    <tal:block tal:repeat="history object/listHistory">
-      <h4>
-        <span tal:condition="history/current">-&gt;</span>
-        <a tal:attributes="href history/href"
-          tal:content="string:#${repeat/history/index}"></a>
-        <span tal:content="history/short" />
-      </h4>
-    </tal:block>
+    <a tal:attributes="href object/getTreeURL">[Tree]</a>
+    <div class="attributes" tal:condition="object/listAttributes">
+      <h3>Attributes</h3>
+      <tal:block tal:repeat="attr object/listAttributes">
+        <strong tal:content="attr/name" />:
+        <tal:block replace="structure attr/rendered_value" />
+        <br />
+      </tal:block>
+    </div>
+    <div class="items" tal:condition="object/listItems">
+      <h3>Items</h3>
+      <tal:block tal:repeat="attr object/listItems">
+        <strong tal:content="structure attr/rendered_name" />:
+        <span tal:content="structure attr/rendered_value" />
+        <br />
+      </tal:block>
+    </div>
+    <div class="history">
+      <h3>History</h3>
+      <tal:block tal:repeat="history object/listHistory">
+        <h4>
+          <span tal:condition="history/current">-&gt;</span>
+          <a tal:attributes="href history/href"
+            tal:content="string:#${repeat/history/index}"></a>
+          <span tal:content="history/short" />
+        </h4>
+      </tal:block>
+    </div>
   </div>
 </tal:block>
 
