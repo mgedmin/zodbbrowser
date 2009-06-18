@@ -42,8 +42,13 @@ class GenericValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self):
-        return escape(repr(self.context))
+    def render(self, limit=200):
+        text = repr(self.context)
+        if len(text) > limit:
+            text = escape(text[:limit]) + '<span class="truncated">...</span>'
+        else:
+            text = escape(text)
+        return text
 
 
 class TupleValue(object):

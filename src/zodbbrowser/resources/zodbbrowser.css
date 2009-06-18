@@ -32,5 +32,10 @@ div.object h4 {
   margin: 2px;
 }
 
-div.object a {
+div.object .truncated {
+  color: red;
+  border: 1px solid red;
+  padding: 1px;
+  margin: 2px;
 }
+
