@@ -14,12 +14,10 @@ class ZodbTreeView(BrowserView):
 
     template = ViewPageTemplateFile('templates/zodbtree.pt')
 
-    # TODO(zv): create obj on init?
     def obj(self):
         return ZodbObject(self.context)
 
     def __call__(self):
-
         self.update()
         return self.template()
 
@@ -34,14 +32,13 @@ class ZodbInfoView(BrowserView):
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
 
-    # TODO(zv): create obj on init?
     def obj(self):
         return ZodbObject(self.context)
 
     def __call__(self):
-
         self.update()
         return self.template()
 
     def update(self, show_private=False, *args, **kw):
         pass
+

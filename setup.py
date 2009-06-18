@@ -16,8 +16,6 @@ setup(
         "zope.component",
         "zope.security",
         "zope.publisher",
-        "zope.app.container",
-        "zope.app.rotterdam",
         "zope.app.pagetemplate",
         "zope.app.publication",
         ],

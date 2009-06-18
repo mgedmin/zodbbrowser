@@ -5,11 +5,6 @@ zodbbrowser application
 import inspect
 import time
 
-import ZODB, ZODB.FileStorage
-
-from persistent import Persistent
-from zope.interface import implements
-from zope.app.container.sample import SampleContainer
 from zope.security.proxy import removeSecurityProxy
 from zope.traversing.interfaces import IContainmentRoot
 
