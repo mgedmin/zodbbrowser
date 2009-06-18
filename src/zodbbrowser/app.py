@@ -36,7 +36,7 @@ class ZodbObject(object):
         while o is not None:
             if IContainmentRoot.providedBy(o):
                 return path
-            path = "/" + ZodbObject(o).id + path
+            path = "/" + ZodbObject(o).getId() + path
             o = getattr(o, '__parent__', None)
         return "/???" + path
 
@@ -76,9 +76,3 @@ class ZodbObject(object):
                 time.localtime(d['time']))) + " " +  d['user_name'] + " " + d['description'])
         return list
 
-    history = property(listHistory)
-    id = property(getId)
-    instance_id = property(getInstanceId)
-    path = property(getPath)
-    type = property(getType)
-    children = property(getMappingItems)

@@ -3,13 +3,13 @@
 
 <tal:block define="object view/obj">
   <div class="object">
-    <h1 tal:content="object/id" />
-    <h2><i tal:content="object/type"/></h2>
-    <h2 tal:content="object/instance_id" />
-    <a tal:attributes="href string:${object/path}zodbtree.html">[Zoom in]</a>
+    <h1 tal:content="object/getId" />
+    <h2><i tal:content="object/getType"/></h2>
+    <h2 tal:content="object/getInstanceId" />
+    <a tal:attributes="href string:${object/getPath}zodbtree.html">[Zoom in]</a>
     <a href="../zodbtree.html">[Zoom out]</a>
     <h1>History</h1>
-    <h2 tal:repeat="history object/history" tal:content="history" />
+    <h2 tal:repeat="history object/listHistory" tal:content="history" />
   </div>
 </tal:block>
 
