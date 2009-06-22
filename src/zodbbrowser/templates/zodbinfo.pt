@@ -3,46 +3,45 @@
 
 <tal:block define="object view/obj">
   <div class="object">
-    <h1 tal:content="object/getId" />
-    <h2><b tal:content="object/getPath"/></h2>
-    <h2><i tal:content="object/getType"/></h2>
-    <h2 tal:content="object/getInstanceId" />
-    <a tal:attributes="href object/getTreeURL">[Tree]</a>
+    <div class="heading">
+      <h1 tal:content="object/getId" />
+      <h2><b tal:content="object/getPath"/></h2>
+      <h2><i tal:content="object/getType"/></h2>
+      <h2 tal:content="object/getInstanceId" />
+    </div>
     <div class="attributes" tal:condition="object/listAttributes">
       <h3>Attributes</h3>
       <input type="button" value="-" onclick="expand(this)" />
-      <div>
+      <h4>
         <tal:block tal:repeat="attr object/listAttributes">
           <strong tal:content="attr/name" />:
           <tal:block replace="structure attr/rendered_value" />
           <br />
         </tal:block>
-      </div>
+      </h4>
     </div>
     <div class="items" tal:condition="object/listItems">
       <h3>Items</h3>
       <input type="button" value="-" onclick="expand(this)" />
-      <div>
+      <h4>
         <tal:block tal:repeat="attr object/listItems">
           <strong tal:content="structure attr/rendered_name" />:
           <span tal:content="structure attr/rendered_value" />
           <br />
         </tal:block>
-      </div>
+      </h4>
     </div>
     <div class="history" tal:condition="object/listHistory">
       <h3>History</h3>
       <input type="button" value="-" onclick="expand(this)" />
-      <div>
+      <h4>
         <tal:block tal:repeat="history object/listHistory">
-          <h4>
-            <span tal:condition="history/current">-&gt;</span>
-            <a tal:attributes="href history/href"
-              tal:content="string:#${repeat/history/index}"></a>
-            <span tal:content="history/short" />
-          </h4>
+          <span tal:condition="history/current">-&gt;</span>
+          <a tal:attributes="href history/href"
+            tal:content="string:#${repeat/history/index}"></a>
+          <span tal:content="history/short" />
         </tal:block>
-      </div>
+      </h4>
     </div>
   </div>
 </tal:block>

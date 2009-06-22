@@ -2,31 +2,47 @@
   font-family: Tahoma, Verdana, sans-serif;
 }
 
+input {
+    border: 1px dashed orange;
+    background-color: white;
+}
+
 div.object {
   background-color: white;
-  border: 1px dashed black;
+  border: 1px solid black;
   min-width: 600px;
   color: black;
   padding: 5px;
   margin-top: 5px;
 }
 
+div.object .heading {
+  background-color: orange;
+  padding: 5px;
+}
+
 div.object h1 {
-  font-size: 120%;
-  color: green;
+  font-size: 16px;
+  color: blue;
   margin: 2px;
 }
 
+div.object h2 {
+  font-size: 14px;
+  color: black;
+  margin: 2px;
+  font-weight: normal;
+}
+
 div.object h3 {
-  font-size: 100%;
-  color: green;
+  font-size: 14px;
+  color: orange;
   margin: 2px;
   margin-top: 1em;
 }
 
-div.object h2,
 div.object h4 {
-  font-size: 100%;
+  font-size: 12px;
   font-weight: normal;
   color: black;
   margin: 2px;

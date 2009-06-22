@@ -8,7 +8,6 @@ from cgi import escape
 
 from ZODB.utils import u64
 from persistent import Persistent
-from zope.security.proxy import removeSecurityProxy
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
 from zope.component import adapts
@@ -120,12 +119,6 @@ class ZodbObject(object):
             self.obj._p_activate()
             self.tid = self.obj._p_serial
 
-    def getTreeURL(self):
-        if hasattr(self.obj, '_p_oid'):
-            return '/zodbtree.html?oid=%d' % u64(self.obj._p_oid)
-        else:
-            return '%s/zodbtree.html' % self.getPath()
-
     def getId(self):
         """Try to determine some kind of name."""
         name = unicode(getattr(self.obj, '__name__', None))
@@ -177,9 +170,8 @@ class ZodbObject(object):
         results = []
         if not isinstance(self.obj, Persistent):
             return results
-        naked = removeSecurityProxy(self.obj)
-        storage = naked._p_jar._storage
-        history = self._gimmeHistory(storage, naked._p_oid, size)
+        storage = self.obj._p_jar._storage
+        history = self._gimmeHistory(storage, self.obj._p_oid, size)
         for n, d in enumerate(history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
                                          time.localtime(d['time']))) + " "
@@ -187,9 +179,9 @@ class ZodbObject(object):
                      + d['description'])
             # other interesting things: d['tid'], d['size']
             if n == 0:
-                url = '/zodbinfo.html?oid=%d' % u64(naked._p_oid)
+                url = '/zodbinfo.html?oid=%d' % u64(self.obj._p_oid)
             else:
-                url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(naked._p_oid),
+                url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
                                                         u64(d['tid']))
             current = d['tid'] == self.tid
             results.append(dict(short=short, href=url, current=current,
@@ -227,11 +219,7 @@ class ZodbObjectState(ZodbObject):
             attrs.append(ZodbObjectAttribute(name=name, value=value))
         return attrs
 
-    def listItems(self):
+    # def listItems(self):
         # XXX: this is bad for BTrees :/
-        return []
-
-    # XXX duplicates listItems somewhat
-    def getMappingItems(self):
-        return []
+        # return []
 
