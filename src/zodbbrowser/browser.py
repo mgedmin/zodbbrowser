@@ -9,7 +9,19 @@ from ZODB.utils import p64
 from zodbbrowser.app import ZodbObject, ZodbObjectState
 
 
-class BaseZodbView(BrowserView):
+class ZodbInfoView(BrowserView):
+    """Zodb info view"""
+
+    adapts(Interface, IBrowserRequest)
+
+    template = ViewPageTemplateFile('templates/zodbinfo.pt')
+
+    def __call__(self):
+        self.update()
+        return self.template()
+
+    def update(self, show_private=False, *args, **kw):
+        pass
 
     def obj(self):
         if 'oid' not in self.request:
@@ -24,34 +36,3 @@ class BaseZodbView(BrowserView):
                 tid = p64(int(self.request['tid']))
                 state = jar.oldstate(obj, tid)
                 return ZodbObjectState(obj, state, tid)
-
-
-class ZodbTreeView(BaseZodbView):
-    """Zodb info view"""
-
-    adapts(Interface, IBrowserRequest)
-
-    template = ViewPageTemplateFile('templates/zodbtree.pt')
-
-    def __call__(self):
-        self.update()
-        return self.template()
-
-    def update(self, show_private=False, *args, **kw):
-        pass
-
-
-class ZodbInfoView(BaseZodbView):
-    """Zodb info view"""
-
-    adapts(Interface, IBrowserRequest)
-
-    template = ViewPageTemplateFile('templates/zodbinfo.pt')
-
-    def __call__(self):
-        self.update()
-        return self.template()
-
-    def update(self, show_private=False, *args, **kw):
-        pass
-

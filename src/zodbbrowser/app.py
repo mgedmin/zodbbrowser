@@ -163,23 +163,6 @@ class ZodbObject(object):
             elems.append(ZodbObjectAttribute(name=key, value=value))
         return elems
 
-    # XXX duplicates listItems somewhat
-    def getMappingItems(self):
-        """Get the elements of a mapping.
-
-        The elements are delivered as a list of dicts, each dict
-        containing the keys ``key``, ``key_string`` (the key as a
-        string), ``value``, ``value_type`` and ``value_type_link``.
-        """
-        elems = []
-        naked = removeSecurityProxy(self.obj)
-        if not hasattr(naked, 'items'):
-            return []
-        for key, value in naked.items():
-            # print str(value)
-            elems.append(ZodbObject(value, False))
-        return elems
-
     def _gimmeHistory(self, storage, oid, size):
         history = None
         # XXX OMG ouch

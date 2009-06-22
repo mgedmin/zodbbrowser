@@ -4,13 +4,6 @@
     i18n_domain='pov'>
 
   <page
-    name="zodbtree.html"
-    class=".browser.ZodbTreeView"
-    for="zope.interface.Interface"
-    permission="zope.ManageContent"
-  />
-
-  <page
     name="zodbinfo.html"
     class=".browser.ZodbInfoView"
     for="zope.interface.Interface"

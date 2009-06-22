@@ -21,22 +21,3 @@
 </html>
 </metal:block>
 
-<metal:block metal:define-macro="object">
-  <div class="object">
-    <h1 tal:content="object/getId" />
-    <h2><b tal:content="object/getPath"/></h2>
-    <h2><i tal:content="object/getType"/></h2>
-    <h2 tal:content="object/getInstanceId" />
-    <a tal:attributes="href string:${object/getPath}zodbinfo.html">[Details]</a>
-    <a tal:attributes="href string:${object/getPath}zodbtree.html"
-        tal:condition="not:object/accessed_directly">[Zoom in]</a>
-    <a href="../zodbtree.html" tal:condition="object/accessed_directly">[Zoom out]</a>
-  </div>
-  <div style="padding-left:20px"
-      tal:repeat="child object/getMappingItems">
-    <tal:block define="object child">
-      <metal:block metal:use-macro="view/@@zodbbrowser_macros/object">
-      </metal:block>
-    </tal:block>
-  </div>
-</metal:block>
