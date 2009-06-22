@@ -131,11 +131,14 @@ class ZodbObject(object):
         return str(getattr(self.obj, '__class__', None))
 
     def getPath(self):
-        path = "/"
+        path = ""
         o = self.obj
         while o is not None:
             if IContainmentRoot.providedBy(o):
-                return path
+                if path is "":
+                    return "/"
+                else:
+                    return path
             path = "/" + ZodbObject(o).getId() + path
             o = getattr(o, '__parent__', None)
         return "/???" + path

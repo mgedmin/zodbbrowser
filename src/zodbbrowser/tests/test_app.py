@@ -35,9 +35,9 @@ class TestZodbObject(unittest.TestCase):
 
     def test_getPath(self):
         self.assertEqual(ZodbObject(self.root).getPath(), '/')
-        self.assertEqual(ZodbObject(self.foo).getPath(), '/foo/')
-        self.assertEqual(ZodbObject(self.foobar).getPath(), '/foo/bar/')
-        self.assertEqual(ZodbObject(self.baz).getPath(), '/???/disembodied/')
+        self.assertEqual(ZodbObject(self.foo).getPath(), '/foo')
+        self.assertEqual(ZodbObject(self.foobar).getPath(), '/foo/bar')
+        self.assertEqual(ZodbObject(self.baz).getPath(), '/???/disembodied')
 
 
 def test_suite():
