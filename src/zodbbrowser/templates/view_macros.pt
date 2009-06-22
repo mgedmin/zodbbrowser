@@ -6,12 +6,17 @@
   <title>ZODB Browser</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <link href="context/++resource++zodbbrowser.css" rel="stylesheet" type="text/css"
         tal:attributes="href context/++resource++zodbbrowser.css" />
 </head>
 <body metal:define-macro="body">
   <div metal:define-slot="content">
   </div>
+  <script type="text/javascript"
+      tal:attributes="src context/++resource++jquery-1.3.2.js"></script>
+  <script type="text/javascript"
+      tal:attributes="src context/++resource++func.js"></script>
 </body>
 </html>
 </metal:block>

@@ -31,4 +31,14 @@
     file="resources/zodbbrowser.css"
   />
 
+  <resource
+    name="jquery-1.3.2.js"
+    file="resources/jquery-1.3.2.js"
+  />
+
+  <resource
+    name="func.js"
+    file="resources/func.js"
+  />
+
 </configure>

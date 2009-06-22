@@ -224,7 +224,7 @@ class ZodbObjectState(ZodbObject):
     def getId(self):
         name = ZodbObject.getId(self)
         if self.tid:
-            name += ' (from transaction %d)' % (u64(self.tid)) 
+            name += ' (from transaction %d)' % (u64(self.tid))
         return name
 
     def getInstanceId(self):
