@@ -40,6 +40,12 @@
             tal:content="string:#${repeat/history/index}"></a>
           <span tal:content="history/short" />
           <br />
+          <!--
+          <tal:block tal:repeat="diff history/state/listDiff">
+            <span tal:content="diff" />
+            <br />
+          </tal:block>
+          -->
         </tal:block>
       </h4>
     </div>

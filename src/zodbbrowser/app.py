@@ -91,8 +91,8 @@ class DictValue(object):
         html = []
         for key, value in sorted(self.context.items()):
             html.append(IValueRenderer(key).render() + ': ' +
-                        IValueRenderer(value).render())
-        return '{%s}' % ', '.join(html)
+                    IValueRenderer(value).render())
+            return '{%s}' % ', '.join(html)
 
 
 class PersistentValue(object):
@@ -168,27 +168,56 @@ class ZodbObject(object):
             history = storage.history(oid, size=size)
         return history
 
+    def _diffDict(self, old, new):
+        if not hasattr(self.obj, '__dict__'):
+            return []
+        """Show the differences between two dicts."""
+        changes = []
+        for key, value in sorted(new.items()):
+            if key not in old or old[key] != new[key]:
+                if isinstance(new[key], dict) and isinstance(old.get(key), dict):
+                    changes.append(key + ': dictionary changed:')
+                    changes.append(self.diffDict(old[key], new[key]))
+                else:
+                    changes.append(key)
+        for key in sorted(old):
+            if key not in new:
+                changes.append(key + ' is gone')
+        return changesa
+
+    def _loadState(self, tid):
+        return self.obj._p_jar.oldstate(self.obj, tid)
+
     def listHistory(self, size=999999999999):
         """List transactions that modified a persistent object."""
+        #XXX(zv): why is this called twice?
         results = []
         if not isinstance(self.obj, Persistent):
             return results
         storage = self.obj._p_jar._storage
         history = self._gimmeHistory(storage, self.obj._p_oid, size)
+
+        #TODO(zv): first transacion, print all dict. Compare with previous
+        # transaction
+        prevtid = None
         for n, d in enumerate(history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
-                                         time.localtime(d['time']))) + " "
-                     + d['user_name'] + " "
-                     + d['description'])
+                time.localtime(d['time']))) + " "
+                + d['user_name'] + " "
+                + d['description'])
             # other interesting things: d['tid'], d['size']
+            diff = []
             if n == 0:
                 url = '/zodbinfo.html?oid=%d' % u64(self.obj._p_oid)
             else:
                 url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
-                                                        u64(d['tid']))
-            current = d['tid'] == self.tid
-            results.append(dict(short=short, href=url, current=current,
-                                **d))
+                        u64(d['tid']))
+                current = d['tid'] == self.tid
+                # diff = self._diffDict(self._loadState(d['tid']),
+                #        self._loadState(prevtid))
+                prevtid = d['tid']
+                results.append(dict(short=short, href=url, current=current,
+                    diff=diff, **d))
         return results
 
 
@@ -216,13 +245,10 @@ class ZodbObjectState(ZodbObject):
     def listAttributes(self):
         if not isinstance(self.state, dict):
             return [ZodbObjectAttribute(name='pickled state',
-                                        value=self.state)]
+                value=self.state)]
         attrs = []
         for name, value in sorted(self.state.items()):
             attrs.append(ZodbObjectAttribute(name=name, value=value))
         return attrs
 
-    # def listItems(self):
-        # XXX: this is bad for BTrees :/
-        # return []
 
