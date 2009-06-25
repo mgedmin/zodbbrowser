@@ -14,6 +14,9 @@ from zope.component import adapts
 from zope.interface import implements
 from zope.interface import Interface
 
+from ZODB.DB import Connection
+from ZODB.FileStorage import FileStorage
+
 
 class IValueRenderer(Interface):
 
@@ -113,6 +116,7 @@ class ZodbObject(object):
 
     def __init__(self, obj, tid=None):
         self.obj = removeAllProxies(obj)
+        self.requestTid = tid
         if tid is None:
             self.current = True
             self.tid = self.obj._p_serial
@@ -121,11 +125,15 @@ class ZodbObject(object):
             else:
                 self.state = {}
         else:
+            # load object state with tid less or equal to given tid
             self.tid = tid
             self.current = False
-            # load object state with tid less or equal to given tid
-            self.state = self.obj._p_jar.oldstate(self.obj, tid)
-        self.requestTid = tid
+            history = self._gimmeHistory()
+            for i, d in enumerate(history):
+                if u64(d['tid']) <= u64(tid):
+                    self.tid = d['tid']
+                    break
+            self.state = self.obj._p_jar.oldstate(self.obj, self.tid)
 
     def getId(self):
         """Try to determine some kind of name."""
@@ -155,7 +163,11 @@ class ZodbObject(object):
                 path = "/" + ZodbObject(o, self.requestTid).getId() + path
             else:
                 path = "/" + ZodbObject(o).getId() + path
+            # TODDO(zv): meditate on this
+#            if self.current:
             o = getattr(o, '__parent__', None)
+#            else:
+#                o = o.state["__parent__"]
         return "/???" + path
 
     def listAttributes(self):
@@ -173,13 +185,15 @@ class ZodbObject(object):
             elems.append(ZodbObjectAttribute(name=key, value=value))
         return elems
 
-    def _gimmeHistory(self, storage, oid, size):
+    def _gimmeHistory(self):
+        storage = self.obj._p_jar._storage
+        oid = self.obj._p_oid
         history = None
         # XXX OMG ouch
         if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
-            history = storage.history(oid, version='', length=size)
+            history = storage.history(oid, version='', length=999999999999)
         else: # FileStorage
-            history = storage.history(oid, size=size)
+            history = storage.history(oid, size=999999999999)
         return history
 
     def _diffDict(self, old, new):
@@ -198,14 +212,13 @@ class ZodbObject(object):
     def _loadState(self, tid):
         return self.obj._p_jar.oldstate(self.obj, tid)
 
-    def listHistory(self, size=999999999999):
+    def listHistory(self):
         """List transactions that modified a persistent object."""
         #XXX(zv): why is this called twice?
         results = []
         if not isinstance(self.obj, Persistent):
             return results
-        storage = self.obj._p_jar._storage
-        history = self._gimmeHistory(storage, self.obj._p_oid, size)
+        history = self._gimmeHistory()
 
         for n, d in enumerate(history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
@@ -225,7 +238,8 @@ class ZodbObject(object):
                         self._loadState(d['tid']))
             else:
                 diff = self._diffDict({}, self._loadState(d['tid']))
-            results.append(dict(short=short, href=url, current=current,
-                diff=diff, **d))
+            results.append(dict(short=short, utid=u64(d['tid']),
+                    href=url, current=current,
+                    diff=diff, **d))
         return results
 
