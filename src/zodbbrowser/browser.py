@@ -6,7 +6,7 @@ from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
 from ZODB.utils import p64
 
-from zodbbrowser.app import ZodbObject, ZodbObjectState
+from zodbbrowser.app import ZodbObject
 
 
 class ZodbInfoView(BrowserView):
@@ -33,6 +33,4 @@ class ZodbInfoView(BrowserView):
             if 'tid' not in self.request:
                 return ZodbObject(obj)
             else:
-                tid = p64(int(self.request['tid']))
-                state = jar.oldstate(obj, tid)
-                return ZodbObjectState(obj, state, tid)
+                return ZodbObject(obj, p64(int(self.request['tid'])))

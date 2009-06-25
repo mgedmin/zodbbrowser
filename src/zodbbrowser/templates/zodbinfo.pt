@@ -4,9 +4,14 @@
 <tal:block define="object view/obj">
   <div class="object">
     <div class="heading">
-      <h1 tal:content="object/getPath"/>
+      <h1>
+        <span tal:content="object/getPath"></span>
+        <span tal:condition="not:object/current"
+            tal:content="string:(from transaction ${object/getTid})" />
+      </h1>
       <h2><i tal:content="object/getType"/></h2>
-      <h2 tal:content="object/getInstanceId" />
+      <h2 tal:condition="object/current"
+          tal:content="object/getInstanceId" />
     </div>
     <div class="attributes" tal:condition="object/listAttributes">
       <h3>Attributes</h3>
@@ -38,14 +43,12 @@
           <span tal:condition="history/current">-&gt;</span>
           <a tal:attributes="href history/href"
             tal:content="string:#${repeat/history/index}"></a>
-          <span tal:content="history/short" />
+          <strong tal:content="history/short" />
           <br />
-          <!--
-          <tal:block tal:repeat="diff history/state/listDiff">
+          <tal:block tal:repeat="diff history/diff">
             <span tal:content="diff" />
             <br />
           </tal:block>
-          -->
         </tal:block>
       </h4>
     </div>

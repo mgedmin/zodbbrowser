@@ -103,6 +103,7 @@ class PersistentValue(object):
         self.context = removeAllProxies(context)
 
     def render(self):
+        # TODO(zv): pass tid to here
         url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
         value = GenericValue(self.context).render()
         return '<a href="%s">%s</a>' % (url, value)
@@ -110,22 +111,33 @@ class PersistentValue(object):
 
 class ZodbObject(object):
 
-    tid = None
-
-    def __init__(self, obj, accessed_directly=True):
-        self.accessed_directly = accessed_directly
+    def __init__(self, obj, tid=None):
         self.obj = removeAllProxies(obj)
-        if isinstance(self.obj, Persistent):
-            self.obj._p_activate()
+        if tid is None:
+            self.current = True
             self.tid = self.obj._p_serial
+            if hasattr(self.obj, '__dict__'):
+                self.state = self.obj.__dict__
+            else:
+                self.state = {}
+        else:
+            self.tid = tid
+            self.current = False
+            # load object state with tid less or equal to given tid
+            self.state = self.obj._p_jar.oldstate(self.obj, tid)
+        self.requestTid = tid
 
     def getId(self):
         """Try to determine some kind of name."""
         name = unicode(getattr(self.obj, '__name__', None))
         return name
 
+    def getTid(self):
+        return u64(self.tid)
+
     def getInstanceId(self):
-        return str(self.obj)
+        instanceId = str(self.obj)
+        return instanceId
 
     def getType(self):
         return str(getattr(self.obj, '__class__', None))
@@ -139,15 +151,17 @@ class ZodbObject(object):
                     return "/"
                 else:
                     return path
-            path = "/" + ZodbObject(o).getId() + path
+            if not self.current:
+                path = "/" + ZodbObject(o, self.requestTid).getId() + path
+            else:
+                path = "/" + ZodbObject(o).getId() + path
             o = getattr(o, '__parent__', None)
         return "/???" + path
 
     def listAttributes(self):
         attrs = []
-        if not hasattr(self.obj, '__dict__'):
-            return attrs
-        for name, value in sorted(self.obj.__dict__.items()):
+
+        for name, value in sorted(self.state.items()):
             attrs.append(ZodbObjectAttribute(name=name, value=value))
         return attrs
 
@@ -169,21 +183,17 @@ class ZodbObject(object):
         return history
 
     def _diffDict(self, old, new):
-        if not hasattr(self.obj, '__dict__'):
-            return []
         """Show the differences between two dicts."""
-        changes = []
+        diffs = []
         for key, value in sorted(new.items()):
-            if key not in old or old[key] != new[key]:
-                if isinstance(new[key], dict) and isinstance(old.get(key), dict):
-                    changes.append(key + ': dictionary changed:')
-                    changes.append(self.diffDict(old[key], new[key]))
-                else:
-                    changes.append(key)
+            if key not in old:
+                diffs.append(['Added', key, value])
+            elif old[key] != value:
+                diffs.append(['Changed', key, value])
         for key in sorted(old):
             if key not in new:
-                changes.append(key + ' is gone')
-        return changesa
+                diffs.append(['Removed', key, value])
+        return diffs
 
     def _loadState(self, tid):
         return self.obj._p_jar.oldstate(self.obj, tid)
@@ -197,9 +207,6 @@ class ZodbObject(object):
         storage = self.obj._p_jar._storage
         history = self._gimmeHistory(storage, self.obj._p_oid, size)
 
-        #TODO(zv): first transacion, print all dict. Compare with previous
-        # transaction
-        prevtid = None
         for n, d in enumerate(history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
                 time.localtime(d['time']))) + " "
@@ -212,43 +219,13 @@ class ZodbObject(object):
             else:
                 url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
                         u64(d['tid']))
-                current = d['tid'] == self.tid
-                # diff = self._diffDict(self._loadState(d['tid']),
-                #        self._loadState(prevtid))
-                prevtid = d['tid']
-                results.append(dict(short=short, href=url, current=current,
-                    diff=diff, **d))
+            current = d['tid'] == self.tid
+            if n < len(history) - 1:
+                diff = self._diffDict(self._loadState(history[n + 1]['tid']),
+                        self._loadState(d['tid']))
+            else:
+                diff = self._diffDict({}, self._loadState(d['tid']))
+            results.append(dict(short=short, href=url, current=current,
+                diff=diff, **d))
         return results
-
-
-class ZodbObjectState(ZodbObject):
-
-    def __init__(self, obj, state, tid=None):
-        ZodbObject.__init__(self, obj)
-        self.state = state
-        self.tid = tid
-
-    def getId(self):
-        name = ZodbObject.getId(self)
-        if self.tid:
-            name += ' (from transaction %d)' % (u64(self.tid))
-        return name
-
-    def getInstanceId(self):
-        res = ZodbObject.getId(self)
-        return res + ' (maybe?)'
-
-    def getPath(self):
-        res = ZodbObject.getPath(self)
-        return res + ' (maybe?)'
-
-    def listAttributes(self):
-        if not isinstance(self.state, dict):
-            return [ZodbObjectAttribute(name='pickled state',
-                value=self.state)]
-        attrs = []
-        for name, value in sorted(self.state.items()):
-            attrs.append(ZodbObjectAttribute(name=name, value=value))
-        return attrs
-
 
