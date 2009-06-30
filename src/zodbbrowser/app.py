@@ -112,7 +112,10 @@ class PersistentValue(object):
         # TODO(zv): pass tid to here
         url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
         value = GenericValue(self.context).render()
-        return '<a href="%s">%s</a>' % (url, value)
+        if self.context.__getstate__() is not None:
+            return '<a href="%s">%s</a>' % (url, value)
+        else:
+            return '%s <strong>(state is None)</strong>' % (value)
 
 
 class IState(Interface):
@@ -222,6 +225,7 @@ class ZodbObject(object):
         else:
             self.tid = history[0]['tid']
             self.requestedTid = self.tid
+            state = self._loadState(self.tid)
             self.state = IState(self._loadState(self.tid))
 
     def getId(self):
