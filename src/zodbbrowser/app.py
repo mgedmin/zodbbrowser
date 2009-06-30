@@ -212,16 +212,16 @@ class ZodbObject(object):
         history = self._gimmeHistory()
         if tid is not None:
             # load object state with tid less or equal to given tid
-            self.tid = tid
             self.current = False
             for i, d in enumerate(history):
                 if u64(d['tid']) <= u64(tid):
                     self.tid = d['tid']
                     break
-            self.state = IState(self._loadState(tid))
+            self.state = IState(self._loadState(self.tid))
             self.current = False
         else:
             self.tid = history[0]['tid']
+            self.requestedTid = self.tid
             self.state = IState(self._loadState(self.tid))
 
     def getId(self):
