@@ -10,4 +10,7 @@
   <adapter factory=".app.ListValue" />
   <adapter factory=".app.DictValue" />
 
+  <adapter factory=".app.DictState" />
+  <adapter factory=".app.BTreeState" />
+
 </configure>

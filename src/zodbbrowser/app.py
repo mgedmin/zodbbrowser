@@ -3,8 +3,11 @@ zodbbrowser application
 """
 
 import inspect
+import pdb
 import time
 from cgi import escape
+
+from BTrees._OOBTree import OOBTree
 
 from ZODB.utils import u64
 from persistent import Persistent
@@ -112,70 +115,145 @@ class PersistentValue(object):
         return '<a href="%s">%s</a>' % (url, value)
 
 
+class IState(Interface):
+    def listAttributes(self):
+        pass
+    def getParent(self):
+        pass
+    def getId(self):
+        pass
+    def diff(self, other):
+        pass
+
+
+def _diff_dicts(this, other):
+        diffs = []
+        for key, value in sorted(this.items()):
+            if key not in other:
+                diffs.append(['Added', key, value])
+            elif other[key] != value:
+                diffs.append(['Changed', key, value])
+        for key in sorted(other):
+            if key not in this:
+                diffs.append(['Removed', key, value])
+        return diffs
+
+
+class BTreeState(object):
+    adapts(tuple)
+    implements(IState)
+
+    def __init__(self, context):
+        self.btree = OOBTree()
+        self.btree.__setstate__(context)
+
+    def getId(self):
+        return '???'
+
+    def getParent(self):
+        return None
+
+    def listAttributes(self):
+        attrs = []
+        for name, value in sorted(self.btree.items()):
+            attrs.append(ZodbObjectAttribute(name=name, value=value))
+        return attrs
+
+    def diff(self, other):
+        if other is None:
+            state = {}
+        else:
+            state = OOBTree()
+            state.__setstate__(other)
+        return _diff_dicts(self.btree, state)
+
+
+class DictState(object):
+    adapts(dict)
+    implements(IState)
+
+    def __init__(self, context):
+        self.context = context
+
+    def getId(self):
+        return self.context['__name__']
+
+    def getParent(self):
+        if '__parent__' in self.context:
+            return self.context['__parent__']
+        else:
+            return None
+
+    def listAttributes(self):
+        attrs = []
+        for name, value in sorted(self.context.items()):
+            attrs.append(ZodbObjectAttribute(name=name, value=value))
+        return attrs
+
+    def diff(self, other):
+        if other is None:
+            other = {}
+        return _diff_dicts(self.context, other)
+
+
 class ZodbObject(object):
 
-    def __init__(self, obj, tid=None):
+    state = None
+    current = True
+    tid = None
+    requestedTid = None
+
+    def __init__(self, obj):
         self.obj = removeAllProxies(obj)
-        self.requestTid = tid
-        if tid is None:
-            self.current = True
-            self.tid = self.obj._p_serial
-            if hasattr(self.obj, '__dict__'):
-                self.state = self.obj.__dict__
-            else:
-                self.state = {}
-        else:
+
+    def load(self, tid=None):
+        """Load current state if no tid is specified"""
+        self.requestedTid = tid
+        history = self._gimmeHistory()
+        if tid is not None:
             # load object state with tid less or equal to given tid
             self.tid = tid
             self.current = False
-            history = self._gimmeHistory()
             for i, d in enumerate(history):
                 if u64(d['tid']) <= u64(tid):
                     self.tid = d['tid']
                     break
-            self.state = self.obj._p_jar.oldstate(self.obj, self.tid)
+            self.state = IState(self._loadState(tid))
+            self.current = False
+        else:
+            self.tid = history[0]['tid']
+            self.state = IState(self._loadState(self.tid))
 
     def getId(self):
-        """Try to determine some kind of name."""
-        name = unicode(getattr(self.obj, '__name__', None))
-        return name
+        return self.state.getId()
+
+    def getObjectId(self):
+        return u64(self.obj._p_oid)
 
     def getTid(self):
         return u64(self.tid)
 
     def getInstanceId(self):
-        instanceId = str(self.obj)
-        return instanceId
+        return str(self.obj)
 
     def getType(self):
         return str(getattr(self.obj, '__class__', None))
 
     def getPath(self):
-        path = ""
-        o = self.obj
-        while o is not None:
-            if IContainmentRoot.providedBy(o):
-                if path is "":
-                    return "/"
-                else:
-                    return path
-            if not self.current:
-                path = "/" + ZodbObject(o, self.requestTid).getId() + path
+        if IContainmentRoot.providedBy(self.obj):
+            path = "/ROOT"
+        else:
+            parent = self.state.getParent()
+            if parent is None:
+                path = "/???"
             else:
-                path = "/" + ZodbObject(o).getId() + path
-            # TODDO(zv): meditate on this
-#            if self.current:
-            o = getattr(o, '__parent__', None)
-#            else:
-#                o = o.state["__parent__"]
-        return "/???" + path
+                po = ZodbObject(parent)
+                po.load(self.requestedTid)
+                path = po.getPath() + "/" + self.state.getId()
+        return path
 
     def listAttributes(self):
-        attrs = []
-
-        for name, value in sorted(self.state.items()):
-            attrs.append(ZodbObjectAttribute(name=name, value=value))
-        return attrs
+        return self.state.listAttributes()
 
     def listItems(self):
         elems = []
@@ -196,19 +274,6 @@ class ZodbObject(object):
             history = storage.history(oid, size=999999999999)
         return history
 
-    def _diffDict(self, old, new):
-        """Show the differences between two dicts."""
-        diffs = []
-        for key, value in sorted(new.items()):
-            if key not in old:
-                diffs.append(['Added', key, value])
-            elif old[key] != value:
-                diffs.append(['Changed', key, value])
-        for key in sorted(old):
-            if key not in new:
-                diffs.append(['Removed', key, value])
-        return diffs
-
     def _loadState(self, tid):
         return self.obj._p_jar.oldstate(self.obj, tid)
 
@@ -227,19 +292,19 @@ class ZodbObject(object):
                 + d['description'])
             # other interesting things: d['tid'], d['size']
             diff = []
-            if n == 0:
-                url = '/zodbinfo.html?oid=%d' % u64(self.obj._p_oid)
-            else:
-                url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
+            url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
                         u64(d['tid']))
             current = d['tid'] == self.tid
-            if n < len(history) - 1:
-                diff = self._diffDict(self._loadState(history[n + 1]['tid']),
-                        self._loadState(d['tid']))
-            else:
-                diff = self._diffDict({}, self._loadState(d['tid']))
-            results.append(dict(short=short, utid=u64(d['tid']),
-                    href=url, current=current,
-                    diff=diff, **d))
+            s = self._loadState(d['tid'])
+            # First state of BTrees is None
+            if s is not None:
+                if n < len(history) - 1:
+                    diff = IState(s).diff(
+                                  self._loadState(history[n + 1]['tid']))
+                else:
+                    diff = IState(s).diff(None)
+                results.append(dict(short=short, utid=u64(d['tid']),
+                        href=url, current=current,
+                        diff=diff, **d))
         return results
 

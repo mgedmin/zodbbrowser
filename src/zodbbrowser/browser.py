@@ -24,13 +24,18 @@ class ZodbInfoView(BrowserView):
         pass
 
     def obj(self):
+        obj = None
+
         if 'oid' not in self.request:
-            return ZodbObject(self.context)
+            obj = ZodbObject(self.context)
         else:
             oid = p64(int(self.request['oid']))
             jar = removeSecurityProxy(self.context)._p_jar
-            obj = jar.get(oid)
-            if 'tid' not in self.request:
-                return ZodbObject(obj)
-            else:
-                return ZodbObject(obj, p64(int(self.request['tid'])))
+            obj = ZodbObject(jar.get(oid))
+
+        if 'tid' not in self.request:
+            obj.load()
+        else:
+            obj.load(p64(int(self.request['tid'])))
+
+        return obj
