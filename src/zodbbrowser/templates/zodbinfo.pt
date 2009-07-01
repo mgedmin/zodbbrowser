@@ -47,6 +47,9 @@
       <h3>History</h3>
       <input type="button" value="-" onclick="expand(this)" />
       <h4>
+        <span tal:condition="not:object/getRequestedTid">-&gt;</span>
+        <a tal:attributes="href string:zodbinfo.html?oid=${object/getObjectId}"
+           tal:content="string:Head"/><br />
         <tal:block tal:repeat="history object/listHistory">
           <span tal:condition="history/current">-&gt;</span>
           <a tal:attributes="href history/href"

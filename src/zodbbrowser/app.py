@@ -118,7 +118,7 @@ class PersistentValue(object):
         if self.tid is not None:
             url += "&tid=" + str(u64(self.tid))
         value = GenericValue(self.context).render()
-        state = self.context.__getstate__()
+        state = _loadState(self.context, self.tid)
         if isinstance(state, int):
             return '%s <strong>(value is %d)</strong>' % (value, state)
         if state is None:
@@ -202,12 +202,37 @@ class DictState(object):
         return _diff_dicts(self.context, other)
 
 
+def _loadState(obj, tid=None):
+    history = _gimmeHistory(obj)
+    if tid is None:
+        tid = history[0]['tid']
+    else:
+        for i, d in enumerate(history):
+            if u64(d['tid']) <= u64(tid):
+                tid = d['tid']
+                break
+    return obj._p_jar.oldstate(obj, tid)
+
+
+def _gimmeHistory(obj):
+        storage = obj._p_jar._storage
+        oid = obj._p_oid
+        history = None
+        # XXX OMG ouch
+        if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
+            history = storage.history(oid, version='', length=999999999999)
+        else: # FileStorage
+            history = storage.history(oid, size=999999999999)
+        return history
+
+
 class ZodbObject(object):
 
     state = None
     current = True
     tid = None
     requestedTid = None
+    history = None
 
     def __init__(self, obj):
         self.obj = removeAllProxies(obj)
@@ -215,19 +240,19 @@ class ZodbObject(object):
     def load(self, tid=None):
         """Load current state if no tid is specified"""
         self.requestedTid = tid
-        history = self._gimmeHistory()
+        self.history = _gimmeHistory(self.obj)
         if tid is not None:
             # load object state with tid less or equal to given tid
             self.current = False
-            for i, d in enumerate(history):
+            for i, d in enumerate(self.history):
                 if u64(d['tid']) <= u64(tid):
                     self.tid = d['tid']
                     break
             self.current = False
         else:
-            self.tid = history[0]['tid']
+            self.tid = self.history[0]['tid']
         loadedState = self._loadState(self.tid)
-        print loadedState.__class__
+#        print loadedState.__class__
         self.state = IState(loadedState)
 
     def getName(self):
@@ -240,7 +265,10 @@ class ZodbObject(object):
         return u64(self.tid)
 
     def getRequestedTid(self):
-        return u64(self.requestedTid)
+        if self.requestedTid is None:
+            return self.requestedTid
+        else:
+            return u64(self.requestedTid)
 
     def getInstanceId(self):
         return str(self.obj)
@@ -281,17 +309,6 @@ class ZodbObject(object):
 #            elems.append(ZodbObjectAttribute(name=key, value=value))
 #        return elems
 
-    def _gimmeHistory(self):
-        storage = self.obj._p_jar._storage
-        oid = self.obj._p_oid
-        history = None
-        # XXX OMG ouch
-        if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
-            history = storage.history(oid, version='', length=999999999999)
-        else: # FileStorage
-            history = storage.history(oid, size=999999999999)
-        return history
-
     def _loadState(self, tid):
         return self.obj._p_jar.oldstate(self.obj, tid)
 
@@ -301,9 +318,8 @@ class ZodbObject(object):
         results = []
         if not isinstance(self.obj, Persistent):
             return results
-        history = self._gimmeHistory()
 
-        for n, d in enumerate(history):
+        for n, d in enumerate(self.history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
                 time.localtime(d['time']))) + " "
                 + d['user_name'] + " "
@@ -312,13 +328,13 @@ class ZodbObject(object):
             diff = []
             url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
                         u64(d['tid']))
-            current = d['tid'] == self.tid
+            current = d['tid'] == self.tid and self.requestedTid is not None
             s = self._loadState(d['tid'])
             # First state of BTrees is None
             if s is not None:
-                if n < len(history) - 1:
+                if n < len(self.history) - 1:
                     diff = IState(s).diff(
-                                  self._loadState(history[n + 1]['tid']))
+                                  self._loadState(self.history[n + 1]['tid']))
                 else:
                     diff = IState(s).diff(None)
                 results.append(dict(short=short, utid=u64(d['tid']),
