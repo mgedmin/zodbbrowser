@@ -5,7 +5,7 @@
   <include file="browser.zcml" />
 
   <adapter factory=".app.GenericValue" />
-  <adapter factory=".app.PersistentValue" />
+  <!--<adapter factory=".app.PersistentValue" />-->
   <adapter factory=".app.TupleValue" />
   <adapter factory=".app.ListValue" />
   <adapter factory=".app.DictValue" />

@@ -6,7 +6,14 @@
     <tal:block tal:condition="object/state" define="state object/state">
       <div class="heading">
         <h1>
-          <span tal:content="object/getPath"></span>
+          <span tal:content="object/getPath"></span><br/>
+          <span tal:condition="not:object/current"
+                tal:content="string:From transaction ${object/getTid}"
+                style="color:white"/>
+          <br/>
+          <span tal:condition="not:object/current"
+                tal:content="string:Aligned to transaction ${object/getRequestedTid}"
+                style="color:white"/>
         </h1>
         <h2><i tal:content="object/getType"/></h2>
       </div>

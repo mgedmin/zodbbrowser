@@ -8,6 +8,7 @@ import time
 from cgi import escape
 
 from BTrees._OOBTree import OOBTree
+from BTrees.Length import Length
 
 from ZODB.utils import u64
 from persistent import Persistent
@@ -29,14 +30,17 @@ class IValueRenderer(Interface):
 
 class ZodbObjectAttribute(object):
 
-    def __init__(self, name, value):
+    def __init__(self, name, value, tid=None):
         self.name = name
         self.value = value
+        self.tid = tid
 
     def rendered_name(self):
         return IValueRenderer(self.name).render()
 
     def rendered_value(self):
+        if isinstance(self.value, Persistent):
+            return PersistentValue(self.value, self.tid).render()
         return IValueRenderer(self.value).render()
 
 
@@ -102,20 +106,25 @@ class DictValue(object):
 
 
 class PersistentValue(object):
-    adapts(Persistent)
+#    adapts(Persistent)
     implements(IValueRenderer)
 
-    def __init__(self, context):
+    def __init__(self, context, tid):
         self.context = removeAllProxies(context)
+        self.tid = tid
 
     def render(self):
-        # TODO(zv): pass tid to here
         url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
+        if self.tid is not None:
+            url += "&tid=" + str(u64(self.tid))
         value = GenericValue(self.context).render()
-        if self.context.__getstate__() is not None:
-            return '<a href="%s">%s</a>' % (url, value)
-        else:
+        state = self.context.__getstate__()
+        if isinstance(state, int):
+            return '%s <strong>(value is %d)</strong>' % (value, state)
+        if state is None:
             return '%s <strong>(state is None)</strong>' % (value)
+        else:
+            return '<a href="%s">%s</a>' % (url, value)
 
 
 class IState(Interface):
@@ -123,7 +132,7 @@ class IState(Interface):
         pass
     def getParent(self):
         pass
-    def getId(self):
+    def getName(self):
         pass
     def diff(self, other):
         pass
@@ -150,17 +159,14 @@ class BTreeState(object):
         self.btree = OOBTree()
         self.btree.__setstate__(context)
 
-    def getId(self):
+    def getName(self):
         return '???'
 
     def getParent(self):
         return None
 
     def listAttributes(self):
-        attrs = []
-        for name, value in sorted(self.btree.items()):
-            attrs.append(ZodbObjectAttribute(name=name, value=value))
-        return attrs
+        return self.btree.items()
 
     def diff(self, other):
         if other is None:
@@ -178,7 +184,7 @@ class DictState(object):
     def __init__(self, context):
         self.context = context
 
-    def getId(self):
+    def getName(self):
         return self.context['__name__']
 
     def getParent(self):
@@ -188,10 +194,7 @@ class DictState(object):
             return None
 
     def listAttributes(self):
-        attrs = []
-        for name, value in sorted(self.context.items()):
-            attrs.append(ZodbObjectAttribute(name=name, value=value))
-        return attrs
+        return self.context.items()
 
     def diff(self, other):
         if other is None:
@@ -220,22 +223,24 @@ class ZodbObject(object):
                 if u64(d['tid']) <= u64(tid):
                     self.tid = d['tid']
                     break
-            self.state = IState(self._loadState(self.tid))
             self.current = False
         else:
             self.tid = history[0]['tid']
-            self.requestedTid = self.tid
-            state = self._loadState(self.tid)
-            self.state = IState(self._loadState(self.tid))
+        loadedState = self._loadState(self.tid)
+        print loadedState.__class__
+        self.state = IState(loadedState)
 
-    def getId(self):
-        return self.state.getId()
+    def getName(self):
+        return self.state.getName()
 
     def getObjectId(self):
         return u64(self.obj._p_oid)
 
     def getTid(self):
         return u64(self.tid)
+
+    def getRequestedTid(self):
+        return u64(self.requestedTid)
 
     def getInstanceId(self):
         return str(self.obj)
@@ -253,19 +258,28 @@ class ZodbObject(object):
             else:
                 po = ZodbObject(parent)
                 po.load(self.requestedTid)
-                path = po.getPath() + "/" + self.state.getId()
+                path = po.getPath() + "/" + self.state.getName()
         return path
 
     def listAttributes(self):
-        return self.state.listAttributes()
+        dictionary = self.state.listAttributes()
+        attrs = []
+        if self.current:
+            tid = None
+        else:
+            tid = self.tid
+        for name, value in sorted(dictionary):
+            attrs.append(ZodbObjectAttribute(name=name, value=value,
+                         tid=self.requestedTid))
+        return attrs
 
-    def listItems(self):
-        elems = []
-        if not hasattr(self.obj, 'items'):
-            return []
-        for key, value in sorted(self.obj.items()):
-            elems.append(ZodbObjectAttribute(name=key, value=value))
-        return elems
+#    def listItems(self):
+#        elems = []
+#        if not hasattr(self.obj, 'items'):
+#            return []
+#        for key, value in sorted(self.obj.items()):
+#            elems.append(ZodbObjectAttribute(name=key, value=value))
+#        return elems
 
     def _gimmeHistory(self):
         storage = self.obj._p_jar._storage
