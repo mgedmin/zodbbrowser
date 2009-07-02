@@ -272,9 +272,6 @@ class ZodbObject(object):
         else:
             return u64(self.requestedTid)
 
-    def getInstanceId(self):
-        return str(self.obj)
-
     def getType(self):
         return str(getattr(self.obj, '__class__', None))
 
@@ -302,14 +299,6 @@ class ZodbObject(object):
             attrs.append(ZodbObjectAttribute(name=name, value=value,
                          tid=self.requestedTid))
         return attrs
-
-#    def listItems(self):
-#        elems = []
-#        if not hasattr(self.obj, 'items'):
-#            return []
-#        for key, value in sorted(self.obj.items()):
-#            elems.append(ZodbObjectAttribute(name=key, value=value))
-#        return elems
 
     def _loadState(self, tid):
         return self.obj._p_jar.oldstate(self.obj, tid)

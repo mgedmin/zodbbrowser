@@ -69,16 +69,8 @@ def tearDown(test):
     test.db.close()
 
 
-def doctest_Transactions():
-    """Test for transaction testing
-
-        >>> pass
-
-    """
-
-
-def doctest_Properties():
-    """Test for properties testing
+def doctest_ZodbOBject():
+    """Create some ZodbObjects
 
         >>> o1 = ZodbObject(dbroot.data)
         >>> o1.load()
@@ -106,6 +98,13 @@ def doctest_Properties():
         u'/ROOT/item2'
         >>> o4.getPath()
         u'/ROOT/item2/item2.1'
+
+    List attributes
+
+        >>> [a.name for a in o1.listAttributes()]
+        ['key1', 'key2', 'key3']
+        >>> [a.name for a in o2.listAttributes()]
+        ['_BTreeContainer__len', '_SampleContainer__data', '__name__', '__parent__']
 
     """
 
