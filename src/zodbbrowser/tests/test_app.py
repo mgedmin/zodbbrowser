@@ -18,6 +18,7 @@ from zope.traversing.interfaces import IContainmentRoot
 
 from zope.testing import doctest
 
+from zodbbrowser.app import _gimmeHistory
 from zodbbrowser.app import ZodbObject
 from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
                             OOBTreeState, GenericState
@@ -105,6 +106,25 @@ def doctest_ZodbOBject():
         ['key1', 'key2', 'key3']
         >>> [a.name for a in o2.listAttributes()]
         ['_BTreeContainer__len', '_SampleContainer__data', '__name__', '__parent__']
+
+    Test history functions
+
+        >>> dbroot.data['key4'] = "new value"
+        >>> transaction.commit()
+        >>> del dbroot.data['key2']
+        >>> transaction.commit()
+        >>> [a.name for a in o1.listAttributes()]
+        ['key1', 'key2', 'key3']
+        >>> o1.load()
+        >>> [a.name for a in o1.listAttributes()]
+        ['key1', 'key3', 'key4']
+
+        >>> history = _gimmeHistory(o1.obj)
+        >>> len(history)
+        3
+        >>> o1.load(history[1]['tid'])
+        >>> [a.name for a in o1.listAttributes()]
+        ['key1', 'key2', 'key3', 'key4']
 
     """
 
