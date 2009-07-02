@@ -17,7 +17,7 @@ from zope.testing import doctest
 
 from zodbbrowser.app import ZodbObject
 from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
-                            BTreeState, DictState
+                            OOBTreeState, GenericState
 
 
 class RootFolderStub(SampleContainer):
@@ -55,8 +55,8 @@ def setUp(test):
     provideAdapter(TupleValue)
     provideAdapter(DictValue)
     provideAdapter(ListValue)
-    provideAdapter(BTreeState)
-    provideAdapter(DictState)
+    provideAdapter(OOBTreeState)
+    provideAdapter(GenericState)
 
     root = RootFolderStub()
     root['item1'] = BTreeContainerStub()
@@ -96,7 +96,7 @@ def doctest_Properties():
     """Test for properties testing
 
         >>> o1 = ZodbObject(dbroot.data)
-        >>> o1.load()
+        >>> # o1.load()
         >>> o2 = ZodbObject(dbroot['item2'])
         >>> o2.load()
         >>> o3 = ZodbObject(dbroot[u'\N{SNOWMAN}'])
@@ -104,8 +104,8 @@ def doctest_Properties():
 
     Test name property
 
-        >>> o1.getName()
-        '???'
+    >>> # o1.getName()
+    '???'
         >>> o2.getName()
         u'item2'
         >>> u'\N{SNOWMAN}' == o3.getName()

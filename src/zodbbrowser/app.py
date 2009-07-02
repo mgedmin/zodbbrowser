@@ -14,7 +14,7 @@ from ZODB.utils import u64
 from persistent import Persistent
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
-from zope.component import adapts
+from zope.component import adapts, getMultiAdapter
 from zope.interface import implements
 from zope.interface import Interface
 
@@ -151,13 +151,13 @@ def _diff_dicts(this, other):
         return diffs
 
 
-class BTreeState(object):
-    adapts(tuple)
+class OOBTreeState(object):
+    adapts(OOBTree, tuple)
     implements(IState)
 
-    def __init__(self, context):
+    def __init__(self, type, state):
         self.btree = OOBTree()
-        self.btree.__setstate__(context)
+        self.btree.__setstate__(state)
 
     def getName(self):
         return '???'
@@ -177,12 +177,12 @@ class BTreeState(object):
         return _diff_dicts(self.btree, state)
 
 
-class DictState(object):
-    adapts(dict)
+class GenericState(object):
+    adapts(Interface, dict)
     implements(IState)
 
-    def __init__(self, context):
-        self.context = context
+    def __init__(self, type, state):
+        self.context = state
 
     def getName(self):
         return self.context['__name__']
@@ -252,7 +252,7 @@ class ZodbObject(object):
         else:
             self.tid = self.history[0]['tid']
         loadedState = self._loadState(self.tid)
-        self.state = IState(loadedState)
+        self.state = getMultiAdapter((self.obj, loadedState), IState)
 
     def getName(self):
         return self.state.getName()
@@ -331,11 +331,12 @@ class ZodbObject(object):
             s = self._loadState(d['tid'])
             # First state of BTrees is None
             if s is not None:
+                s = getMultiAdapter((self.obj, s), IState)
                 if n < len(self.history) - 1:
-                    diff = IState(s).diff(
+                    diff = s.diff(
                                   self._loadState(self.history[n + 1]['tid']))
                 else:
-                    diff = IState(s).diff(None)
+                    diff = s.diff(None)
                 results.append(dict(short=short, utid=u64(d['tid']),
                         href=url, current=current,
                         diff=diff, **d))
