@@ -4,10 +4,13 @@ from persistent import Persistent
 from BTrees.OOBTree import OOBTree
 from ZODB.FileStorage import FileStorage
 from ZODB import DB
+from zope.app.component.site import SiteManagerContainer
 from zope.app.container.btree import BTreeContainer
 from zope.app.container.sample import SampleContainer
 from zope.app.container.interfaces import IContained
 from zope.app.container.interfaces import IContainer
+from zope.app.folder.interfaces import IFolder
+from zope.app.folder import Folder
 from zope.app.interface import Interface
 from zope.component import provideAdapter
 from zope.interface import implements
@@ -20,30 +23,12 @@ from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
                             OOBTreeState, GenericState
 
 
-class RootFolderStub(SampleContainer):
+class RootFolderStub(BTreeContainer):
     implements(IContainmentRoot)
 
 
-class IPersistentStub(IContainer, IContained):
+class PersistentStub(BTreeContainer):
     pass
-
-
-class IBTreeContainerStub(IContainer, IContained):
-    pass
-
-
-class PersistentStub(SampleContainer, Persistent):
-    implements(IPersistentStub)
-
-    def __init__(self):
-        SampleContainer.__init__(self)
-
-
-class BTreeContainerStub(BTreeContainer):
-    implements(IBTreeContainerStub)
-
-    def __init__(self):
-        BTreeContainer.__init__(self)
 
 
 def setUp(test):
@@ -59,7 +44,7 @@ def setUp(test):
     provideAdapter(GenericState)
 
     root = RootFolderStub()
-    root['item1'] = BTreeContainerStub()
+    root['item1'] = PersistentStub()
     root['item2'] = PersistentStub()
     root[u'\N{SNOWMAN}'] = PersistentStub()
     root['item2']['item2.1'] = PersistentStub()
@@ -73,9 +58,9 @@ def setUp(test):
     root.data = sampleTree
 #
     test.connection.root()['test_app'] = root
+    transaction.commit()
 
     test.globs['dbroot'] = root
-    transaction.commit()
 #    pdb.set_trace()
 
 
@@ -96,29 +81,33 @@ def doctest_Properties():
     """Test for properties testing
 
         >>> o1 = ZodbObject(dbroot.data)
-        >>> # o1.load()
+        >>> o1.load()
         >>> o2 = ZodbObject(dbroot['item2'])
         >>> o2.load()
         >>> o3 = ZodbObject(dbroot[u'\N{SNOWMAN}'])
         >>> o3.load()
+        >>> o4 = ZodbObject(dbroot['item2']['item2.1'])
+        >>> o4.load()
 
     Test name property
 
-    >>> # o1.getName()
-    '???'
+        >>> o1.getName()
+        '???'
         >>> o2.getName()
         u'item2'
         >>> u'\N{SNOWMAN}' == o3.getName()
         True
 
+    Test path property
+
+        >>> o1.getPath()
+        '/???'
+        >>> o2.getPath()
+        u'/ROOT/item2'
+        >>> o4.getPath()
+        u'/ROOT/item2/item2.1'
+
     """
-
-
-#    def test_getPath(self):
-#        self.assertEqual(ZodbObject(self.root).getPath(), ' / ROOT')
-#        self.assertEqual(ZodbObject(self.foo).getPath(), ' / ROOT / foo')
-#        self.assertEqual(ZodbObject(self.foobar).getPath(), ' / ROOT / foo / bar')
-#        self.assertEqual(ZodbObject(self.baz).getPath(), ' / ??? / disembodied')
 
 
 def test_suite():

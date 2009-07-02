@@ -185,7 +185,10 @@ class GenericState(object):
         self.context = state
 
     def getName(self):
-        return self.context['__name__']
+        if '__name__' in self.context:
+            return self.context['__name__']
+        else:
+            return "???"
 
     def getParent(self):
         if '__parent__' in self.context:
