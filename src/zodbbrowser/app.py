@@ -252,7 +252,6 @@ class ZodbObject(object):
         else:
             self.tid = self.history[0]['tid']
         loadedState = self._loadState(self.tid)
-#        print loadedState.__class__
         self.state = IState(loadedState)
 
     def getName(self):
