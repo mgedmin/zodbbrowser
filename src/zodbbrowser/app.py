@@ -8,7 +8,6 @@ import time
 from cgi import escape
 
 from BTrees._OOBTree import OOBTree
-from BTrees.Length import Length
 
 from ZODB.utils import u64
 from persistent import Persistent
@@ -17,9 +16,6 @@ from zope.proxy import removeAllProxies
 from zope.component import adapts, getMultiAdapter
 from zope.interface import implements
 from zope.interface import Interface
-
-from ZODB.DB import Connection
-from ZODB.FileStorage import FileStorage
 
 
 class IValueRenderer(Interface):
