@@ -20,7 +20,7 @@ from zope.interface import Interface
 
 class IValueRenderer(Interface):
 
-    def render(self):
+    def render(self, tid=None):
         """Render object value to HTML."""
 
 
@@ -32,12 +32,10 @@ class ZodbObjectAttribute(object):
         self.tid = tid
 
     def rendered_name(self):
-        return IValueRenderer(self.name).render()
+        return IValueRenderer(self.name).render(self.tid)
 
     def rendered_value(self):
-        if isinstance(self.value, Persistent):
-            return PersistentValue(self.value, self.tid).render()
-        return IValueRenderer(self.value).render()
+        return IValueRenderer(self.value).render(self.tid)
 
 
 class GenericValue(object):
@@ -47,7 +45,7 @@ class GenericValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self, limit=200):
+    def render(self, tid=None, limit=200):
         text = repr(self.context)
         if len(text) > limit:
             text = escape(text[:limit]) + '<span class="truncated">...</span>'
@@ -63,7 +61,7 @@ class TupleValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self):
+    def render(self, tid=None):
         html = []
         for item in self.context:
             html.append(IValueRenderer(item).render())
@@ -79,7 +77,7 @@ class ListValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self):
+    def render(self, tid=None):
         html = []
         for item in self.context:
             html.append(IValueRenderer(item).render())
@@ -93,7 +91,7 @@ class DictValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self):
+    def render(self, tid=None):
         html = []
         for key, value in sorted(self.context.items()):
             html.append(IValueRenderer(key).render() + ': ' +
@@ -102,19 +100,18 @@ class DictValue(object):
 
 
 class PersistentValue(object):
-#    adapts(Persistent)
+    adapts(Persistent)
     implements(IValueRenderer)
 
-    def __init__(self, context, tid):
+    def __init__(self, context):
         self.context = removeAllProxies(context)
-        self.tid = tid
 
-    def render(self):
+    def render(self, tid=None):
         url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
-        if self.tid is not None:
-            url += "&tid=" + str(u64(self.tid))
+        if tid is not None:
+            url += "&tid=" + str(u64(tid))
         value = GenericValue(self.context).render()
-        state = _loadState(self.context, self.tid)
+        state = _loadState(self.context, tid)
         if isinstance(state, int):
             return '%s <strong>(value is %d)</strong>' % (value, state)
         if state is None:
@@ -135,15 +132,15 @@ class IState(Interface):
 
 
 def _diff_dicts(this, other):
-        diffs = []
+        diffs = {}
         for key, value in sorted(this.items()):
             if key not in other:
-                diffs.append(['Added', key, value])
+                diffs[key] = ['Added', value]
             elif other[key] != value:
-                diffs.append(['Changed', key, value])
+                diffs[key] = ['Changed', value]
         for key in sorted(other):
             if key not in this:
-                diffs.append(['Removed', key, value])
+                diffs[key] = ['Removed', value]
         return diffs
 
 
@@ -299,7 +296,7 @@ class ZodbObject(object):
     def _loadState(self, tid):
         return self.obj._p_jar.oldstate(self.obj, tid)
 
-    def listHistory(self):
+    def listHistory(self, keyFilter=None):
         """List transactions that modified a persistent object."""
         #XXX(zv): why is this called twice?
         results = []
@@ -325,8 +322,9 @@ class ZodbObject(object):
                                   self._loadState(self.history[n + 1]['tid']))
                 else:
                     diff = s.diff(None)
-                results.append(dict(short=short, utid=u64(d['tid']),
-                        href=url, current=current,
-                        diff=diff, **d))
+                if keyFilter is None or keyFilter in diff:
+                    results.append(dict(short=short, utid=u64(d['tid']),
+                            href=url, current=current,
+                            diff=diff, keyFilter=keyFilter, ** d))
         return results
 

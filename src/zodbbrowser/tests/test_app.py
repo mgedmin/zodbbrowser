@@ -21,7 +21,7 @@ from zope.testing import doctest
 from zodbbrowser.app import _gimmeHistory
 from zodbbrowser.app import ZodbObject
 from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
-                            OOBTreeState, GenericState
+                            PersistentValue, OOBTreeState, GenericState
 
 
 class RootFolderStub(BTreeContainer):
@@ -41,6 +41,7 @@ def setUp(test):
     provideAdapter(TupleValue)
     provideAdapter(DictValue)
     provideAdapter(ListValue)
+    provideAdapter(PersistentValue)
     provideAdapter(OOBTreeState)
     provideAdapter(GenericState)
 
