@@ -7,12 +7,12 @@
       <h1>
         <span tal:content="object/getPath"></span><br/>
         <span tal:condition="not:object/current"
-              tal:content="string:From transaction ${view/getObjectTid}"
+              tal:content="string:at ${view/getObjectTidNice}"
               style="color:white"/>
         <br/>
         <span tal:condition="not:object/current"
-              tal:content="string:Aligned to transaction
-                  ${view/getObjectRequestedTid}"
+              tal:content="string:(last change before or at
+                                   ${view/getObjectRequestedTidNice})"
               style="color:white"/>
       </h1>
       <h2><i tal:content="view/getObjectType" /></h2>
@@ -39,12 +39,12 @@
       <input type="button" value="-" onclick="expand(this)" />
       <h4>
         <span tal:condition="not:view/getObjectRequestedTid">-&gt;</span>
-        <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}"
-           tal:content="string:Head"/><br />
+        <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}">
+            Latest</a><br />
         <tal:block tal:repeat="history history">
           <span tal:condition="history/current">-&gt;</span>
           <a tal:attributes="href history/href"
-            tal:content="string:#${repeat/history/index} (${history/utid})"></a>
+            tal:content="string:#${repeat/history/index}"></a>
           <strong tal:content="history/short" />
           <br />
           <tal:block tal:repeat="diff history/diff">

@@ -4,8 +4,8 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
 from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
-from ZODB.utils import p64
-from ZODB.utils import u64
+from ZODB.utils import p64, u64, tid_repr
+from persistent.TimeStamp import TimeStamp
 
 from zodbbrowser.app import ZodbObject
 
@@ -47,11 +47,25 @@ class ZodbInfoView(BrowserView):
     def getObjectTid(self):
         return u64(self.obj.tid)
 
+    def getObjectTidNice(self):
+        return self.tidToTimestamp(self.obj.tid)
+
     def getObjectRequestedTid(self):
         if self.obj.requestedTid is None:
             return None
         else:
             return u64(self.obj.requestedTid)
 
+    def getObjectRequestedTidNice(self):
+        if self.obj.requestedTid is None:
+            return None
+        else:
+            return self.tidToTimestamp(self.obj.requestedTid)
+
     def getObjectType(self):
         return str(getattr(self.obj.obj, '__class__', None))
+
+    def tidToTimestamp(self, tid):
+        if isinstance(tid, str) and len(tid) == 8:
+            return str(TimeStamp(tid))
+        return tid_repr(tid)
