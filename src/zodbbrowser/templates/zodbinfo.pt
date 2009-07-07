@@ -8,14 +8,15 @@
         <h1>
           <span tal:content="object/getPath"></span><br/>
           <span tal:condition="not:object/current"
-                tal:content="string:From transaction ${object/getTid}"
+                tal:content="string:From transaction ${view/getObjectTid}"
                 style="color:white"/>
           <br/>
           <span tal:condition="not:object/current"
-                tal:content="string:Aligned to transaction ${object/getRequestedTid}"
+                tal:content="string:Aligned to transaction
+                    ${view/getObjectRequestedTid}"
                 style="color:white"/>
         </h1>
-        <h2><i tal:content="object/getType"/></h2>
+        <h2><i tal:content="view/getObjectType"/></h2>
       </div>
       <div class="attributes" tal:condition="object/listAttributes">
         <h3>Attributes</h3>
@@ -28,27 +29,14 @@
           </tal:block>
         </h4>
       </div>
-      <!--
-      <div class="items" tal:condition="object/listItems">
-        <h3>Items</h3>
-        <input type="button" value="-" onclick="expand(this)" />
-        <h4>
-          <tal:block tal:repeat="attr object/listItems">
-            <strong tal:content="structure attr/rendered_name" />:
-            <span tal:content="structure attr/rendered_value" />
-            <br />
-          </tal:block>
-        </h4>
-      </div>
-      -->
     </tal:block>
 
     <div class="history" tal:condition="object/listHistory">
       <h3>History</h3>
       <input type="button" value="-" onclick="expand(this)" />
       <h4>
-        <span tal:condition="not:object/getRequestedTid">-&gt;</span>
-        <a tal:attributes="href string:zodbinfo.html?oid=${object/getObjectId}"
+        <span tal:condition="not:view/getObjectRequestedTid">-&gt;</span>
+        <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}"
            tal:content="string:Head"/><br />
         <tal:block tal:repeat="history object/listHistory">
           <span tal:condition="history/current">-&gt;</span>

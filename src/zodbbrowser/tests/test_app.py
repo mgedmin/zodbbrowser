@@ -2,6 +2,8 @@ import pdb
 import transaction
 from persistent import Persistent
 from BTrees.OOBTree import OOBTree
+from ZODB.DemoStorage import DemoStorage
+from ZODB.MappingStorage import MappingStorage
 from ZODB.FileStorage import FileStorage
 from ZODB import DB
 from zope.app.component.site import SiteManagerContainer
@@ -33,6 +35,7 @@ class PersistentStub(BTreeContainer):
 
 
 def setUp(test):
+#    storage = MappingStorage("mapping")
     storage = FileStorage("test.fs")
     test.db = DB(storage)
     test.connection = test.db.open()

@@ -20,7 +20,7 @@ from zope.interface import Interface
 
 class IValueRenderer(Interface):
 
-    def render(self, tid=None):
+    def render(self):
         """Render object value to HTML."""
 
 
@@ -219,6 +219,7 @@ def _gimmeHistory(obj):
             history = storage.history(oid, version='', length=999999999999)
         else: # FileStorage
             history = storage.history(oid, size=999999999999)
+
         return history
 
 
@@ -250,24 +251,6 @@ class ZodbObject(object):
         loadedState = self._loadState(self.tid)
         self.state = getMultiAdapter((self.obj, loadedState), IState)
 
-    def getName(self):
-        return self.state.getName()
-
-    def getObjectId(self):
-        return u64(self.obj._p_oid)
-
-    def getTid(self):
-        return u64(self.tid)
-
-    def getRequestedTid(self):
-        if self.requestedTid is None:
-            return self.requestedTid
-        else:
-            return u64(self.requestedTid)
-
-    def getType(self):
-        return str(getattr(self.obj, '__class__', None))
-
     def getPath(self):
         if IContainmentRoot.providedBy(self.obj):
             path = "/ROOT"
@@ -295,6 +278,9 @@ class ZodbObject(object):
 
     def _loadState(self, tid):
         return self.obj._p_jar.oldstate(self.obj, tid)
+
+    def getName(self):
+        return self.state.getName()
 
     def listHistory(self, keyFilter=None):
         """List transactions that modified a persistent object."""
