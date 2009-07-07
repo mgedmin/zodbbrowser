@@ -3,42 +3,45 @@
 
 <tal:block define="object view/obj">
   <div class="object">
-    <tal:block tal:condition="object/state" define="state object/state">
-      <div class="heading">
-        <h1>
-          <span tal:content="object/getPath"></span><br/>
-          <span tal:condition="not:object/current"
-                tal:content="string:From transaction ${view/getObjectTid}"
-                style="color:white"/>
-          <br/>
-          <span tal:condition="not:object/current"
-                tal:content="string:Aligned to transaction
-                    ${view/getObjectRequestedTid}"
-                style="color:white"/>
-        </h1>
-        <h2><i tal:content="view/getObjectType"/></h2>
-      </div>
-      <div class="attributes" tal:condition="object/listAttributes">
-        <h3>Attributes</h3>
-        <input type="button" value="-" onclick="expand(this)" />
-        <h4>
-          <tal:block tal:repeat="attr object/listAttributes">
-            <strong tal:content="attr/name" />:
-            <tal:block replace="structure attr/rendered_value" />
-            <br />
-          </tal:block>
-        </h4>
-      </div>
-    </tal:block>
+    <div class="heading">
+      <h1>
+        <span tal:content="object/getPath"></span><br/>
+        <span tal:condition="not:object/current"
+              tal:content="string:From transaction ${view/getObjectTid}"
+              style="color:white"/>
+        <br/>
+        <span tal:condition="not:object/current"
+              tal:content="string:Aligned to transaction
+                  ${view/getObjectRequestedTid}"
+              style="color:white"/>
+      </h1>
+      <h2><i tal:content="view/getObjectType" /></h2>
+    </div>
 
-    <div class="history" tal:condition="object/listHistory">
+    <div class="attributes"
+         tal:define="attributes object/listAttributes"
+         tal:condition="attributes">
+      <h3>Attributes</h3>
+      <input type="button" value="-" onclick="expand(this)" />
+      <h4>
+        <tal:block tal:repeat="attr attributes">
+          <strong tal:content="attr/name" />:
+          <tal:block replace="structure attr/rendered_value" />
+          <br />
+        </tal:block>
+      </h4>
+    </div>
+
+    <div class="history"
+         tal:define="history object/listHistory"
+         tal:condition="history">
       <h3>History</h3>
       <input type="button" value="-" onclick="expand(this)" />
       <h4>
         <span tal:condition="not:view/getObjectRequestedTid">-&gt;</span>
         <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}"
            tal:content="string:Head"/><br />
-        <tal:block tal:repeat="history object/listHistory">
+        <tal:block tal:repeat="history history">
           <span tal:condition="history/current">-&gt;</span>
           <a tal:attributes="href history/href"
             tal:content="string:#${repeat/history/index} (${history/utid})"></a>
