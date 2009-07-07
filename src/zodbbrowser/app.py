@@ -132,16 +132,16 @@ class IState(Interface):
 
 
 def _diff_dicts(this, other):
-        diffs = {}
-        for key, value in sorted(this.items()):
-            if key not in other:
-                diffs[key] = ['Added', value]
-            elif other[key] != value:
-                diffs[key] = ['Changed', value]
-        for key in sorted(other):
-            if key not in this:
-                diffs[key] = ['Removed', value]
-        return diffs
+    diffs = {}
+    for key, value in sorted(this.items()):
+        if key not in other:
+            diffs[key] = ['Added', value]
+        elif other[key] != value:
+            diffs[key] = ['Changed', value]
+    for key in sorted(other):
+        if key not in this:
+            diffs[key] = ['Removed', value]
+    return diffs
 
 
 class OOBTreeState(object):
@@ -304,8 +304,7 @@ class ZodbObject(object):
             if s is not None:
                 s = getMultiAdapter((self.obj, s), IState)
                 if n < len(self.history) - 1:
-                    diff = s.diff(
-                                  self._loadState(self.history[n + 1]['tid']))
+                    diff = s.diff(self._loadState(self.history[n + 1]['tid']))
                 else:
                     diff = s.diff(None)
                 if keyFilter is None or keyFilter in diff:

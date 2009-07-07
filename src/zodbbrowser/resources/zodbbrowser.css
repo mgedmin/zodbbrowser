@@ -3,8 +3,8 @@
 }
 
 input {
-    border: 1px dashed orange;
-    background-color: white;
+  border: 1px dashed orange;
+  background-color: white;
 }
 
 div.object {
@@ -55,3 +55,30 @@ div.object .truncated {
   margin: 2px;
 }
 
+span.tidInfo {
+	color: white;
+}
+
+span.diff {
+	margin-left: 4em;
+}
+
+div.object {
+  font-size: 12px;
+  font-weight: normal;
+  color: black;
+  padding: 2px;
+}
+
+div.history {
+  margin: 2px;
+}
+
+div.current {
+  background: #ffa;
+  border: 1px solid;
+  border-top-color: #ffc;
+  border-left-color: #ffc;
+  border-bottom-color: #fe0;
+  border-right-color: #fe0;
+}
