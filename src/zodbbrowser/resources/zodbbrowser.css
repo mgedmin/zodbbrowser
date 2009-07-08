@@ -45,6 +45,15 @@ div.object h3 {
   margin-top: 1em;
 }
 
+h3.expander {
+  cursor: default;
+  padding: 1px;
+}
+
+h3.expander:hover {
+  background: #f8fff8;
+}
+
 div.object h4 {
   font-size: 12px;
   font-weight: normal;

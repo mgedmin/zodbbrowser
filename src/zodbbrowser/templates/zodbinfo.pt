@@ -16,8 +16,10 @@
     <div class="attributes"
          tal:define="attributes object/listAttributes"
          tal:condition="attributes">
-      <h3><img tal:attributes="src context/++resource++collapse.png"
-               alt="collapse" onclick="expand(this)" /> Attributes</h3>
+      <h3 class="expander" onclick="expand(this)">
+        <img tal:attributes="src context/++resource++collapse.png"
+             alt="collapse" />&nbsp;Attributes
+      </h3>
       <h4>
         <tal:block tal:repeat="attr attributes">
           <strong tal:content="attr/name" />:
@@ -30,8 +32,10 @@
     <div class="history"
          tal:define="history object/listHistory"
          tal:condition="history">
-      <h3><img tal:attributes="src context/++resource++collapse.png"
-               alt="collapse" onclick="expand(this)" /> History</h3>
+      <h3 class="expander" onclick="expand(this)">
+        <img tal:attributes="src context/++resource++collapse.png"
+             alt="collapse" />&nbsp;History
+      </h3>
       <div>
         <span tal:condition="not:view/getObjectRequestedTid">-&gt;</span>
         <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}">
