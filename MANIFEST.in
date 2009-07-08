@@ -1,3 +1,3 @@
-buildout.cfg
+include buildout.cfg
 recursive-include ./ *.txt
 recursive-include src/ *.zcml *.pt *.js *.css *.png

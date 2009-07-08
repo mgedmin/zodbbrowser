@@ -24,9 +24,24 @@ setup(
         "simplejson",
         ],
     extras_require=dict(
-        test=["zope.app.container",
-              "zope.testbrowser",
-              "zope.app.testing",
-             ],
+        test=[
+            "zope.app.container",
+            "zope.app.testing",
+            "zope.testbrowser",
+            ],
+        app=[
+            "zope.app.authentication",
+            "zope.app.component",
+            "zope.app.securitypolicy",
+            "zope.app.server",
+            "zope.app.session", # purely BBB for old Data.fs'es
+            "zope.app.zcmlfiles",
+            "zope.server",
+            "zope.error",
+            "zope.session",
+            ],
+    ),
+    entry_points=dict(
+        console_scripts=['zodbbrowser = zodbbrowser.main:main'],
     ),
 )
