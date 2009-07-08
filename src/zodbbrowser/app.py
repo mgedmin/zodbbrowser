@@ -3,7 +3,6 @@ zodbbrowser application
 """
 
 import inspect
-import pdb
 import time
 from cgi import escape
 
