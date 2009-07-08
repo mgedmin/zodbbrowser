@@ -45,7 +45,7 @@
             tal:attributes="class python:(history['current'] or repeat['history'].start() and not view.getObjectRequestedTid())
                                             and 'history current' or 'history'">
           <a tal:attributes="href history/href"
-            tal:content="string:#${repeat/history/index}"></a>
+            tal:content="string: #${history/index}"></a>
               <strong tal:content="history/short" />
               <br />
               <tal:block tal:repeat="diff python:sorted(history['diff'].items())">

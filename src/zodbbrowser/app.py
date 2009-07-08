@@ -313,5 +313,7 @@ class ZodbObject(object):
                     results.append(dict(short=short, utid=u64(d['tid']),
                             href=url, current=current,
                             diff=diff, keyFilter=keyFilter, ** d))
+            for i in range(len(results)):
+                results[i]['index'] = len(results) - i
         return results
 
