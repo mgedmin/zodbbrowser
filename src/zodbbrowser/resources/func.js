@@ -2,10 +2,10 @@ function collapseOrExpand(item) {
     var content = $(this).next();
     var icon = $(this).children('img');
     if (content.is(':hidden')) {
-        $(icon).attr('src', '@@/collapse.png');
+        $(icon).attr('src', $('#collapseImg').attr('src'));
         content.slideDown();
     } else {
-        $(icon).attr('src', '@@/expand.png');
+        $(icon).attr('src', $('#expandImg').attr('src'));
         content.slideUp();
     }
 }

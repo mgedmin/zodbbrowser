@@ -27,29 +27,9 @@
     template="templates/view_macros.pt"
   />
 
-  <resource
-    name="zodbbrowser.css"
-    file="resources/zodbbrowser.css"
-  />
-
-  <resource
-    name="jquery-1.3.2.js"
-    file="resources/jquery-1.3.2.js"
-  />
-
-  <resource
-    name="func.js"
-    file="resources/func.js"
-  />
-
-  <resource
-    name="expand.png"
-    file="resources/expand.png"
-  />
-
-  <resource
-    name="collapse.png"
-    file="resources/collapse.png"
+  <resourceDirectory
+    name="zodbbrowser"
+    directory="resources"
   />
 
 </configure>

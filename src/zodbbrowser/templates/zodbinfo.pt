@@ -8,8 +8,7 @@
         <span class="breadcrumbs" tal:content="structure view/getBreadcrumbs" />
       </h1>
       <h1 id="goto" style="display:none">
-        <input type="hidden" id="api" name="api"
-               tal:attributes="value string:@@pathToOID"/>
+        <input type="hidden" id="api" name="api" value="@@pathToOID" />
         <input type="text" class="goto" id="gotoInput" name="goto"
                tal:attributes="value view/getPath"/>
       </h1>
@@ -27,7 +26,7 @@
          tal:define="attributes object/listAttributes"
          tal:condition="python:attributes is not None">
       <h3 class="expander">
-        <img tal:attributes="src context/++resource++collapse.png"
+        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
              alt="collapse" />&nbsp;Attributes
       </h3>
       <div class="collapsible">
@@ -46,7 +45,7 @@
          tal:define="items object/listItems"
          tal:condition="python:items is not None">
       <h3 class="expander">
-        <img tal:attributes="src context/++resource++collapse.png"
+        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
              alt="collapse" />&nbsp;Items
       </h3>
       <div class="collapsible">
@@ -65,7 +64,7 @@
          tal:define="history object/listHistory"
          tal:condition="history">
       <h3 class="expander">
-        <img tal:attributes="src context/++resource++collapse.png"
+        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
              alt="collapse" />&nbsp;History
       </h3>
       <div class="collapsible">
@@ -102,5 +101,9 @@
   </div>
 </tal:block>
 
+<img id="collapseImg" style="display:none"
+     tal:attributes="src context/++resource++zodbbrowser/collapse.png" />
+<img id="expandImg" style="display:none"
+     tal:attributes="src context/++resource++zodbbrowser/expand.png" />
 </metal:block>
 </metal:block>
