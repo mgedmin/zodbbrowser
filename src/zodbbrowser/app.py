@@ -112,11 +112,10 @@ class PersistentValue(object):
         value = GenericValue(self.context).render()
         state = _loadState(self.context, tid)
         if isinstance(state, int):
-            return '%s <strong>(value is %d)</strong>' % (value, state)
+            value = '%s <strong>(value is %d)</strong>' % (value, state)
         if state is None:
-            return '%s <strong>(state is None)</strong>' % (value)
-        else:
-            return '<a href="%s">%s</a>' % (url, value)
+            value = '%s <strong>(state is None)</strong>' % (value)
+        return '<a href="%s">%s</a>' % (url, value)
 
 
 class IState(Interface):
@@ -141,6 +140,28 @@ def _diff_dicts(this, other):
         if key not in this:
             diffs[key] = ['Removed', value]
     return diffs
+
+
+class FallbackState(object):
+    adapts(Interface, Interface)
+    implements(IState)
+
+    def __init__(self, type, state):
+        pass
+
+    def getName(self):
+        return '???'
+
+    def getParent(self):
+        return None
+
+    def listAttributes(self):
+        return []
+
+    def diff(self, other):
+        if other is None:
+            other = {}
+        return _diff_dicts({}, other)
 
 
 class OOBTreeState(object):
@@ -295,21 +316,19 @@ class ZodbObject(object):
                         u64(d['tid']))
             current = d['tid'] == self.tid and self.requestedTid is not None
             s = self._loadState(d['tid'])
-            # First state of BTrees is None
-            if s is not None:
-                s = getMultiAdapter((self.obj, s), IState)
-                if n < len(self.history) - 1:
-                    diff = s.diff(self._loadState(self.history[n + 1]['tid']))
-                else:
-                    diff = s.diff(None)
+            s = getMultiAdapter((self.obj, s), IState)
+            if n < len(self.history) - 1:
+                diff = s.diff(self._loadState(self.history[n + 1]['tid']))
+            else:
+                diff = s.diff(None)
 
-                for key, value in diff.items():
-                    diff[key][1] = IValueRenderer(value[1]).render(
-                                                  d['tid'])
+            for key, value in diff.items():
+                diff[key][1] = IValueRenderer(value[1]).render(
+                                              d['tid'])
 
-                results.append(dict(short=short, utid=u64(d['tid']),
-                        href=url, current=current,
-                        diff=diff, **d))
+            results.append(dict(short=short, utid=u64(d['tid']),
+                    href=url, current=current,
+                    diff=diff, **d))
 
         for i in range(len(results)):
             results[i]['index'] = len(results) - i
