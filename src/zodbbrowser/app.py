@@ -231,16 +231,16 @@ def _loadState(obj, tid=None):
 
 
 def _gimmeHistory(obj):
-        storage = obj._p_jar._storage
-        oid = obj._p_oid
-        history = None
-        # XXX OMG ouch
-        if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
-            history = storage.history(oid, version='', length=999999999999)
-        else: # FileStorage
-            history = storage.history(oid, size=999999999999)
+    storage = obj._p_jar._storage
+    oid = obj._p_oid
+    history = None
+    # XXX OMG ouch
+    if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
+        history = storage.history(oid, version='', length=999999999999)
+    else: # FileStorage
+        history = storage.history(oid, size=999999999999)
 
-        return history
+    return history
 
 
 class ZodbObject(object):
