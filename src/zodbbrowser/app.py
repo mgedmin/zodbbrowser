@@ -133,12 +133,12 @@ def _diff_dicts(this, other):
     diffs = {}
     for key, value in sorted(this.items()):
         if key not in other:
-            diffs[key] = ['Added', value]
+            diffs[key] = ['added', value]
         elif other[key] != value:
-            diffs[key] = ['Changed', value]
-    for key in sorted(other):
+            diffs[key] = ['changed to', value]
+    for key, value in sorted(other.items()):
         if key not in this:
-            diffs[key] = ['Removed', value]
+            diffs[key] = ['removed', value]
     return diffs
 
 
