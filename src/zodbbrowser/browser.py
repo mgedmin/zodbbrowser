@@ -3,7 +3,6 @@ from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
 from zope.interface import Interface
-from zope.security.proxy import removeSecurityProxy
 from ZODB.utils import p64, u64, tid_repr
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
@@ -25,8 +24,14 @@ class ZodbInfoView(BrowserView):
     def locate_json(self, path):
         return simplejson.dumps(self.locate(path))
 
+    def jar(self):
+        try:
+            return self.request.annotations['ZODB.interfaces.IConnection']
+        except KeyError:
+            return self.context._p_jar
+
     def locate(self, path):
-        jar = removeSecurityProxy(self.context)._p_jar
+        jar = self.jar()
         oid = 1
         partial = here = '/'
         obj = jar.get(p64(oid))
@@ -61,11 +66,11 @@ class ZodbInfoView(BrowserView):
     def obj(self):
         self.obj = None
 
-        if 'oid' not in self.request:
+        if 'oid' not in self.request and isinstance(self.context, Persistent):
             self.obj = ZodbObject(self.context)
         else:
-            oid = p64(int(self.request['oid']))
-            jar = removeSecurityProxy(self.context)._p_jar
+            oid = p64(int(self.request.get('oid', 1)))
+            jar = self.jar()
             self.obj = ZodbObject(jar.get(oid))
 
         if 'tid' not in self.request:

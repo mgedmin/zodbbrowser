@@ -26,7 +26,8 @@ class Options(object):
     threads = 4
     features = ('zserver',) # maybe 'devmode' too?
     site_definition = """
-        <configure xmlns="http://namespaces.zope.org/zope">
+        <configure xmlns="http://namespaces.zope.org/zope"
+            i18n:domain="zodbbrowser">
           <include package="zope.app.securitypolicy" file="meta.zcml" />
           <include package="zope.app.zcmlfiles" file="meta.zcml" />
 
@@ -49,7 +50,9 @@ class Options(object):
 
           <include package="zodbbrowser" />
 
-          <browser:defaultView name="zodbbrowser"
+          <browser:defaultView 
+              for="persistent.Persistent"
+              name="zodbbrowser"
               xmlns:browser="http://namespaces.zope.org/browser" />
 
           <unauthenticatedPrincipal id="zope.anybody" title="Unauthenticated User" />

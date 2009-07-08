@@ -1,6 +1,5 @@
 <configure
-    xmlns="http://namespaces.zope.org/zope"
-    i18n_domain='pov'>
+    xmlns="http://namespaces.zope.org/zope">
 
   <include file="browser.zcml" />
 

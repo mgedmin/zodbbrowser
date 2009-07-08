@@ -1,7 +1,7 @@
 <configure
     xmlns="http://namespaces.zope.org/browser"
     xmlns:zope="http://namespaces.zope.org/zope"
-    i18n_domain='pov'>
+    i18n_domain='zodbbrowser'>
 
   <page
       name="zodbbrowser"
