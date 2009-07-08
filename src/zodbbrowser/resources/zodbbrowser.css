@@ -60,11 +60,29 @@ h3.expander:hover {
   background: #f8fff8;
 }
 
-div.object h4 {
-  font-size: 12px;
-  font-weight: normal;
+div.transaction {
+  margin: 0;
+  padding-bottom: 2px;
+}
+
+h4.transaction {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
   color: black;
-  margin: 2px;
+}
+
+h4.transaction a:link,
+h4.transaction a:visited {
+  display: block;
+  color: black;
+  text-decoration: none;
+  padding: 2px;
+}
+h4.transaction a:hover,
+h4.transaction a:active {
+  color: #760;
+  background: #ffa;
 }
 
 div.object .truncated {
@@ -85,8 +103,10 @@ div.object .truncated {
   border-right: 1px solid #fe0;
 }
 
-span.diff {
-  margin-left: 4em;
+div.diff {
+  padding: 4px;
+  margin-left: 2em;
+  margin-bottom: 1em;
 }
 
 div.history {
@@ -101,4 +121,9 @@ div.current {
   background: #ffa;
   border-bottom: 1px solid #fe0;
   border-top: 1px solid #fe0;
+}
+div.latest {
+  background: #ffa;
+  border-top: 1px solid #fe0;
+  margin-bottom: 0;
 }

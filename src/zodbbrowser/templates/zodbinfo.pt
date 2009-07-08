@@ -20,13 +20,11 @@
         <img tal:attributes="src context/++resource++collapse.png"
              alt="collapse" />&nbsp;Attributes
       </h3>
-      <h4>
-        <tal:block tal:repeat="attr attributes">
-          <strong tal:content="attr/name" />:
-          <tal:block replace="structure attr/rendered_value" />
-          <br />
-        </tal:block>
-      </h4>
+      <tal:block tal:repeat="attr attributes">
+        <strong tal:content="attr/name" />:
+        <tal:block replace="structure attr/rendered_value" />
+        <br />
+      </tal:block>
     </div>
 
     <div class="history"
@@ -37,25 +35,32 @@
              alt="collapse" />&nbsp;History
       </h3>
       <div>
-        <div tal:attributes="class python:view.getObjectRequestedTid() and 'history' or 'history current'">
-          <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}"
-             >Latest</a>
+        <div class="transaction"
+             tal:attributes="class python:view.getObjectRequestedTid() and 'transaction' or 'transaction latest'">
+          <h4 class="transaction">
+            <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}"
+              >Latest</a>
+          </h4>
         </div>
-        <div class="history" tal:repeat="history history"
+        <div class="transaction" tal:repeat="history history"
             tal:attributes="class python:(history['current'] or repeat['history'].start() and not view.getObjectRequestedTid())
-                                            and 'history current' or 'history'">
-          <a tal:attributes="href history/href"
-            tal:content="string:#${repeat/history/index}"></a>
-              <strong tal:content="history/short" />
-              <br />
-              <tal:block tal:repeat="diff python:sorted(history['diff'].items())">
-                <span class="diff">
-                  <strong tal:content="python:diff[0]" />:
-                  <span tal:content="python:diff[1][0]" />
-                  <span tal:content="python:diff[1][1]" />
-                </span> 
-                <br />
-              </tal:block>
+                                            and 'transaction current' or 'transaction'">
+          <h4 class="transaction">
+            <a tal:attributes="href history/href">
+              #<span tal:replace="repeat/history/index" />:
+              <span tal:content="history/short" />
+            </a>
+          </h4>
+          <div class="diff">
+          <tal:block tal:repeat="diff python:sorted(history['diff'].items())">
+            <span class="diff">
+              <strong tal:content="python:diff[0]" />:
+              <span tal:content="python:diff[1][0]" />
+              <span tal:content="python:diff[1][1]" />
+            </span> 
+            <br />
+          </tal:block>
+          </div>
         </div>
       </div>
     </div>
