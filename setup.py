@@ -5,7 +5,7 @@ setup(
     maintainer="Programmers of Vilnius",
     maintainer_email="tautvilas@pov.lt",
     description="ZODB browser",
-    version="0.1",
+    version="0.2",
     packages=find_packages('src'),
     include_package_data=True,
     zip_safe=False,
