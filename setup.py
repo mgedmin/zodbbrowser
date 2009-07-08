@@ -20,6 +20,7 @@ setup(
         "zope.publisher",
         "zope.security",
         "zope.traversing",
+        "simplejson",
         ],
     extras_require=dict(
         test=["zope.app.container",

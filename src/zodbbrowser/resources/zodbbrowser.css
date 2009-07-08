@@ -25,7 +25,8 @@ div.heading {
 div.heading h1 {
   font-size: 16px;
   color: #0033cc;
-  margin: 2px;
+  margin: 0;
+  margin-right: 4px;
 }
 div.heading h1 a:link,
 div.heading h1 a:visited {
@@ -35,6 +36,33 @@ div.heading h1 a:visited {
 div.heading h1 a:hover,
 div.heading h1 a:active {
   color: white;
+}
+
+span.breadcrumbs {
+  display: block;
+  border: 1px solid #afa;
+  padding: 1px 2px;
+}
+
+input#gotoInput {
+  display: block;
+  width: 100%;
+  border: 1px solid #00cc33;
+  background: white;
+  color: black;
+  font-size: 16px;
+  margin: 0;
+  padding: 1px;
+  font-family: Tahoma, Verdana, sans-serif;
+  font-weight: bold;
+}
+
+#pathError {
+  display: block;
+  font-size: 14px;
+  color: black;
+  font-weight: normal;
+  margin: 6px;
 }
 
 div.object h2 {

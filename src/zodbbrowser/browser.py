@@ -5,7 +5,9 @@ from zope.component import adapts
 from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
 from ZODB.utils import p64, u64, tid_repr
+from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
+import simplejson
 
 from zodbbrowser.app import ZodbObject
 
@@ -18,11 +20,43 @@ class ZodbInfoView(BrowserView):
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
 
     def __call__(self):
-        self.update()
         return self.template()
 
-    def update(self, show_private=False, *args, **kw):
-        pass
+    def locate_json(self, path):
+        return simplejson.dumps(self.locate(path))
+
+    def locate(self, path):
+        jar = removeSecurityProxy(self.context)._p_jar
+        oid = 1
+        partial = here = '/'
+        obj = jar.get(p64(oid))
+        not_found = object()
+        for step in path.split('/'):
+            if not step:
+                continue
+            if here != '/':
+                here += '/'
+            here += step.encode('utf-8')
+            try:
+                child = obj[step]
+            except Exception:
+                child = getattr(obj, step, not_found)
+                if child is not_found:
+                    return dict(error='Not found: %s' % here,
+                                partial_oid=oid,
+                                partial_path=partial,
+                                partial_url=self.getUrl(oid))
+            obj = child
+            if isinstance(obj, Persistent):
+                partial = here
+                oid = u64(obj._p_oid)
+        if not isinstance(obj, Persistent):
+            return dict(error='Not persistent: %s' % here,
+                        partial_oid=oid,
+                        partial_path=partial,
+                        partial_url=self.getUrl(oid))
+        return dict(oid=oid,
+                    url=self.getUrl(oid))
 
     def obj(self):
         self.obj = None
@@ -71,10 +105,25 @@ class ZodbInfoView(BrowserView):
             url += str(oid)
         else:
             url += str(self.obj.getObjectId())
-        url += "&amp;"
         if 'tid' in self.request:
-            url += "tid=" + self.request['tid'] + "&amp;"
+            url += "&amp;tid=" + self.request['tid']
         return url
+
+    def getPath(self):
+        path = []
+        object = self.obj
+        while True:
+            if object.isRoot():
+                seen_root = True
+                path.append('')
+            else:
+                path.append(object.getName())
+            parent = object.getParent()
+            if parent is None:
+                break
+            object = ZodbObject(parent)
+            object.load()
+        return '/'.join(reversed(path))
 
     def getBreadcrumbs(self):
         breadcrumbs = []

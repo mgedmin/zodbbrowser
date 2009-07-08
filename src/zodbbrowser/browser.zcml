@@ -13,6 +13,14 @@
   />
 
   <page
+    name="pathToOID"
+    class=".browser.ZodbInfoView"
+    attribute="locate_json"
+    for="zope.interface.Interface"
+    permission="zope.ManageContent"
+  />
+
+  <page
     name="zodbbrowser_macros"
     for="*"
     permission="zope.Public"

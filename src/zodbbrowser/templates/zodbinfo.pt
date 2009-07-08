@@ -4,7 +4,16 @@
 <tal:block define="object view/obj">
   <div class="object">
     <div class="heading">
-      <h1 tal:content="structure view/getBreadcrumbs" />
+      <h1 id="path">
+        <span class="breadcrumbs" tal:content="structure view/getBreadcrumbs" />
+      </h1>
+      <h1 id="goto" style="display:none">
+        <input type="hidden" id="api" name="api"
+               tal:attributes="value string:@@pathToOID"/>
+        <input type="text" class="goto" id="gotoInput" name="goto"
+               tal:attributes="value view/getPath"/>
+      </h1>
+      <span id="pathError" style="display:none"></span>
       <h2 class="type" tal:content="view/getObjectType" />
       <div class="tid-info" tal:condition="not:object/current">
         at <a tal:attributes="href string:#tid${view/getObjectTid}"
