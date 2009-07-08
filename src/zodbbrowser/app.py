@@ -125,7 +125,7 @@ class PersistentValue(object):
         self.context = removeAllProxies(context)
 
     def render(self, tid=None):
-        url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
+        url = '@@zodbbrowser?oid=%d' % u64(self.context._p_oid)
         if tid is not None:
             url += "&amp;tid=" + str(u64(tid))
         value = GenericValue(self.context).render()
@@ -418,8 +418,8 @@ class ZodbObject(object):
                                        time.localtime(d['time']))) + " "
                      + d['user_name'] + " "
                      + d['description'])
-            url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
-                                                    u64(d['tid']))
+            url = '@@zodbbrowser?oid=%d&tid=%d' % (u64(self.obj._p_oid),
+                                                   u64(d['tid']))
             current = d['tid'] == self.tid and self.requestedTid is not None
             curState = self._loadState(d['tid']).asDict()
             if n < len(self.history) - 1:

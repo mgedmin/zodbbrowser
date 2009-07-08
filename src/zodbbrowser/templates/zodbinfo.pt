@@ -8,7 +8,7 @@
         <span class="breadcrumbs" tal:content="structure view/getBreadcrumbs" />
       </h1>
       <h1 id="goto" style="display:none">
-        <input type="hidden" id="api" name="api" value="@@pathToOID" />
+        <input type="hidden" id="api" name="api" value="@@zodbbrowser_path_to_oid" />
         <input type="text" class="goto" id="gotoInput" name="goto"
                tal:attributes="value view/getPath"/>
       </h1>
@@ -71,7 +71,7 @@
         <div class="transaction"
              tal:attributes="class python:view.getObjectRequestedTid() and 'transaction' or 'transaction latest'">
           <h4 class="transaction">
-            <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}"
+            <a tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
               >Latest</a>
           </h4>
         </div>

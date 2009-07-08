@@ -100,7 +100,7 @@ class ZodbInfoView(BrowserView):
         return str(getattr(self.obj.obj, '__class__', None))
 
     def getUrl(self, oid=None):
-        url = "zodbinfo.html?oid="
+        url = "@@zodbbrowser?oid="
         if oid is not None:
             url += str(oid)
         else:

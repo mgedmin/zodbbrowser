@@ -4,32 +4,32 @@
     i18n_domain='pov'>
 
   <page
-    name="zodbinfo.html"
-    class=".browser.ZodbInfoView"
-    for="zope.interface.Interface"
-    permission="zope.ManageContent"
-    menu="zmi_actions"
-    title="ZODB Browser"
-  />
+      name="zodbbrowser"
+      class=".browser.ZodbInfoView"
+      for="zope.interface.Interface"
+      permission="zope.ManageContent"
+      menu="zmi_actions"
+      title="ZODB Browser"
+      />
 
   <page
-    name="pathToOID"
-    class=".browser.ZodbInfoView"
-    attribute="locate_json"
-    for="zope.interface.Interface"
-    permission="zope.ManageContent"
-  />
+      name="zodbbrowser_path_to_oid"
+      class=".browser.ZodbInfoView"
+      attribute="locate_json"
+      for="zope.interface.Interface"
+      permission="zope.ManageContent"
+      />
 
   <page
-    name="zodbbrowser_macros"
-    for="*"
-    permission="zope.Public"
-    template="templates/view_macros.pt"
-  />
+      name="zodbbrowser_macros"
+      for="*"
+      permission="zope.Public"
+      template="templates/view_macros.pt"
+      />
 
   <resourceDirectory
-    name="zodbbrowser"
-    directory="resources"
-  />
+      name="zodbbrowser"
+      directory="resources"
+      />
 
 </configure>
