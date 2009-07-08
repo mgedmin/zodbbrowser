@@ -113,8 +113,6 @@ class PersistentValue(object):
         state = _loadState(self.context, tid)
         if isinstance(state, int):
             value = '%s <strong>(value is %d)</strong>' % (value, state)
-        if state is None:
-            value = '%s <strong>(state is None)</strong>' % (value)
         return '<a href="%s">%s</a>' % (url, value)
 
 
