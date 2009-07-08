@@ -94,7 +94,7 @@ class DictValue(object):
         html = []
         for key, value in sorted(self.context.items()):
             html.append(IValueRenderer(key).render() + ': ' +
-                    IValueRenderer(value).render())
+                        IValueRenderer(value).render())
         return '{%s}' % ', '.join(html)
 
 
