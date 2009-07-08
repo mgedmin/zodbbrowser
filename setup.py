@@ -21,4 +21,7 @@ setup(
         "zope.security",
         "zope.traversing",
         ],
-    )
+    extras_require=dict(
+        test=["zope.app.container"],
+    ),
+)

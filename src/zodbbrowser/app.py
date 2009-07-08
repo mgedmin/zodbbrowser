@@ -266,7 +266,7 @@ class ZodbObject(object):
         return self.obj._p_jar.oldstate(self.obj, tid)
 
     def getName(self):
-        if (self.isRoot()):
+        if self.isRoot():
             return "ROOT"
         else:
             return self.state.getName()
