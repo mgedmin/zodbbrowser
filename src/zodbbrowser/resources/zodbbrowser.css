@@ -34,8 +34,7 @@ div.heading h1 a:visited {
 }
 div.heading h1 a:hover,
 div.heading h1 a:active {
-  color: #1144dd;
-  background: #bbffbb;
+  color: white;
 }
 
 div.object h2 {
