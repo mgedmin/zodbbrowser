@@ -13,6 +13,7 @@
   <adapter factory=".app.FallbackState" />
   <adapter factory=".app.IntState" />
   <adapter factory=".app.OOBTreeState" />
+  <adapter factory=".app.EmptyOOBTreeState" />
   <adapter factory=".app.GenericState" />
   <adapter factory=".app.PersistentDictState" />
   <adapter factory=".app.FolderState" />

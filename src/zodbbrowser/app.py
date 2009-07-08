@@ -233,6 +233,11 @@ class OOBTreeState(object):
         return self.btree
 
 
+class EmptyOOBTreeState(OOBTreeState):
+    adapts(OOBTree, type(None), None)
+    implements(IState)
+
+
 class GenericState(object):
     adapts(Interface, dict, None)
     implements(IState)
