@@ -77,20 +77,30 @@ class ZodbInfoView(BrowserView):
         return url
 
     def getBreadcrumbs(self):
-        breadcrumbs = ""
+        breadcrumbs = []
         object = self.obj
+        seen_root = False
         while True:
-            breadcrumbs = '<a href="' + \
-                str(self.getUrl(object.getObjectId())) + \
-                '">' + object.getName() + "</a>/" + breadcrumbs
-            parent = object.getParent()
-            if parent is not None:
-                object = ZodbObject(parent)
-                object.load()
+            if object.isRoot():
+                seen_root = True
+                breadcrumb = '<a href="%s">/</a>' % (
+                                    self.getUrl(object.getObjectId()))
             else:
+                breadcrumb = '<a href="%s">%s</a>' % (
+                                    self.getUrl(object.getObjectId()),
+                                    object.getName())
+                if breadcrumbs:
+                    breadcrumb += '/'
+            breadcrumbs.append(breadcrumb)
+            parent = object.getParent()
+            if parent is None:
                 break
+            object = ZodbObject(parent)
+            object.load()
 
-        return breadcrumbs
+        if not seen_root:
+            breadcrumbs.append('<a href="%s">/</a>' % self.getUrl(1))
+        return ''.join(reversed(breadcrumbs))
 
     def tidToTimestamp(self, tid):
         if isinstance(tid, str) and len(tid) == 8:
