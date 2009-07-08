@@ -65,12 +65,15 @@ class ZodbInfoView(BrowserView):
     def getObjectType(self):
         return str(getattr(self.obj.obj, '__class__', None))
 
-    def getCustomUrl(self, oid=None, tid=None):
-        url = "zodbinfo.html?"
+    def getUrl(self, oid=None):
+        url = "zodbinfo.html?oid="
         if oid is not None:
-            url += "oid=" + str(oid) + "&amp;"
-        if tid is not None:
-            url += "tid=" + str(tid) + "&amp;"
+            url += str(oid)
+        else:
+            url += str(self.obj.getObjectId())
+        url += "&amp;"
+        if 'tid' in self.request:
+            url += "tid=" + self.request['tid'] + "&amp;"
         return url
 
     def getBreadcrumbs(self):
@@ -78,7 +81,7 @@ class ZodbInfoView(BrowserView):
         object = self.obj
         while True:
             breadcrumbs = '<a href="' + \
-                str(self.getCustomUrl(object.getObjectId())) + \
+                str(self.getUrl(object.getObjectId())) + \
                 '">' + object.getName() + "</a>/" + breadcrumbs
             parent = object.getParent()
             if parent is not None:
