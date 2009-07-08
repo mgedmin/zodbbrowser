@@ -95,7 +95,7 @@ class DictValue(object):
         for key, value in sorted(self.context.items()):
             html.append(IValueRenderer(key).render() + ': ' +
                     IValueRenderer(value).render())
-            return '{%s}' % ', '.join(html)
+        return '{%s}' % ', '.join(html)
 
 
 class PersistentValue(object):
