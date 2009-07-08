@@ -64,7 +64,7 @@ def tearDown(test):
     test.db.close()
 
 
-def doctest_ZodbOBject():
+def doctest_ZodbObject():
     """Create some ZodbObjects
 
         >>> o1 = ZodbObject(dbroot.data)

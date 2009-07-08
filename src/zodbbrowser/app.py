@@ -10,6 +10,7 @@ from BTrees._OOBTree import OOBTree
 
 from ZODB.utils import u64
 from persistent import Persistent
+from persistent.dict import PersistentDict
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
 from zope.component import adapts, getMultiAdapter
@@ -163,10 +164,10 @@ def _diff_dicts(this, other):
 
 
 class FallbackState(object):
-    adapts(Interface, Interface)
+    adapts(Interface, Interface, None)
     implements(IState)
 
-    def __init__(self, type, state):
+    def __init__(self, type, state, tid):
         pass
 
     def getName(self):
@@ -186,10 +187,10 @@ class FallbackState(object):
 
 
 class IntState(object):
-    adapts(Interface, int)
+    adapts(Interface, int, None)
     implements(IState)
 
-    def __init__(self, type, state):
+    def __init__(self, type, state, tid):
         self.state = state
 
     def getName(self):
@@ -209,10 +210,10 @@ class IntState(object):
 
 
 class OOBTreeState(object):
-    adapts(OOBTree, tuple)
+    adapts(OOBTree, tuple, None)
     implements(IState)
 
-    def __init__(self, type, state):
+    def __init__(self, type, state, tid):
         self.btree = OOBTree()
         self.btree.__setstate__(state)
 
@@ -233,63 +234,82 @@ class OOBTreeState(object):
 
 
 class GenericState(object):
-    adapts(Interface, dict)
+    adapts(Interface, dict, None)
     implements(IState)
 
-    def __init__(self, type, state):
-        self.context = state
+    def __init__(self, type, state, tid):
+        self.state = state
+        self.tid = tid
 
     def getName(self):
-        if '__name__' in self.context:
-            return self.context['__name__']
-        else:
-            return "???"
+        return self.state.get('__name__', '???')
 
     def getParent(self):
-        if '__parent__' in self.context:
-            return self.context['__parent__']
-        else:
-            return None
+        return self.state.get('__parent__')
 
     def listAttributes(self):
-        return self.context.items()
+        return self.state.items()
 
     def listItems(self):
         return None
 
     def asDict(self):
-        return self.context
+        return self.state
+
+
+class PersistentDictState(GenericState):
+    adapts(PersistentDict, dict, None)
+
+    def listItems(self):
+        return sorted(self.state.get('data', {}).items())
 
 
 class FolderState(GenericState):
-    adapts(Folder, dict)
+    adapts(Folder, dict, None)
 
     def listItems(self):
-        return sorted(self.context.get('data', {}).items())
+        data = self.state.get('data')
+        if not data:
+            return []
+        # data will be an OOBTree
+        loadedstate = _loadState(data, tid=self.tid)
+        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
 
 
 class SampleContainerState(GenericState):
-    adapts(SampleContainer, dict)
+    adapts(SampleContainer, dict, None)
 
     def listItems(self):
-        return sorted(self.context.get('_SampleContainer__data', {}).items())
+        data = self.state.get('_SampleContainer__data')
+        if not data:
+            return []
+        # data will be a PersistentDict
+        loadedstate = _loadState(data, tid=self.tid)
+        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
 
 
 class BTreeContainerState(GenericState):
-    adapts(BTreeContainer, dict)
+    adapts(BTreeContainer, dict, None)
 
     def listItems(self):
         # This is not a typo; BTreeContainer really uses
         # _SampleContainer__data, for BBB
-        return self.context.get('_SampleContainer__data', {}).items()
+        data = self.state.get('_SampleContainer__data')
+        if not data:
+            return []
+        # data will be an OOBTree
+        loadedstate = _loadState(data, tid=self.tid)
+        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
 
 
 class OrderedContainerState(GenericState):
-    adapts(OrderedContainer, dict)
+    adapts(OrderedContainer, dict, None)
 
     def listItems(self):
         container = OrderedContainer()
         container.__setstate__(self.context)
+        container._data.__setstate__(_loadState(container._data, tid=self.tid))
+        container._order.__setstate__(_loadState(container._order, tid=self.tid))
         return container.items()
 
 
@@ -361,7 +381,8 @@ class ZodbObject(object):
 
     def _loadState(self, tid):
         loadedState = self.obj._p_jar.oldstate(self.obj, tid)
-        return getMultiAdapter((self.obj, loadedState), IState)
+        return getMultiAdapter((self.obj, loadedState, self.requestedTid),
+                               IState)
 
     def getName(self):
         if self.isRoot():
