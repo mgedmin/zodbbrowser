@@ -253,10 +253,6 @@ class ZodbObject(object):
     def listAttributes(self):
         dictionary = self.state.listAttributes()
         attrs = []
-        if self.current:
-            tid = None
-        else:
-            tid = self.tid
         for name, value in sorted(dictionary):
             attrs.append(ZodbObjectAttribute(name=name, value=value,
                          tid=self.requestedTid))
@@ -283,7 +279,7 @@ class ZodbObject(object):
         else:
             return False
 
-    def listHistory(self, keyFilter=None):
+    def listHistory(self):
         """List transactions that modified a persistent object."""
         results = []
         if not isinstance(self.obj, Persistent):
@@ -294,7 +290,6 @@ class ZodbObject(object):
                 time.localtime(d['time']))) + " "
                 + d['user_name'] + " "
                 + d['description'])
-            # other interesting things: d['tid'], d['size']
             diff = []
             url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
                         u64(d['tid']))
@@ -307,11 +302,17 @@ class ZodbObject(object):
                     diff = s.diff(self._loadState(self.history[n + 1]['tid']))
                 else:
                     diff = s.diff(None)
-                if keyFilter is None or keyFilter in diff:
-                    results.append(dict(short=short, utid=u64(d['tid']),
-                            href=url, current=current,
-                            diff=diff, keyFilter=keyFilter, **d))
+
+                for key, value in diff.items():
+                    diff[key][1] = IValueRenderer(value[1]).render(
+                                                  d['tid'])
+
+                results.append(dict(short=short, utid=u64(d['tid']),
+                        href=url, current=current,
+                        diff=diff, **d))
+
         for i in range(len(results)):
             results[i]['index'] = len(results) - i
+
         return results
 
