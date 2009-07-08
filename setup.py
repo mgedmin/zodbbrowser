@@ -22,6 +22,9 @@ setup(
         "zope.traversing",
         ],
     extras_require=dict(
-        test=["zope.app.container"],
+        test=["zope.app.container",
+              "zope.testbrowser",
+              "zope.app.testing",
+             ],
     ),
 )

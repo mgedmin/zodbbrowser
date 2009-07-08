@@ -5,7 +5,7 @@ from ZODB import DB
 from zope.app.container.btree import BTreeContainer
 from zope.component import provideAdapter
 from zope.interface import implements
-from zope.testbrowser import Browser
+from zope.testbrowser.testing import Browser
 from zope.traversing.interfaces import IContainmentRoot
 
 from zope.testing import doctest
