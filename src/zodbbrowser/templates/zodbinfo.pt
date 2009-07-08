@@ -57,7 +57,7 @@
             <span class="diff">
               <strong tal:content="python:diff[0]" />:
               <span tal:content="python:diff[1][0]" />
-              <span tal:content="python:diff[1][1]" />
+              <span tal:content="structure python:diff[1][1]" />
             </span> 
             <br />
           </tal:block>
