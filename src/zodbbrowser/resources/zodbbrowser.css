@@ -2,33 +2,40 @@
   font-family: Tahoma, Verdana, sans-serif;
 }
 
-input {
-  border: 1px dashed orange;
-  background-color: white;
-}
-
 div.object {
-  background-color: white;
-  border: 1px solid black;
-  min-width: 600px;
   color: black;
-  padding: 5px;
+  background-color: white;
+  border: 1px solid #00cc33;
+  min-width: 600px;
   margin-top: 5px;
+  font-size: 12px;
+  font-weight: normal;
 }
 
-div.object .heading {
+div.object > div {
+  padding: 5px;
+}
+
+div.heading {
   background-color: #aaffaa;
   border-bottom: 1px solid #00cc33;
-  border-right: 1px solid #00cc33;
-  border-top: 1px solid #ccffcc;
-  border-left: 1px solid #ccffcc;
   padding: 5px;
 }
 
-div.object h1 {
+div.heading h1 {
   font-size: 16px;
-  color: blue;
+  color: #0033cc;
   margin: 2px;
+}
+div.heading h1 a:link,
+div.heading h1 a:visited {
+  color: #0033cc;
+  text-decoration: none;
+}
+div.heading h1 a:hover,
+div.heading h1 a:active {
+  color: #1144dd;
+  background: #bbffbb;
 }
 
 div.object h2 {
@@ -42,7 +49,6 @@ div.object h3 {
   font-size: 14px;
   color: orange;
   margin: 2px;
-  margin-top: 1em;
 }
 
 h3.expander {
@@ -71,17 +77,16 @@ div.object .truncated {
 .tid-info {
   color: #141;
   margin-left: 2em;
+  padding: 1px;
+  background: #ffa;
+  border-bottom: 1px solid #fe0;
+  border-top: 1px solid #fe0;
+  border-left: 1px solid #fe0;
+  border-right: 1px solid #fe0;
 }
 
 span.diff {
   margin-left: 4em;
-}
-
-div.object {
-  font-size: 12px;
-  font-weight: normal;
-  color: black;
-  padding: 2px;
 }
 
 div.history {
@@ -94,9 +99,6 @@ div.attributes {
 
 div.current {
   background: #ffa;
-  border: 1px solid;
-  border-top-color: #ffc;
-  border-left-color: #ffc;
-  border-bottom-color: #fe0;
-  border-right-color: #fe0;
+  border-bottom: 1px solid #fe0;
+  border-top: 1px solid #fe0;
 }
