@@ -7,7 +7,8 @@
       <h1 tal:content="structure view/getBreadcrumbs" />
       <h2 class="type" tal:content="view/getObjectType" />
       <div class="tid-info" tal:condition="not:object/current">
-        <tal:span tal:content="string:at ${view/getObjectTidNice}" />
+        at <a tal:attributes="href string:#tid${view/getObjectTid}"
+              tal:content="view/getObjectTidNice"></a>
         <tal:span tal:content="string:(last change before or at
                                  ${view/getObjectRequestedTidNice})"/>
       </div>
@@ -45,7 +46,7 @@
         <div class="transaction" tal:repeat="history history"
             tal:attributes="class python:(history['current'] or repeat['history'].start() and not view.getObjectRequestedTid())
                                             and 'transaction current' or 'transaction'">
-          <h4 class="transaction">
+          <h4 class="transaction" tal:attributes="id string:tid${history/utid}">
             <a tal:attributes="href history/href">
               #<span tal:replace="repeat/history/index" />:
               <span tal:content="history/short" />

@@ -286,7 +286,6 @@ class ZodbObject(object):
 
     def listHistory(self, keyFilter=None):
         """List transactions that modified a persistent object."""
-        #XXX(zv): why is this called twice?
         results = []
         if not isinstance(self.obj, Persistent):
             return results
@@ -312,6 +311,6 @@ class ZodbObject(object):
                 if keyFilter is None or keyFilter in diff:
                     results.append(dict(short=short, utid=u64(d['tid']),
                             href=url, current=current,
-                            diff=diff, keyFilter=keyFilter, ** d))
+                            diff=diff, keyFilter=keyFilter, **d))
         return results
 
