@@ -25,12 +25,15 @@
 
     <div class="attributes"
          tal:define="attributes object/listAttributes"
-         tal:condition="attributes">
+         tal:condition="python:attributes is not None">
       <h3 class="expander">
         <img tal:attributes="src context/++resource++collapse.png"
              alt="collapse" />&nbsp;Attributes
       </h3>
       <div class="collapsible">
+        <tal:block tal:condition="not:attributes">
+          <span class="empty">There are none.</span>
+        </tal:block>
         <tal:block tal:repeat="attr attributes">
           <strong tal:content="attr/name" />:
           <tal:block replace="structure attr/rendered_value" />
@@ -41,12 +44,15 @@
 
     <div class="items"
          tal:define="items object/listItems"
-         tal:condition="items">
+         tal:condition="python:items is not None">
       <h3 class="expander">
         <img tal:attributes="src context/++resource++collapse.png"
              alt="collapse" />&nbsp;Items
       </h3>
       <div class="collapsible">
+        <tal:block tal:condition="not:items">
+          <span class="empty">There are none.</span>
+        </tal:block>
         <tal:block tal:repeat="item items">
           <strong tal:content="item/name" />:
           <tal:block replace="structure item/rendered_value" />

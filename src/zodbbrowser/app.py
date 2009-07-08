@@ -20,19 +20,19 @@ from zope.interface import Interface
 try:
     from zope.container.folder import Folder
 except ImportError:
-    from zope.app.folder import Folder
+    from zope.app.folder import Folder # BBB
 try:
     from zope.container.sample import SampleContainer
 except ImportError:
-    from zope.app.container.sample import SampleContainer
+    from zope.app.container.sample import SampleContainer # BBB
 try:
     from zope.container.btree import BTreeContainer
 except ImportError:
-    from zope.app.container.btree import BTreeContainer
+    from zope.app.container.btree import BTreeContainer # BBB
 try:
     from zope.container.ordered import OrderedContainer
 except ImportError:
-    from zope.app.container.ordered import OrderedContainer
+    from zope.app.container.ordered import OrderedContainer # BBB
 
 
 class IValueRenderer(Interface):
@@ -176,10 +176,10 @@ class FallbackState(object):
         return None
 
     def listAttributes(self):
-        return []
+        return None
 
     def listItems(self):
-        return []
+        return None
 
     def asDict(self):
         return {}
@@ -202,7 +202,7 @@ class IntState(object):
         return [('int value', self.state)]
 
     def listItems(self):
-        return []
+        return None
 
     def asDict(self):
         return {'int value': self.state}
@@ -223,7 +223,7 @@ class OOBTreeState(object):
         return None
 
     def listAttributes(self):
-        return []
+        return None
 
     def listItems(self):
         return self.btree.items()
@@ -255,7 +255,7 @@ class GenericState(object):
         return self.context.items()
 
     def listItems(self):
-        return []
+        return None
 
     def asDict(self):
         return self.context
@@ -265,14 +265,14 @@ class FolderState(GenericState):
     adapts(Folder, dict)
 
     def listItems(self):
-        return self.context.get('data', {}).items()
+        return sorted(self.context.get('data', {}).items())
 
 
 class SampleContainerState(GenericState):
     adapts(SampleContainer, dict)
 
     def listItems(self):
-        return self.context.get('_SampleContainer__data', {}).items()
+        return sorted(self.context.get('_SampleContainer__data', {}).items())
 
 
 class BTreeContainerState(GenericState):
@@ -346,21 +346,18 @@ class ZodbObject(object):
         self.state = self._loadState(self.tid)
 
     def listAttributes(self):
-        dictionary = self.state.listAttributes()
-        attrs = []
-        for name, value in sorted(dictionary):
-            attrs.append(ZodbObjectAttribute(name=name, value=value,
-                         tid=self.requestedTid))
-        return attrs
+        attrs = self.state.listAttributes()
+        if attrs is None:
+            return None
+        return [ZodbObjectAttribute(name, value, self.requestedTid)
+                for name, value in sorted(attrs)]
 
     def listItems(self):
-        # XXX refactor to share code with listAttributes
-        dictionary = self.state.listItems()
-        attrs = []
-        for name, value in sorted(dictionary):
-            attrs.append(ZodbObjectAttribute(name=name, value=value,
-                         tid=self.requestedTid))
-        return attrs
+        items = self.state.listItems()
+        if items is None:
+            return None
+        return [ZodbObjectAttribute(name, value, self.requestedTid)
+                for name, value in items]
 
     def _loadState(self, tid):
         loadedState = self.obj._p_jar.oldstate(self.obj, tid)
