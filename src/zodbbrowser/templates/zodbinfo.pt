@@ -46,10 +46,10 @@
             tal:content="string:#${repeat/history/index}"></a>
 	      <strong tal:content="history/short" />
 	      <br />
-	      <tal:block tal:repeat="diff python:history['diff'].iteritems()">
+	      <tal:block tal:repeat="diff python:sorted(history['diff'].items())">
 	        <span class="diff">
-	          <strong tal:content="python:diff[0]" />: 
-	          <span tal:content="python:diff[1][0]" /> 
+	          <strong tal:content="python:diff[0]" />:
+	          <span tal:content="python:diff[1][0]" />
 	          <span tal:content="python:diff[1][1]" />
 	        </span> 
 	        <br />
