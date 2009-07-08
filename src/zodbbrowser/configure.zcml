@@ -11,6 +11,7 @@
   <adapter factory=".app.DictValue" />
 
   <adapter factory=".app.FallbackState" />
+  <adapter factory=".app.IntState" />
   <adapter factory=".app.OOBTreeState" />
   <adapter factory=".app.GenericState" />
 

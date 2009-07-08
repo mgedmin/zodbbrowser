@@ -110,9 +110,6 @@ class PersistentValue(object):
         if tid is not None:
             url += "&amp;tid=" + str(u64(tid))
         value = GenericValue(self.context).render()
-        state = _loadState(self.context, tid)
-        if isinstance(state, int):
-            value = '%s <strong>(value is %d)</strong>' % (value, state)
         return '<a href="%s">%s</a>' % (url, value)
 
 
@@ -162,6 +159,26 @@ class FallbackState(object):
 
     def asDict(self):
         return {}
+
+
+class IntState(object):
+    adapts(Interface, int)
+    implements(IState)
+
+    def __init__(self, type, state):
+        self.state = state
+
+    def getName(self):
+        return '???'
+
+    def getParent(self):
+        return None
+
+    def listAttributes(self):
+        return [('int value', self.state)]
+
+    def asDict(self):
+        return {'int value': self.state}
 
 
 class OOBTreeState(object):
