@@ -9,6 +9,8 @@ from zope.traversing.interfaces import IContainmentRoot
 
 from zope.testing import doctest
 
+from zodbbrowser.app import _gimmeHistory
+
 from zodbbrowser.app import ZodbObject
 from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
                             PersistentValue, OOBTreeState, GenericState
@@ -82,15 +84,6 @@ def doctest_ZodbOBject():
         u'item2'
         >>> u'\N{SNOWMAN}' == o3.getName()
         True
-
-    Test path property
-
-        >>> o1.getPath()
-        '/???'
-        >>> o2.getPath()
-        u'/ROOT/item2'
-        >>> o4.getPath()
-        u'/ROOT/item2/item2.1'
 
     List attributes
 
