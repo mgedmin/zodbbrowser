@@ -113,10 +113,11 @@ h4.transaction a:active {
 }
 
 div.object .truncated {
-  color: red;
-  border: 1px solid red;
-  padding: 1px;
+  background: #f44;
+  color: white;
   margin: 2px;
+  padding: 0 1px;
+  -moz-border-radius: 1px;
 }
 
 .tid-info {
