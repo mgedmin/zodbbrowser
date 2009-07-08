@@ -26,7 +26,7 @@
     <div class="attributes"
          tal:define="attributes object/listAttributes"
          tal:condition="attributes">
-      <h3 class="expander" onclick="expand(this)">
+      <h3 class="expander">
         <img tal:attributes="src context/++resource++collapse.png"
              alt="collapse" />&nbsp;Attributes
       </h3>
@@ -42,7 +42,7 @@
     <div class="history"
          tal:define="history object/listHistory"
          tal:condition="history">
-      <h3 class="expander" onclick="expand(this)">
+      <h3 class="expander">
         <img tal:attributes="src context/++resource++collapse.png"
              alt="collapse" />&nbsp;History
       </h3>

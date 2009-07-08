@@ -1,12 +1,12 @@
-function expand(caller) {
-    var content = $(caller).next();
-    var icon = $(caller).children('img');
+function collapseOrExpand(item) {
+    var content = $(this).next();
+    var icon = $(this).children('img');
     if (content.is(':hidden')) {
-        content.show();
         $(icon).attr('src', '@@/collapse.png');
+        content.slideDown();
     } else {
-        content.hide();
         $(icon).attr('src', '@@/expand.png');
+        content.slideUp();
     }
 }
 
@@ -50,6 +50,7 @@ function activateGoTo() {
 }
 
 $(document).ready(function() {
+    $('.expander').click(collapseOrExpand);
     $('#path a').click(function(event){event.stopPropagation();});
     $('#path').click(showGoTo);
     $('#gotoInput').blur(hideGoTo);
