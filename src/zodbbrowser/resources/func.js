@@ -59,4 +59,17 @@ $(document).ready(function() {
             activateGoTo();
         }
     });
+    $('#gotoInput').keydown(function(event){
+        if (event.keyCode == 27) {
+            hideGoTo();
+        }
+    });
+    $(document).keypress(function(event){
+        if (event.which == 103) { // lowercase g
+            if ($('#goto').is(':hidden')) {
+                showGoTo();
+                event.preventDefault();
+            }
+        }
+    });
 });
