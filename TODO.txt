@@ -1,0 +1,9 @@
+TODO
+====
+
+- Command-line option to specify port or host:port to listen on
+- Command-line option to specify a htpasswd file name for protection
+- Figure out how to start the standalone app without actually loading any
+  objects from the ZODB
+- Audit source code and verify that code of persistent objects is never
+  called (except maybe for __repr__ methods).
