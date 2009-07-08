@@ -10,3 +10,4 @@ tags
 .project
 .pydevproject
 .settings
+dist
