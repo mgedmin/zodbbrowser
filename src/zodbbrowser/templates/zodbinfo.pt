@@ -46,16 +46,16 @@
                                             and 'history current' or 'history'">
           <a tal:attributes="href history/href"
             tal:content="string:#${repeat/history/index}"></a>
-	      <strong tal:content="history/short" />
-	      <br />
-	      <tal:block tal:repeat="diff python:sorted(history['diff'].items())">
-	        <span class="diff">
-	          <strong tal:content="python:diff[0]" />:
-	          <span tal:content="python:diff[1][0]" />
-	          <span tal:content="python:diff[1][1]" />
-	        </span> 
-	        <br />
-	      </tal:block>
+              <strong tal:content="history/short" />
+              <br />
+              <tal:block tal:repeat="diff python:sorted(history['diff'].items())">
+                <span class="diff">
+                  <strong tal:content="python:diff[0]" />:
+                  <span tal:content="python:diff[1][0]" />
+                  <span tal:content="python:diff[1][1]" />
+                </span> 
+                <br />
+              </tal:block>
         </div>
       </div>
     </div>
