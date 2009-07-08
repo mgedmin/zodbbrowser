@@ -109,7 +109,7 @@ class PersistentValue(object):
     def render(self, tid=None):
         url = '/zodbinfo.html?oid=%d' % u64(self.context._p_oid)
         if tid is not None:
-            url += "&tid=" + str(u64(tid))
+            url += "&amp;tid=" + str(u64(tid))
         value = GenericValue(self.context).render()
         state = _loadState(self.context, tid)
         if isinstance(state, int):

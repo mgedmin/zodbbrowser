@@ -17,7 +17,11 @@ div.object {
 }
 
 div.object .heading {
-  background-color: orange;
+  background-color: #aaffaa;
+  border-bottom: 1px solid #00cc33;
+  border-right: 1px solid #00cc33;
+  border-top: 1px solid #ccffcc;
+  border-left: 1px solid #ccffcc;
   padding: 5px;
 }
 
@@ -71,6 +75,10 @@ div.object {
 }
 
 div.history {
+  margin: 2px;
+}
+
+div.attributes {
   margin: 2px;
 }
 

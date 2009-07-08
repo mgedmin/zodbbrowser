@@ -6,14 +6,12 @@
     <div class="heading">
       <h1>
         <span tal:content="object/getPath"></span><br/>
-        <span tal:condition="not:object/current"
-              tal:content="string:at ${view/getObjectTidNice}"
-              class="tidInfo"/>
-        <br/>
-        <span tal:condition="not:object/current"
-              tal:content="string:(last change before or at
-                                   ${view/getObjectRequestedTidNice})"
-              class="tidInfo"/>
+        <span tal:condition="not:object/current" class="tidInfo">
+          <span tal:content="string:at ${view/getObjectTidNice}" />
+          <br />
+          <span tal:content="string:(last change before or at
+                                   ${view/getObjectRequestedTidNice})"/>
+        </span>
       </h1>
       <h2><i tal:content="view/getObjectType" /></h2>
     </div>
@@ -21,8 +19,8 @@
     <div class="attributes"
          tal:define="attributes object/listAttributes"
          tal:condition="attributes">
-      <h3>Attributes</h3>
-      <input type="button" value="-" onclick="expand(this)" />
+      <h3><img tal:attributes="src context/++resource++collapse.png"
+               alt="collapse" onclick="expand(this)" /> Attributes</h3>
       <h4>
         <tal:block tal:repeat="attr attributes">
           <strong tal:content="attr/name" />:
@@ -35,26 +33,28 @@
     <div class="history"
          tal:define="history object/listHistory"
          tal:condition="history">
-      <h3>History</h3>
-      <input type="button" value="-" onclick="expand(this)" />
-      <span tal:condition="not:view/getObjectRequestedTid">-&gt;</span>
-      <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}">
-          Latest</a><br />
-      <div class="history" tal:repeat="history history"
-           tal:attributes="class python:history['current']
-                                          and 'history current' or 'history'">
-        <a tal:attributes="href history/href"
-	       tal:content="string:#${repeat/history/index}"></a>
-	    <strong tal:content="history/short" />
-	    <br />
-	    <tal:block tal:repeat="diff python:history['diff'].iteritems()">
-	      <span class="diff">
-	        <strong tal:content="python:diff[0]" />: 
-	        <span tal:content="python:diff[1][0]" /> 
-	        <span tal:content="python:diff[1][1]" />
-	      </span> 
+      <h3><img tal:attributes="src context/++resource++collapse.png"
+               alt="collapse" onclick="expand(this)" /> History</h3>
+      <div>
+        <span tal:condition="not:view/getObjectRequestedTid">-&gt;</span>
+        <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}">
+            Latest</a><br />
+        <div class="history" tal:repeat="history history"
+            tal:attributes="class python:history['current']
+                                            and 'history current' or 'history'">
+          <a tal:attributes="href history/href"
+            tal:content="string:#${repeat/history/index}"></a>
+	      <strong tal:content="history/short" />
 	      <br />
-	    </tal:block>
+	      <tal:block tal:repeat="diff python:history['diff'].iteritems()">
+	        <span class="diff">
+	          <strong tal:content="python:diff[0]" />: 
+	          <span tal:content="python:diff[1][0]" /> 
+	          <span tal:content="python:diff[1][1]" />
+	        </span> 
+	        <br />
+	      </tal:block>
+        </div>
       </div>
     </div>
   </div>

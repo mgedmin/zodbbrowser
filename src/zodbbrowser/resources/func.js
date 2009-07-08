@@ -1,13 +1,13 @@
 $(document).ready(
     function() {
         expand = function (caller) {
-            content = $(caller).next()
+            content = $(caller).parent().next()
             if (content.is(':hidden')) {
                 content.show()
-                $(caller).val('-')
+                $(caller).attr('src', '@@/collapse.png')
             } else {
                 content.hide()
-                $(caller).val('+')
+                $(caller).attr('src', '@@/expand.png')
             }
         }
     }

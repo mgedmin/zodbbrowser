@@ -34,4 +34,14 @@
     file="resources/func.js"
   />
 
+  <resource
+    name="expand.png"
+    file="resources/expand.png"
+  />
+
+  <resource
+    name="collapse.png"
+    file="resources/collapse.png"
+  />
+
 </configure>
