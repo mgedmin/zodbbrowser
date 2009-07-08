@@ -87,7 +87,8 @@
           </h4>
           <div class="diff">
           <tal:block tal:repeat="diff python:sorted(history['diff'].items())">
-            <span class="diff">
+            <span class="diff"
+                  tal:attributes="class python:'diff ' + diff[1][0].split()[0]">
               <strong tal:content="python:diff[0]" />:
               <span tal:content="python:diff[1][0]" />
               <span tal:content="structure python:diff[1][1]" />

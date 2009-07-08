@@ -136,6 +136,15 @@ div.diff {
   margin-bottom: 1em;
 }
 
+span.removed {
+  text-decoration: line-through;
+  color: #400;
+}
+
+span.added {
+  color: #040;
+}
+
 div.history {
   margin: 2px;
 }
