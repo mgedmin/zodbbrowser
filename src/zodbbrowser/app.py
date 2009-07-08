@@ -251,19 +251,6 @@ class ZodbObject(object):
         loadedState = self._loadState(self.tid)
         self.state = getMultiAdapter((self.obj, loadedState), IState)
 
-    def getPath(self):
-        if IContainmentRoot.providedBy(self.obj):
-            path = "/ROOT"
-        else:
-            parent = self.state.getParent()
-            if parent is None:
-                path = "/???"
-            else:
-                po = ZodbObject(parent)
-                po.load(self.requestedTid)
-                path = po.getPath() + "/" + self.state.getName()
-        return path
-
     def listAttributes(self):
         dictionary = self.state.listAttributes()
         attrs = []
@@ -280,7 +267,22 @@ class ZodbObject(object):
         return self.obj._p_jar.oldstate(self.obj, tid)
 
     def getName(self):
-        return self.state.getName()
+        if (self.isRoot()):
+            return "ROOT"
+        else:
+            return self.state.getName()
+
+    def getObjectId(self):
+        return u64(self.obj._p_oid)
+
+    def getParent(self):
+        return self.state.getParent()
+
+    def isRoot(self):
+        if IContainmentRoot.providedBy(self.obj):
+            return True
+        else:
+            return False
 
     def listHistory(self, keyFilter=None):
         """List transactions that modified a persistent object."""

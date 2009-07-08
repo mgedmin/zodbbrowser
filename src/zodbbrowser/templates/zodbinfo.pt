@@ -5,7 +5,7 @@
   <div class="object">
     <div class="heading">
       <h1>
-        <span tal:content="object/getPath"></span><br/>
+        <span tal:content="structure view/getBreadcrumbs"></span><br/>
         <span tal:condition="not:object/current" class="tidInfo">
           <span tal:content="string:at ${view/getObjectTidNice}" />
           <br />

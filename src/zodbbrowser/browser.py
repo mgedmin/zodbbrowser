@@ -42,7 +42,7 @@ class ZodbInfoView(BrowserView):
         return self.obj
 
     def getObjectId(self):
-        return u64(self.obj.obj._p_oid)
+        return self.obj.getObjectId()
 
     def getObjectTid(self):
         return u64(self.obj.tid)
@@ -64,6 +64,30 @@ class ZodbInfoView(BrowserView):
 
     def getObjectType(self):
         return str(getattr(self.obj.obj, '__class__', None))
+
+    def getCustomUrl(self, oid=None, tid=None):
+        url = "zodbinfo.html?"
+        if oid is not None:
+            url += "oid=" + str(oid) + "&amp;"
+        if tid is not None:
+            url += "tid=" + str(tid) + "&amp;"
+        return url
+
+    def getBreadcrumbs(self):
+        breadcrumbs = ""
+        object = self.obj
+        while True:
+            breadcrumbs = '<a href="' + \
+                str(self.getCustomUrl(object.getObjectId())) + \
+                '">' + object.getName() + "</a>/" + breadcrumbs
+            parent = object.getParent()
+            if parent is not None:
+                object = ZodbObject(parent)
+                object.load()
+            else:
+                break
+
+        return breadcrumbs
 
     def tidToTimestamp(self, tid):
         if isinstance(tid, str) and len(tid) == 8:
