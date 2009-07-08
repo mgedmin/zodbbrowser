@@ -4,16 +4,13 @@
 <tal:block define="object view/obj">
   <div class="object">
     <div class="heading">
-      <h1>
-        <span tal:content="structure view/getBreadcrumbs"></span><br/>
-        <span tal:condition="not:object/current" class="tidInfo">
-          <span tal:content="string:at ${view/getObjectTidNice}" />
-          <br />
-          <span tal:content="string:(last change before or at
-                                   ${view/getObjectRequestedTidNice})"/>
-        </span>
-      </h1>
-      <h2><i tal:content="view/getObjectType" /></h2>
+      <h1 tal:content="structure view/getBreadcrumbs" />
+      <h2 class="type" tal:content="view/getObjectType" />
+      <div class="tid-info" tal:condition="not:object/current">
+        <tal:span tal:content="string:at ${view/getObjectTidNice}" />
+        <tal:span tal:content="string:(last change before or at
+                                 ${view/getObjectRequestedTidNice})"/>
+      </div>
     </div>
 
     <div class="attributes"

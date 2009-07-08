@@ -59,8 +59,9 @@ div.object .truncated {
   margin: 2px;
 }
 
-span.tidInfo {
-	color: white;
+.tid-info {
+  color: #141;
+  margin-left: 2em;
 }
 
 span.diff {
