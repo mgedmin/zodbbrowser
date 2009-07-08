@@ -48,7 +48,7 @@
                                             and 'transaction current' or 'transaction'">
           <h4 class="transaction" tal:attributes="id string:tid${history/utid}">
             <a tal:attributes="href history/href">
-              #<span tal:replace="repeat/history/index" />:
+              #<span tal:replace="history/index" />:
               <span tal:content="history/short" />
             </a>
           </h4>
