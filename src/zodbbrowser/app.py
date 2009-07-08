@@ -119,14 +119,18 @@ class PersistentValue(object):
 
 
 class IState(Interface):
+
     def listAttributes(self):
-        pass
+        """Return the attributes of this object as tuples (name, value)."""
+
     def getParent(self):
-        pass
+        """Return the parent of this object."""
+
     def getName(self):
-        pass
-    def diff(self, other):
-        pass
+        """Return the name of this object."""
+
+    def asDict(self):
+        """Return the state expressed as an attribute dictionary."""
 
 
 def _diff_dicts(this, other):
@@ -158,10 +162,8 @@ class FallbackState(object):
     def listAttributes(self):
         return []
 
-    def diff(self, other):
-        if other is None:
-            other = {}
-        return _diff_dicts({}, other)
+    def asDict(self):
+        return {}
 
 
 class OOBTreeState(object):
@@ -181,13 +183,8 @@ class OOBTreeState(object):
     def listAttributes(self):
         return self.btree.items()
 
-    def diff(self, other):
-        if other is None:
-            state = {}
-        else:
-            state = OOBTree()
-            state.__setstate__(other)
-        return _diff_dicts(self.btree, state)
+    def asDict(self):
+        return self.btree
 
 
 class GenericState(object):
@@ -212,10 +209,8 @@ class GenericState(object):
     def listAttributes(self):
         return self.context.items()
 
-    def diff(self, other):
-        if other is None:
-            other = {}
-        return _diff_dicts(self.context, other)
+    def asDict(self):
+        return self.context
 
 
 def _loadState(obj, tid=None):
@@ -268,8 +263,7 @@ class ZodbObject(object):
             self.current = False
         else:
             self.tid = self.history[0]['tid']
-        loadedState = self._loadState(self.tid)
-        self.state = getMultiAdapter((self.obj, loadedState), IState)
+        self.state = self._loadState(self.tid)
 
     def listAttributes(self):
         dictionary = self.state.listAttributes()
@@ -280,7 +274,8 @@ class ZodbObject(object):
         return attrs
 
     def _loadState(self, tid):
-        return self.obj._p_jar.oldstate(self.obj, tid)
+        loadedState = self.obj._p_jar.oldstate(self.obj, tid)
+        return getMultiAdapter((self.obj, loadedState), IState)
 
     def getName(self):
         if self.isRoot():
@@ -308,27 +303,23 @@ class ZodbObject(object):
 
         for n, d in enumerate(self.history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
-                time.localtime(d['time']))) + " "
-                + d['user_name'] + " "
-                + d['description'])
-            diff = []
+                                       time.localtime(d['time']))) + " "
+                     + d['user_name'] + " "
+                     + d['description'])
             url = '/zodbinfo.html?oid=%d&tid=%d' % (u64(self.obj._p_oid),
-                        u64(d['tid']))
+                                                    u64(d['tid']))
             current = d['tid'] == self.tid and self.requestedTid is not None
-            s = self._loadState(d['tid'])
-            s = getMultiAdapter((self.obj, s), IState)
+            curState = self._loadState(d['tid']).asDict()
             if n < len(self.history) - 1:
-                diff = s.diff(self._loadState(self.history[n + 1]['tid']))
+                oldState = self._loadState(self.history[n + 1]['tid']).asDict()
             else:
-                diff = s.diff(None)
-
-            for key, value in diff.items():
-                diff[key][1] = IValueRenderer(value[1]).render(
-                                              d['tid'])
+                oldState = {}
+            diff = _diff_dicts(curState, oldState)
+            for key, (action, value) in diff.items():
+                diff[key][1] = IValueRenderer(value).render(d['tid'])
 
             results.append(dict(short=short, utid=u64(d['tid']),
-                    href=url, current=current,
-                    diff=diff, **d))
+                                href=url, current=current, diff=diff, **d))
 
         for i in range(len(results)):
             results[i]['index'] = len(results) - i
