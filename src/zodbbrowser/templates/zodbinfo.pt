@@ -37,11 +37,12 @@
              alt="collapse" />&nbsp;History
       </h3>
       <div>
-        <span tal:condition="not:view/getObjectRequestedTid">-&gt;</span>
-        <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}">
-            Latest</a><br />
+        <div tal:attributes="class python:view.getObjectRequestedTid() and 'history' or 'history current'">
+          <a tal:attributes="href string:zodbinfo.html?oid=${view/getObjectId}"
+             >Latest</a>
+        </div>
         <div class="history" tal:repeat="history history"
-            tal:attributes="class python:history['current']
+            tal:attributes="class python:(history['current'] or repeat['history'].start() and not view.getObjectRequestedTid())
                                             and 'history current' or 'history'">
           <a tal:attributes="href history/href"
             tal:content="string:#${repeat/history/index}"></a>
