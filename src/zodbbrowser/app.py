@@ -16,6 +16,24 @@ from zope.component import adapts, getMultiAdapter
 from zope.interface import implements
 from zope.interface import Interface
 
+# be compatible with Zope 3.4:
+try:
+    from zope.container.folder import Folder
+except ImportError:
+    from zope.app.folder import Folder
+try:
+    from zope.container.sample import SampleContainer
+except ImportError:
+    from zope.app.container.sample import SampleContainer
+try:
+    from zope.container.btree import BTreeContainer
+except ImportError:
+    from zope.app.container.btree import BTreeContainer
+try:
+    from zope.container.ordered import OrderedContainer
+except ImportError:
+    from zope.app.container.ordered import OrderedContainer
+
 
 class IValueRenderer(Interface):
 
@@ -241,6 +259,38 @@ class GenericState(object):
 
     def asDict(self):
         return self.context
+
+
+class FolderState(GenericState):
+    adapts(Folder, dict)
+
+    def listItems(self):
+        return self.context.get('data', {}).items()
+
+
+class SampleContainerState(GenericState):
+    adapts(SampleContainer, dict)
+
+    def listItems(self):
+        return self.context.get('_SampleContainer__data', {}).items()
+
+
+class BTreeContainerState(GenericState):
+    adapts(BTreeContainer, dict)
+
+    def listItems(self):
+        # This is not a typo; BTreeContainer really uses
+        # _SampleContainer__data, for BBB
+        return self.context.get('_SampleContainer__data', {}).items()
+
+
+class OrderedContainerState(GenericState):
+    adapts(OrderedContainer, dict)
+
+    def listItems(self):
+        container = OrderedContainer()
+        container.__setstate__(self.context)
+        return container.items()
 
 
 def _loadState(obj, tid=None):

@@ -85,9 +85,9 @@ def doctest_ZodbOBject():
         >>> u'\N{SNOWMAN}' == o3.getName()
         True
 
-    List attributes
+    List attributes and items
 
-        >>> [a.name for a in o1.listAttributes()]
+        >>> [a.name for a in o1.listItems()]
         ['key1', 'key2', 'key3']
         >>> [a.name for a in o2.listAttributes()]
         ['_BTreeContainer__len', '_SampleContainer__data', '__name__', '__parent__']
@@ -98,17 +98,17 @@ def doctest_ZodbOBject():
         >>> transaction.commit()
         >>> del dbroot.data['key2']
         >>> transaction.commit()
-        >>> [a.name for a in o1.listAttributes()]
+        >>> [a.name for a in o1.listItems()]
         ['key1', 'key2', 'key3']
         >>> o1.load()
-        >>> [a.name for a in o1.listAttributes()]
+        >>> [a.name for a in o1.listItems()]
         ['key1', 'key3', 'key4']
 
         >>> history = _gimmeHistory(o1.obj)
         >>> len(history)
         3
         >>> o1.load(history[1]['tid'])
-        >>> [a.name for a in o1.listAttributes()]
+        >>> [a.name for a in o1.listItems()]
         ['key1', 'key2', 'key3', 'key4']
 
     """

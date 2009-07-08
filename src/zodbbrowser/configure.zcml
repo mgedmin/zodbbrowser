@@ -14,5 +14,9 @@
   <adapter factory=".app.IntState" />
   <adapter factory=".app.OOBTreeState" />
   <adapter factory=".app.GenericState" />
+  <adapter factory=".app.FolderState" />
+  <adapter factory=".app.SampleContainerState" />
+  <adapter factory=".app.BTreeContainerState" />
+  <adapter factory=".app.OrderedContainerState" />
 
 </configure>
