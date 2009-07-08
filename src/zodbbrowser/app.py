@@ -118,6 +118,9 @@ class IState(Interface):
     def listAttributes(self):
         """Return the attributes of this object as tuples (name, value)."""
 
+    def listItems(self):
+        """Return the items of this object as tuples (name, value)."""
+
     def getParent(self):
         """Return the parent of this object."""
 
@@ -157,6 +160,9 @@ class FallbackState(object):
     def listAttributes(self):
         return []
 
+    def listItems(self):
+        return []
+
     def asDict(self):
         return {}
 
@@ -177,6 +183,9 @@ class IntState(object):
     def listAttributes(self):
         return [('int value', self.state)]
 
+    def listItems(self):
+        return []
+
     def asDict(self):
         return {'int value': self.state}
 
@@ -196,6 +205,9 @@ class OOBTreeState(object):
         return None
 
     def listAttributes(self):
+        return []
+
+    def listItems(self):
         return self.btree.items()
 
     def asDict(self):
@@ -223,6 +235,9 @@ class GenericState(object):
 
     def listAttributes(self):
         return self.context.items()
+
+    def listItems(self):
+        return []
 
     def asDict(self):
         return self.context
@@ -282,6 +297,15 @@ class ZodbObject(object):
 
     def listAttributes(self):
         dictionary = self.state.listAttributes()
+        attrs = []
+        for name, value in sorted(dictionary):
+            attrs.append(ZodbObjectAttribute(name=name, value=value,
+                         tid=self.requestedTid))
+        return attrs
+
+    def listItems(self):
+        # XXX refactor to share code with listAttributes
+        dictionary = self.state.listItems()
         attrs = []
         for name, value in sorted(dictionary):
             attrs.append(ZodbObjectAttribute(name=name, value=value,

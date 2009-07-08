@@ -39,6 +39,22 @@
       </div>
     </div>
 
+    <div class="items"
+         tal:define="items object/listItems"
+         tal:condition="items">
+      <h3 class="expander">
+        <img tal:attributes="src context/++resource++collapse.png"
+             alt="collapse" />&nbsp;Items
+      </h3>
+      <div class="collapsible">
+        <tal:block tal:repeat="item items">
+          <strong tal:content="item/name" />:
+          <tal:block replace="structure item/rendered_value" />
+          <br />
+        </tal:block>
+      </div>
+    </div>
+
     <div class="history"
          tal:define="history object/listHistory"
          tal:condition="history">
