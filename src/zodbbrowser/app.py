@@ -12,6 +12,7 @@ from zope.component import getMultiAdapter
 
 from zodbbrowser.interfaces import IValueRenderer, IStateInterpreter
 from zodbbrowser.history import getHistory
+from zodbbrowser.diff import compareDictsHTML
 
 
 class ZodbObjectAttribute(object):
@@ -111,9 +112,7 @@ class ZodbObject(object):
                 oldState = self._loadState(self.history[n + 1]['tid']).asDict()
             else:
                 oldState = {}
-            diff = _diff_dicts(curState, oldState)
-            for key, (action, value) in diff.items():
-                diff[key][1] = IValueRenderer(value).render(d['tid'])
+            diff = compareDictsHTML(curState, oldState, d['tid'])
 
             results.append(dict(short=short, utid=u64(d['tid']),
                                 href=url, current=current, diff=diff, **d))
@@ -122,17 +121,4 @@ class ZodbObject(object):
             results[i]['index'] = len(results) - i
 
         return results
-
-
-def _diff_dicts(this, other):
-    diffs = {}
-    for key, value in sorted(this.items()):
-        if key not in other:
-            diffs[key] = ['added', value]
-        elif other[key] != value:
-            diffs[key] = ['changed to', value]
-    for key, value in sorted(other.items()):
-        if key not in this:
-            diffs[key] = ['removed', value]
-    return diffs
 

@@ -141,6 +141,10 @@ div.diff {
   margin-bottom: 1em;
 }
 
+div.diff div.diff {
+  margin-bottom: 0;
+}
+
 span.removed {
   text-decoration: line-through;
   color: #400;
