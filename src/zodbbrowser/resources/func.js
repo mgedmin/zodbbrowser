@@ -1,4 +1,4 @@
-function collapseOrExpand(item) {
+function collapseOrExpand() {
     var content = $(this).next();
     var icon = $(this).children('img');
     if (content.is(':hidden')) {
