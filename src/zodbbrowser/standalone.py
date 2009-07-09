@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 ZODB Browser as a standalone app
 
@@ -156,3 +157,6 @@ def main():
 
     serve_forever()
 
+
+if __name__ == '__main__':
+    main()
