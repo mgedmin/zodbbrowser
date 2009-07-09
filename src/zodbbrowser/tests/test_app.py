@@ -13,7 +13,8 @@ from zodbbrowser.app import _gimmeHistory
 
 from zodbbrowser.app import ZodbObject
 from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
-                            PersistentValue, OOBTreeState, GenericState
+                            PersistentValue
+from zodbbrowser.state import OOBTreeState, GenericState
 
 
 class RootFolderStub(BTreeContainer):

@@ -23,10 +23,25 @@ class IStateInterpreter(Interface):
     """
 
     def listAttributes():
-        """Return the attributes of this object as tuples (name, value)."""
+        """Return the attributes of this object as tuples (name, value).
+
+        The order of the attributes returned is irrelevant.
+
+        May return None to indicate that this kind of object cannot
+        store attributes.
+        """
 
     def listItems():
-        """Return the items of this object as tuples (name, value)."""
+        """Return the items of this object as tuples (name, value).
+
+        The order of the attributes returned matters.
+
+        Often these are not stored directly, but extracted from an attribute
+        and presented as items for convenience.
+
+        May return None to indicate that this kind of object is not a
+        container and cannot store items.
+        """
 
     def getParent():
         """Return the parent of this object."""

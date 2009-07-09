@@ -6,11 +6,8 @@ import inspect
 import time
 from cgi import escape
 
-from BTrees._OOBTree import OOBTree
-
 from ZODB.utils import u64
 from persistent import Persistent
-from persistent.dict import PersistentDict
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
 from zope.component import adapts, getMultiAdapter
@@ -18,22 +15,6 @@ from zope.interface import implements
 from zope.interface import Interface
 
 # be compatible with Zope 3.4:
-try:
-    from zope.container.folder import Folder
-except ImportError:
-    from zope.app.folder import Folder # BBB
-try:
-    from zope.container.sample import SampleContainer
-except ImportError:
-    from zope.app.container.sample import SampleContainer # BBB
-try:
-    from zope.container.btree import BTreeContainer
-except ImportError:
-    from zope.app.container.btree import BTreeContainer # BBB
-try:
-    from zope.container.ordered import OrderedContainer
-except ImportError:
-    from zope.app.container.ordered import OrderedContainer # BBB
 
 from zodbbrowser.interfaces import IValueRenderer, IStateInterpreter
 
@@ -126,161 +107,6 @@ class PersistentValue(object):
             url += "&amp;tid=" + str(u64(tid))
         value = GenericValue(self.context).render()
         return '<a href="%s">%s</a>' % (url, value)
-
-
-class FallbackState(object):
-    adapts(Interface, Interface, None)
-    implements(IStateInterpreter)
-
-    def __init__(self, type, state, tid):
-        pass
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return None
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return {}
-
-
-class IntState(object):
-    adapts(Interface, int, None)
-    implements(IStateInterpreter)
-
-    def __init__(self, type, state, tid):
-        self.state = state
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return [('int value', self.state)]
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return {'int value': self.state}
-
-
-class OOBTreeState(object):
-    adapts(OOBTree, tuple, None)
-    implements(IStateInterpreter)
-
-    def __init__(self, type, state, tid):
-        self.btree = OOBTree()
-        self.btree.__setstate__(state)
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return None
-
-    def listItems(self):
-        return self.btree.items()
-
-    def asDict(self):
-        return self.btree
-
-
-class EmptyOOBTreeState(OOBTreeState):
-    adapts(OOBTree, type(None), None)
-    implements(IStateInterpreter)
-
-
-class GenericState(object):
-    adapts(Interface, dict, None)
-    implements(IStateInterpreter)
-
-    def __init__(self, type, state, tid):
-        self.state = state
-        self.tid = tid
-
-    def getName(self):
-        return self.state.get('__name__', '???')
-
-    def getParent(self):
-        return self.state.get('__parent__')
-
-    def listAttributes(self):
-        return self.state.items()
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return self.state
-
-
-class PersistentDictState(GenericState):
-    adapts(PersistentDict, dict, None)
-
-    def listItems(self):
-        return sorted(self.state.get('data', {}).items())
-
-
-class FolderState(GenericState):
-    adapts(Folder, dict, None)
-
-    def listItems(self):
-        data = self.state.get('data')
-        if not data:
-            return []
-        # data will be an OOBTree
-        loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IStateInterpreter).listItems()
-
-
-class SampleContainerState(GenericState):
-    adapts(SampleContainer, dict, None)
-
-    def listItems(self):
-        data = self.state.get('_SampleContainer__data')
-        if not data:
-            return []
-        # data will be a PersistentDict
-        loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IStateInterpreter).listItems()
-
-
-class BTreeContainerState(GenericState):
-    adapts(BTreeContainer, dict, None)
-
-    def listItems(self):
-        # This is not a typo; BTreeContainer really uses
-        # _SampleContainer__data, for BBB
-        data = self.state.get('_SampleContainer__data')
-        if not data:
-            return []
-        # data will be an OOBTree
-        loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IStateInterpreter).listItems()
-
-
-class OrderedContainerState(GenericState):
-    adapts(OrderedContainer, dict, None)
-
-    def listItems(self):
-        container = OrderedContainer()
-        container.__setstate__(self.context)
-        container._data.__setstate__(_loadState(container._data, tid=self.tid))
-        container._order.__setstate__(_loadState(container._order, tid=self.tid))
-        return container.items()
 
 
 class ZodbObject(object):
@@ -377,18 +203,6 @@ class ZodbObject(object):
             results[i]['index'] = len(results) - i
 
         return results
-
-
-def _loadState(obj, tid=None):
-    history = _gimmeHistory(obj)
-    if tid is None:
-        tid = history[0]['tid']
-    else:
-        for i, d in enumerate(history):
-            if u64(d['tid']) <= u64(tid):
-                tid = d['tid']
-                break
-    return obj._p_jar.oldstate(obj, tid)
 
 
 def _gimmeHistory(obj):
