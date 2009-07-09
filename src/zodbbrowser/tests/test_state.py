@@ -17,9 +17,12 @@ from zope.component import provideAdapter
 from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.interfaces import IStateInterpreter
-from zodbbrowser.state import (GenericState, FallbackState, EmptyOOBTreeState,
-                               OOBTreeState)
 from zodbbrowser.history import getHistory, loadState
+from zodbbrowser.state import (GenericState,
+                               EmptyOOBTreeState,
+                               OOBTreeState,
+                               PersistentDictState,
+                               FallbackState)
 
 
 class Frob(object):
@@ -53,8 +56,6 @@ class TestGenericState(unittest.TestCase):
         parent = Frob()
         state = GenericState(Frob(), {'__parent__': parent}, None)
         self.assertEquals(state.getParent(), parent)
-
-    # XXX: test getParent with tid loads old state of parent.
 
     def test_listAttributes(self):
         state = GenericState(Frob(), {'foo': 1, 'bar': 2, 'baz': 3}, None)
@@ -186,6 +187,22 @@ class TestEmptyOOBTreeState(unittest.TestCase):
 
     def test_asDict(self):
         self.assertEquals(dict(self.state.asDict()), {})
+
+
+class TestPersistentDictSate(unittest.TestCase):
+
+    def test_listItems(self):
+        state = PersistentDictState(Frob(),
+                                    {'data': dict(a=42, b=23, c=17)},
+                                    None)
+        self.assertEquals(state.listItems(),
+                          [('a', 42), ('b', 23), ('c', 17)])
+
+    def test_listItems_no_data(self):
+        # shouldn't happen, but let's display what exists in the DB instead
+        # of crashing
+        state = PersistentDictState(Frob(), {}, None)
+        self.assertEquals(state.listItems(), [])
 
 
 class TestFallbackState(unittest.TestCase):
