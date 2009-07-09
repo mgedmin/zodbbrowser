@@ -17,6 +17,7 @@ from zope.interface import Interface
 # be compatible with Zope 3.4:
 
 from zodbbrowser.interfaces import IValueRenderer, IStateInterpreter
+from zodbbrowser.history import getHistory
 
 
 class ZodbObjectAttribute(object):
@@ -123,7 +124,7 @@ class ZodbObject(object):
     def load(self, tid=None):
         """Load current state if no tid is specified"""
         self.requestedTid = tid
-        self.history = _gimmeHistory(self.obj)
+        self.history = getHistory(self.obj)
         if tid is not None:
             # load object state with tid less or equal to given tid
             self.current = False
@@ -203,19 +204,6 @@ class ZodbObject(object):
             results[i]['index'] = len(results) - i
 
         return results
-
-
-def _gimmeHistory(obj):
-    storage = obj._p_jar._storage
-    oid = obj._p_oid
-    history = None
-    # XXX OMG ouch
-    if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
-        history = storage.history(oid, version='', length=999999999999)
-    else: # FileStorage
-        history = storage.history(oid, size=999999999999)
-
-    return history
 
 
 def _diff_dicts(this, other):

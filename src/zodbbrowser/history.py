@@ -1,6 +1,6 @@
 import inspect
 
-from ZODB.utils import u64
+from ZODB.utils import tid_repr
 from ZODB.POSException import POSKeyError
 from persistent import Persistent
 
@@ -34,21 +34,11 @@ def getHistory(obj):
 def loadState(obj, tid=None):
     """Load (old) state of a Persistent object."""
     assert isinstance(obj, Persistent)
-    oid = obj._p_oid
     conn = obj._p_jar
-    storage = conn._storage
-    if tid is None:
-        # get the very latest revision
-        return conn.load(obj, '')[0]
     # sadly ZODB has no API for get revision at or before tid
-    try:
-        # get the revision at tid
-        return storage.loadSerial(oid, tid)
-    except POSKeyError:
-        # get revision strictly before tid
-        data_and_info = obj._p_jar.loadBefore(obj._p_oid, tid)
-        if data_and_info is not None:
-            return data_and_info[0]
+    for record in getHistory(obj):
+        if tid is None or record['tid'] <= tid:
+            return conn.oldstate(obj, record['tid'])
     raise Exception('%r did not exist in or before transaction %r' % (
-                        obj, u64(tid)))
+                        obj, tid_repr(tid)))
 
