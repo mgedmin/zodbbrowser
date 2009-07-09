@@ -26,14 +26,14 @@ def compareDictsHTML(new, old, tid=None):
     """Compare two state dictionaries, return HTML."""
     html = ['<div class="diff">\n']
     diff = compareDicts(new, old)
-    for key, (action, newvalue, oldvalue) in diff.items():
+    for key, (action, newvalue, oldvalue) in sorted(diff.items()):
         what = action.split()[0]
-        html.append('<span class="diff %s">\n' % escape(what))
-        html.append('  <strong>%s</strong>: ' % escape(key))
+        html.append('  <span class="diff %s">\n' % escape(what))
+        html.append('    <strong>%s</strong>: ' % escape(key))
         if (action == CHANGED and isinstance(oldvalue, dict) and
             isinstance(newvalue, dict)):
             html.append('dictionary changed:\n')
-            html.append('</span>\n')
+            html.append('  </span>\n')
             html.append(compareDictsHTML(newvalue, oldvalue, tid))
         else:
             html.append(action)
@@ -44,7 +44,7 @@ def compareDictsHTML(new, old, tid=None):
                 value = newvalue
             html.append(IValueRenderer(value).render(tid))
             html.append('<br />\n')
-            html.append('</span>\n')
+            html.append('  </span>\n')
     html.append('</div>\n')
     return ''.join(html)
 
