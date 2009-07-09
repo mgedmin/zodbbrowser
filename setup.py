@@ -42,6 +42,6 @@ setup(
             ],
     ),
     entry_points=dict(
-        console_scripts=['zodbbrowser = zodbbrowser.main:main'],
+        console_scripts=['zodbbrowser = zodbbrowser.standalone:main'],
     ),
 )
