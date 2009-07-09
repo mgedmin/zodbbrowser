@@ -150,19 +150,6 @@ class IState(Interface):
         """Return the state expressed as an attribute dictionary."""
 
 
-def _diff_dicts(this, other):
-    diffs = {}
-    for key, value in sorted(this.items()):
-        if key not in other:
-            diffs[key] = ['added', value]
-        elif other[key] != value:
-            diffs[key] = ['changed to', value]
-    for key, value in sorted(other.items()):
-        if key not in this:
-            diffs[key] = ['removed', value]
-    return diffs
-
-
 class FallbackState(object):
     adapts(Interface, Interface, None)
     implements(IState)
@@ -318,31 +305,6 @@ class OrderedContainerState(GenericState):
         return container.items()
 
 
-def _loadState(obj, tid=None):
-    history = _gimmeHistory(obj)
-    if tid is None:
-        tid = history[0]['tid']
-    else:
-        for i, d in enumerate(history):
-            if u64(d['tid']) <= u64(tid):
-                tid = d['tid']
-                break
-    return obj._p_jar.oldstate(obj, tid)
-
-
-def _gimmeHistory(obj):
-    storage = obj._p_jar._storage
-    oid = obj._p_oid
-    history = None
-    # XXX OMG ouch
-    if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
-        history = storage.history(oid, version='', length=999999999999)
-    else: # FileStorage
-        history = storage.history(oid, size=999999999999)
-
-    return history
-
-
 class ZodbObject(object):
 
     state = None
@@ -437,4 +399,42 @@ class ZodbObject(object):
             results[i]['index'] = len(results) - i
 
         return results
+
+
+def _loadState(obj, tid=None):
+    history = _gimmeHistory(obj)
+    if tid is None:
+        tid = history[0]['tid']
+    else:
+        for i, d in enumerate(history):
+            if u64(d['tid']) <= u64(tid):
+                tid = d['tid']
+                break
+    return obj._p_jar.oldstate(obj, tid)
+
+
+def _gimmeHistory(obj):
+    storage = obj._p_jar._storage
+    oid = obj._p_oid
+    history = None
+    # XXX OMG ouch
+    if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
+        history = storage.history(oid, version='', length=999999999999)
+    else: # FileStorage
+        history = storage.history(oid, size=999999999999)
+
+    return history
+
+
+def _diff_dicts(this, other):
+    diffs = {}
+    for key, value in sorted(this.items()):
+        if key not in other:
+            diffs[key] = ['added', value]
+        elif other[key] != value:
+            diffs[key] = ['changed to', value]
+    for key, value in sorted(other.items()):
+        if key not in this:
+            diffs[key] = ['removed', value]
+    return diffs
 
