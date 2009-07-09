@@ -3,6 +3,7 @@ from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
 from zope.interface import Interface
+from zope.security.proxy import removeSecurityProxy
 from ZODB.utils import p64, u64, tid_repr
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
@@ -28,7 +29,7 @@ class ZodbInfoView(BrowserView):
         try:
             return self.request.annotations['ZODB.interfaces.IConnection']
         except KeyError:
-            return self.context._p_jar
+            return removeSecurityProxy(self.context)._p_jar
 
     def locate(self, path):
         jar = self.jar()
