@@ -61,10 +61,14 @@ class OOBTreeState(object):
     implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
-        # XXX: this ignores tid, which cause incorrect results to be presented
-        # if you have a large btree that uses multiple persistent buckets!
         self.btree = OOBTree()
         self.btree.__setstate__(state)
+        # Large btrees have more than one bucket; we have to load old states
+        # to all of them
+        while state and len(state) > 1:
+            bucket = state[1]
+            state = loadState(bucket, tid=tid)
+            bucket.__setstate__(state)
 
     def getName(self):
         return '???'

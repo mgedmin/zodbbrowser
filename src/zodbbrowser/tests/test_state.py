@@ -17,7 +17,9 @@ from zope.component import provideAdapter
 from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.interfaces import IStateInterpreter
-from zodbbrowser.state import (GenericState, FallbackState, EmptyOOBTreeState)
+from zodbbrowser.state import (GenericState, FallbackState, EmptyOOBTreeState,
+                               OOBTreeState)
+from zodbbrowser.history import getHistory, loadState
 
 
 class Frob(object):
@@ -68,19 +70,13 @@ class TestGenericState(unittest.TestCase):
         self.assertEquals(state.asDict(), {'foo': 1, 'bar': 2, 'baz': 3})
 
 
-class TestGenericStateWithHistory(unittest.TestCase):
+class RealDatabaseTest(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp('testzodbbrowser')
         self.storage = FileStorage(os.path.join(self.tmpdir, 'Data.fs'))
         self.db = DB(self.storage)
         self.conn = self.db.open()
-        self.root = self.conn.root()['root'] = Root()
-        self.foo = self.root['foo'] = Folder()
-        self.bar = self.root['foo']['bar'] = Folder()
-        transaction.commit()
-        self.foo.__name__ = 'new'
-        transaction.commit()
 
     def tearDown(self):
         transaction.abort()
@@ -88,6 +84,18 @@ class TestGenericStateWithHistory(unittest.TestCase):
         self.db.close()
         self.storage.close()
         shutil.rmtree(self.tmpdir)
+
+
+class TestGenericStateWithHistory(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.root = self.conn.root()['root'] = Root()
+        self.foo = self.root['foo'] = Folder()
+        self.bar = self.root['foo']['bar'] = Folder()
+        transaction.commit()
+        self.foo.__name__ = 'new'
+        transaction.commit()
 
     def test_getParent_no_tid(self):
         state = GenericState(self.bar, {'__parent__': self.foo}, None)
@@ -128,6 +136,32 @@ class TestOOBTreeState(unittest.TestCase):
 
     def test_asDict(self):
         self.assertEquals(dict(self.state.asDict()), {1: 42, 2: 23, 3: 17})
+
+
+class TestLargeOOBTreeState(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.tree = self.conn.root()['tree'] = OOBTree()
+        for i in range(0, 1000):
+            self.tree[i] = -1
+        transaction.commit()
+        for i in range(0, 1000, 2):
+            self.tree[i] = 1
+        transaction.commit()
+        self.tids = [d['tid'] for d in getHistory(self.tree)]
+
+    def getState(self, tid):
+        state = loadState(self.tree, tid)
+        return OOBTreeState(self.tree, state, tid)
+
+    def test_current_state(self):
+        state = self.getState(None)
+        self.assertEquals(sum(state.asDict().values()), 0)
+
+    def test_historical_state(self):
+        state = self.getState(self.tids[-1])
+        self.assertEquals(sum(state.asDict().values()), -1000)
 
 
 class TestEmptyOOBTreeState(unittest.TestCase):
