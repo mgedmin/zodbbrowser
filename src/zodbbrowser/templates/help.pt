@@ -1,0 +1,62 @@
+<metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
+<metal:block fill-slot="content">
+
+<div class="object" id="#helptext">
+
+<div class="heading">
+  <h1>ZODB Browser</h1>
+</div>
+
+<div>
+  <h3>What's it for?</h3>
+
+  <p>ZODB Browser lets you see the objects as they're stored in the ZODB.
+  You can view the current state as well as any historical state that hasn't
+  been removed from the ZODB packing.  You can click on hyperlinks to
+  jump from persistent object to persistent object.</p>
+
+  <h3>Breadcrumbs</h3>
+
+  <p>The object path displayed at the top is constructed from
+  <tt>__parent__</tt> and <tt>__name__</tt> attributes.  When there is
+  a missing __name__ or __parent__, you'll see ??? displayed in its place.
+  You can click on each part of the name, as well as on the leading slash,
+  to go to that particular object</p>
+
+  <h3>Advanced navigation</h3>
+
+  <p>You can click to the area right of the breadcrumbs (or press g) to
+  activate the go-to bar.  In it you can type an object path and press Enter
+  to go to that object (pressing Esc or clicking anywhere outside the
+  go-to bar hides it).  Object paths try to follow attributes and items;
+  special paths (such as Zope's ++namespace++ syntax) are not supported.
+  </p>
+
+  <p>If you know an object's OID (converted to a base-10 integer), you can
+  go directly to that object by going to <tt>@@zodbbrowser?oid=1234</tt>.
+  This is the only way to reach <a href="@@zodbbrowser?oid=0">object 0</a>,
+  which is the persistent mapping at the ZODB root. </p>
+
+  <h3>History browsing</h3>
+
+  <p>If you click on any of the transaction record headings, that record it
+  will become highlighted in yellow.  From there on, all object attributes
+  and items at the top will show information that was current at the time
+  of the selected transaction.  This state will stick even when navigating
+  to other objects.  As a reminder, there will appear a small yellow bar
+  in the heading area.  To clear it and go back to always seeing the current
+  state of the objects, click on 'Latest' in the history list.</p>
+
+</div>
+
+<div class="footer">
+  <a tal:attributes="href view/homepage">zodb browser</a>
+  v<span tal:replace="view/version" />
+  | <a id="#help" href="@@zodbbrowser_help">help</a>
+</div>
+
+</div>
+
+</metal:block>
+</metal:block>
+
