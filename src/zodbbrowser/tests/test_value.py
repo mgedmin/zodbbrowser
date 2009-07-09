@@ -1,17 +1,27 @@
 import unittest
 import sys
 
+from ZODB.utils import p64
+from persistent import Persistent
 from zope.app.testing import setup
 from zope.interface.verify import verifyObject
 from zope.interface import implements
 from zope.component import adapts, provideAdapter
 
 from zodbbrowser.interfaces import IValueRenderer
-from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue)
+from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue,
+                               PersistentValue)
 
 
 class Frob(object):
     pass
+
+
+class PersistentFrob(Persistent):
+    _p_oid = p64(23)
+
+    def __repr__(self):
+        return '<PersistentFrob>'
 
 
 class FrobRenderer(object):
@@ -133,6 +143,29 @@ class TestDictValue(unittest.TestCase):
     def test_tid_is_preserved(self):
         self.assertEquals(DictValue({Frob(): Frob()}).render(tid=42),
                           '{<Frob [tid=42]>: <Frob [tid=42]>}')
+
+
+class TestPersistentValue(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(GenericValue)
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_interface_compliance(self):
+        verifyObject(IValueRenderer, PersistentValue(None))
+
+    def test_rendering(self):
+        self.assertEquals(PersistentValue(PersistentFrob()).render(),
+                  '<a href="@@zodbbrowser?oid=23">&lt;PersistentFrob&gt;</a>')
+
+    def test_tid_is_preserved(self):
+        renderer = PersistentValue(PersistentFrob())
+        self.assertEquals(renderer.render(tid=p64(42)),
+                  '<a href="@@zodbbrowser?oid=23&amp;tid=42">'
+                          '&lt;PersistentFrob&gt;</a>')
 
 
 def test_suite():
