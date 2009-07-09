@@ -1,6 +1,7 @@
 from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
+from zope.app.publication.zopepublication import ZopePublication
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
@@ -29,13 +30,20 @@ class ZodbInfoView(BrowserView):
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
 
-    root_oid = 1 # XXX assumes a lot
-
     version = __version__
     homepage = __homepage__
 
     def __call__(self):
         return self.template()
+
+    @property
+    def root_oid(self):
+        root = self.jar().root()
+        try:
+            root = root[ZopePublication.root_name]
+        except KeyError:
+            pass
+        return u64(root._p_oid)
 
     def locate_json(self, path):
         return simplejson.dumps(self.locate(path))
