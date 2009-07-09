@@ -16,7 +16,7 @@ from zope.component import provideAdapter
 from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.interfaces import IStateInterpreter
-from zodbbrowser.state import (GenericState, IntState)
+from zodbbrowser.state import (GenericState, IntState, FallbackState)
 
 
 class Frob(object):
@@ -122,6 +122,32 @@ class TestIntState(unittest.TestCase):
 
     def test_asDict(self):
         self.assertEquals(self.state.asDict(), {'int value': 0})
+
+
+class TestFallbackState(unittest.TestCase):
+
+    def setUp(self):
+        self.state = FallbackState(Frob(), object(), None)
+
+    def test_interface_compliance(self):
+        verifyObject(IStateInterpreter, self.state)
+
+    def test_getName(self):
+        self.assertEquals(self.state.getName(), '???')
+
+    def test_getParent(self):
+        self.assertEquals(self.state.getParent(), None)
+
+    def test_listAttributes(self):
+        self.assertEquals(self.state.listAttributes(),
+                          [('pickled state', self.state.state)])
+
+    def test_listItems(self):
+        self.assertEquals(self.state.listItems(), None)
+
+    def test_asDict(self):
+        self.assertEquals(self.state.asDict(),
+                          {'pickled state': self.state.state})
 
 
 def test_suite():
