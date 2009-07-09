@@ -1,15 +1,33 @@
 import unittest
 import sys
+import tempfile
+import shutil
+import os
 
+import transaction
+from ZODB.FileStorage.FileStorage import FileStorage
+from ZODB.DB import DB
+from persistent import Persistent
 from zope.app.testing import setup
+from zope.app.container.sample import SampleContainer
 from zope.interface.verify import verifyObject
+from zope.interface import implements
 from zope.component import provideAdapter
+from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.state import (GenericState)
 
 
 class Frob(object):
+    pass
+
+
+class Root(Persistent, SampleContainer):
+    implements(IContainmentRoot)
+
+
+class Folder(Persistent, SampleContainer):
     pass
 
 
@@ -47,6 +65,37 @@ class TestGenericState(unittest.TestCase):
     def test_asDict(self):
         state = GenericState(Frob(), {'foo': 1, 'bar': 2, 'baz': 3}, None)
         self.assertEquals(state.asDict(), {'foo': 1, 'bar': 2, 'baz': 3})
+
+
+class TestGenericStateWithHistory(unittest.TestCase):
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp('testzodbbrowser')
+        self.storage = FileStorage(os.path.join(self.tmpdir, 'Data.fs'))
+        self.db = DB(self.storage)
+        self.conn = self.db.open()
+        self.root = self.conn.root()['root'] = Root()
+        self.foo = self.root['foo'] = Folder()
+        self.bar = self.root['foo']['bar'] = Folder()
+        transaction.commit()
+        self.foo.__name__ = 'new'
+        transaction.commit()
+
+    def tearDown(self):
+        self.conn.close()
+        self.db.close()
+        self.storage.close()
+        shutil.rmtree(self.tmpdir)
+
+    def test_getParent_no_tid(self):
+        state = GenericState(self.bar, {'__parent__': self.foo}, None)
+        self.assertEquals(state.getParent().__name__, 'new')
+
+    def test_getParent_old_tid(self):
+        self.bar._p_activate()
+        tid = self.bar._p_serial
+        state = GenericState(self.bar, {'__parent__': self.foo}, tid)
+        self.assertEquals(state.getParent().__name__, 'foo')
 
 
 def test_suite():
