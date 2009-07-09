@@ -3,11 +3,11 @@
 
   <include file="browser.zcml" />
 
-  <adapter factory=".app.GenericValue" />
-  <adapter factory=".app.PersistentValue" />
-  <adapter factory=".app.TupleValue" />
-  <adapter factory=".app.ListValue" />
-  <adapter factory=".app.DictValue" />
+  <adapter factory=".value.GenericValue" />
+  <adapter factory=".value.TupleValue" />
+  <adapter factory=".value.ListValue" />
+  <adapter factory=".value.DictValue" />
+  <adapter factory=".value.PersistentValue" />
 
   <adapter factory=".state.GenericState" />
   <adapter factory=".state.IntState" />

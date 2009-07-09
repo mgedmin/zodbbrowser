@@ -11,8 +11,8 @@ from zope.testing import doctest
 
 
 from zodbbrowser.app import ZodbObject
-from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
-                            PersistentValue
+from zodbbrowser.value import (GenericValue, TupleValue, DictValue,
+                               ListValue, PersistentValue)
 from zodbbrowser.history import getHistory
 from zodbbrowser.state import OOBTreeState, GenericState
 

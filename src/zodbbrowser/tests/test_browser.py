@@ -10,8 +10,8 @@ from zope.traversing.interfaces import IContainmentRoot
 
 from zope.testing import doctest
 
-from zodbbrowser.app import (GenericValue, TupleValue, DictValue, ListValue,
-                             PersistentValue)
+from zodbbrowser.value import (GenericValue, TupleValue, DictValue, ListValue,
+                               PersistentValue)
 from zodbbrowser.state import OOBTreeState, GenericState
 
 

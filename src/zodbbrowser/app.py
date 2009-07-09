@@ -2,19 +2,13 @@
 zodbbrowser application
 """
 
-import inspect
 import time
-from cgi import escape
 
 from ZODB.utils import u64
 from persistent import Persistent
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
-from zope.component import adapts, getMultiAdapter
-from zope.interface import implements
-from zope.interface import Interface
-
-# be compatible with Zope 3.4:
+from zope.component import getMultiAdapter
 
 from zodbbrowser.interfaces import IValueRenderer, IStateInterpreter
 from zodbbrowser.history import getHistory
@@ -32,82 +26,6 @@ class ZodbObjectAttribute(object):
 
     def rendered_value(self):
         return IValueRenderer(self.value).render(self.tid)
-
-
-class GenericValue(object):
-    adapts(Interface)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None, limit=200):
-        text = repr(self.context)
-        if len(text) > limit:
-            text = escape(text[:limit]) + '<span class="truncated">...</span>'
-        else:
-            text = escape(text)
-        return text
-
-
-class TupleValue(object):
-    adapts(tuple)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None):
-        html = []
-        for item in self.context:
-            html.append(IValueRenderer(item).render())
-        if len(html) == 1:
-            html.append('') # (item) -> (item, )
-        return '(%s)' % ', '.join(html)
-
-
-class ListValue(object):
-    adapts(list)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None):
-        html = []
-        for item in self.context:
-            html.append(IValueRenderer(item).render())
-        return '[%s]' % ', '.join(html)
-
-
-class DictValue(object):
-    adapts(dict)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None):
-        html = []
-        for key, value in sorted(self.context.items()):
-            html.append(IValueRenderer(key).render() + ': ' +
-                        IValueRenderer(value).render())
-        return '{%s}' % ', '.join(html)
-
-
-class PersistentValue(object):
-    adapts(Persistent)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = removeAllProxies(context)
-
-    def render(self, tid=None):
-        url = '@@zodbbrowser?oid=%d' % u64(self.context._p_oid)
-        if tid is not None:
-            url += "&amp;tid=" + str(u64(tid))
-        value = GenericValue(self.context).render()
-        return '<a href="%s">%s</a>' % (url, value)
 
 
 class ZodbObject(object):
