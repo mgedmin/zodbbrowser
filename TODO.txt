@@ -7,3 +7,6 @@ TODO
   objects from the ZODB
 - Audit source code and verify that code of persistent objects is never
   called (except maybe for __repr__ methods).
+- Online help
+- Compatibility with Zope 3.2
+- Buildbots for various python and zope versions

@@ -35,11 +35,7 @@ try:
 except ImportError:
     from zope.app.container.ordered import OrderedContainer # BBB
 
-
-class IValueRenderer(Interface):
-
-    def render(self):
-        """Render object value to HTML."""
+from zodbbrowser.interfaces import IValueRenderer, IStateInterpreter
 
 
 class ZodbObjectAttribute(object):
@@ -132,27 +128,9 @@ class PersistentValue(object):
         return '<a href="%s">%s</a>' % (url, value)
 
 
-class IState(Interface):
-
-    def listAttributes(self):
-        """Return the attributes of this object as tuples (name, value)."""
-
-    def listItems(self):
-        """Return the items of this object as tuples (name, value)."""
-
-    def getParent(self):
-        """Return the parent of this object."""
-
-    def getName(self):
-        """Return the name of this object."""
-
-    def asDict(self):
-        """Return the state expressed as an attribute dictionary."""
-
-
 class FallbackState(object):
     adapts(Interface, Interface, None)
-    implements(IState)
+    implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
         pass
@@ -175,7 +153,7 @@ class FallbackState(object):
 
 class IntState(object):
     adapts(Interface, int, None)
-    implements(IState)
+    implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
         self.state = state
@@ -198,7 +176,7 @@ class IntState(object):
 
 class OOBTreeState(object):
     adapts(OOBTree, tuple, None)
-    implements(IState)
+    implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
         self.btree = OOBTree()
@@ -222,12 +200,12 @@ class OOBTreeState(object):
 
 class EmptyOOBTreeState(OOBTreeState):
     adapts(OOBTree, type(None), None)
-    implements(IState)
+    implements(IStateInterpreter)
 
 
 class GenericState(object):
     adapts(Interface, dict, None)
-    implements(IState)
+    implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
         self.state = state
@@ -265,7 +243,7 @@ class FolderState(GenericState):
             return []
         # data will be an OOBTree
         loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
+        return getMultiAdapter((data, loadedstate, self.tid), IStateInterpreter).listItems()
 
 
 class SampleContainerState(GenericState):
@@ -277,7 +255,7 @@ class SampleContainerState(GenericState):
             return []
         # data will be a PersistentDict
         loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
+        return getMultiAdapter((data, loadedstate, self.tid), IStateInterpreter).listItems()
 
 
 class BTreeContainerState(GenericState):
@@ -291,7 +269,7 @@ class BTreeContainerState(GenericState):
             return []
         # data will be an OOBTree
         loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
+        return getMultiAdapter((data, loadedstate, self.tid), IStateInterpreter).listItems()
 
 
 class OrderedContainerState(GenericState):
@@ -349,7 +327,7 @@ class ZodbObject(object):
     def _loadState(self, tid):
         loadedState = self.obj._p_jar.oldstate(self.obj, tid)
         return getMultiAdapter((self.obj, loadedState, self.requestedTid),
-                               IState)
+                               IStateInterpreter)
 
     def getName(self):
         if self.isRoot():
