@@ -11,14 +11,14 @@ CHANGED = 'changed to'
 def compareDicts(new, old):
     """Compare two state dictionaries, return dict."""
     diffs = {}
-    for key, value in sorted(new.items()):
+    for key, value in new.items():
         if key not in old:
-            diffs[key] = [ADDED, value, None]
+            diffs[key] = (ADDED, value, None)
         elif old[key] != value:
-            diffs[key] = [CHANGED, value, old[key]]
-    for key, value in sorted(old.items()):
+            diffs[key] = (CHANGED, value, old[key])
+    for key, value in old.items():
         if key not in new:
-            diffs[key] = [REMOVED, None, value]
+            diffs[key] = (REMOVED, None, value)
     return diffs
 
 
