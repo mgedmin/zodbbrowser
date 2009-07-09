@@ -1,12 +1,21 @@
 #!/usr/bin/env python
+import os
 from setuptools import setup, find_packages
+
+def get_version():
+    here = os.path.dirname(__file__)
+    zodbbrowser = os.path.join(here, 'src', 'zodbbrowser', '__init__.py')
+    d = {}
+    execfile(zodbbrowser, d)
+    return d['__version__']
+
 
 setup(
     name="zodbbrowser",
     maintainer="Programmers of Vilnius",
     maintainer_email="tautvilas@pov.lt",
     description="ZODB browser",
-    version="0.2",
+    version=get_version(),
     packages=find_packages('src'),
     include_package_data=True,
     zip_safe=False,
@@ -42,6 +51,6 @@ setup(
             ],
     ),
     entry_points=dict(
-        console_scripts=['zodbbrowser = zodbbrowser.main:main'],
+        console_scripts=['zodbbrowser = zodbbrowser.standalone:main'],
     ),
 )
