@@ -1,3 +1,5 @@
+from cgi import escape
+
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
@@ -19,6 +21,8 @@ class ZodbInfoView(BrowserView):
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
 
+    root_oid = 1 # XXX assumes a lot
+
     def __call__(self):
         return self.template()
 
@@ -36,7 +40,7 @@ class ZodbInfoView(BrowserView):
 
     def locate(self, path):
         jar = self.jar()
-        oid = 1
+        oid = self.root_oid
         partial = here = '/'
         obj = jar.get(p64(oid))
         not_found = object()
@@ -73,7 +77,7 @@ class ZodbInfoView(BrowserView):
         if 'oid' not in self.request and isinstance(self.context, Persistent):
             self.obj = ZodbObject(self.context)
         else:
-            oid = p64(int(self.request.get('oid', 1)))
+            oid = p64(int(self.request.get('oid', self.root_oid)))
             jar = self.jar()
             self.obj = ZodbObject(jar.get(oid))
 
@@ -115,7 +119,7 @@ class ZodbInfoView(BrowserView):
         else:
             url += str(self.obj.getObjectId())
         if 'tid' in self.request:
-            url += "&amp;tid=" + self.request['tid']
+            url += "&tid=" + self.request['tid']
         return url
 
     def getPath(self):
@@ -142,10 +146,10 @@ class ZodbInfoView(BrowserView):
             if object.isRoot():
                 seen_root = True
                 breadcrumb = '<a href="%s">/</a>' % (
-                                    self.getUrl(object.getObjectId()))
+                                    escape(self.getUrl(object.getObjectId())))
             else:
                 breadcrumb = '<a href="%s">%s</a>' % (
-                                    self.getUrl(object.getObjectId()),
+                                    escape(self.getUrl(object.getObjectId())),
                                     object.getName())
                 if breadcrumbs:
                     breadcrumb += '/'
@@ -157,7 +161,8 @@ class ZodbInfoView(BrowserView):
             object.load()
 
         if not seen_root:
-            breadcrumbs.append('<a href="%s">/</a>' % self.getUrl(1))
+            breadcrumbs.append('<a href="%s">/</a>' %
+                                    escape(self.getUrl(self.root_oid)))
         return ''.join(reversed(breadcrumbs))
 
     def tidToTimestamp(self, tid):
