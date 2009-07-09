@@ -22,6 +22,7 @@ from zodbbrowser.state import (GenericState,
                                EmptyOOBTreeState,
                                OOBTreeState,
                                PersistentDictState,
+                               PersistentMappingState,
                                FallbackState)
 
 
@@ -202,6 +203,22 @@ class TestPersistentDictSate(unittest.TestCase):
         # shouldn't happen, but let's display what exists in the DB instead
         # of crashing
         state = PersistentDictState(Frob(), {}, None)
+        self.assertEquals(state.listItems(), [])
+
+
+class TestPersistentMappingSate(unittest.TestCase):
+
+    def test_listItems(self):
+        state = PersistentMappingState(Frob(),
+                                    {'data': dict(a=42, b=23, c=17)},
+                                    None)
+        self.assertEquals(state.listItems(),
+                          [('a', 42), ('b', 23), ('c', 17)])
+
+    def test_listItems_no_data(self):
+        # shouldn't happen, but let's display what exists in the DB instead
+        # of crashing
+        state = PersistentMappingState(Frob(), {}, None)
         self.assertEquals(state.listItems(), [])
 
 
