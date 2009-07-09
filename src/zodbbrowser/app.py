@@ -43,6 +43,7 @@ class ZodbObject(object):
         """Load current state if no tid is specified"""
         self.requestedTid = tid
         self.history = getHistory(self.obj)
+        # XXX unify with zodbbrowser.history.loadState
         if tid is not None:
             # load object state with tid less or equal to given tid
             self.current = False
@@ -50,7 +51,6 @@ class ZodbObject(object):
                 if u64(d['tid']) <= u64(tid):
                     self.tid = d['tid']
                     break
-            self.current = False
         else:
             self.tid = self.history[0]['tid']
         self.state = self._loadState(self.tid)
