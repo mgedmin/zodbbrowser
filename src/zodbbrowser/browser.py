@@ -149,7 +149,7 @@ class ZodbInfoView(BrowserView):
                 seen_root = True
                 path.append('')
             else:
-                path.append(object.getName())
+                path.append(object.getName() or '???')
             parent = object.getParent()
             if parent is None:
                 break
