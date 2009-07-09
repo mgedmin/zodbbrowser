@@ -28,25 +28,46 @@ function hideGoTo() {
 function activateGoTo() {
     var path = $('#gotoInput').val();
     var api = $('#api').val();
-    // XXX: our callback is not called if server returns malformed JSON
     $('#pathError').text("Loading...").slideDown();
-    $.getJSON(api, {'path': path}, function(data, status) {
-        if (data.url) {
-            window.location = data.url;
-            $('#pathError').text("Found.").slideDown().slideUp();
-        } else if (data.error) {
-            $('#pathError').text(data.error).show();
-            if (data.partial_url) {
-                $('#pathError').append(', would you like to ' +
-                                       '<a href="' + data.partial_url + '">' +
-                                       'go to ' + data.partial_path +
-                                       '</a>' +
-                                       ' instead?');
-            }
-        } else {
-            $('#pathError').text(status).show();
+    $.ajax({url: api, dataType:'json', data: "path=" + path,
+            timeout: 7000, success: ajaxSuccessHandler,
+            error: ajaxErrorHandler})
+}
+
+function ajaxErrorHandler(XMLHttpRequest, textStatus, errorThrown) {
+    errorMessage = ""
+    if (textStatus == "parsererror") {
+        errorMessage = "Server returned malformed data"
+    } else if (textStatus == "error") {
+        errorMessage = "Unknown error (maybe server is offline?)"
+    } else if (textStatus == "timeout") {
+        errorMessage = "Server timeout"
+    } else if (textStatus == "notmodified") {
+        errorMessage = "Unknown error"
+    } else {
+        errorMessage = "Unknown error"
+    }
+
+    errorMessage = '<span class="error"> ' + errorMessage + '</strong>'
+    $('#pathError').html(errorMessage);
+}
+
+function ajaxSuccessHandler(data, status) {
+    if (data.url) {
+        window.location = data.url;
+        $('#pathError').text("Found.").slideDown().slideUp();
+    } else if (data.error) {
+        $('#pathError').text(data.error).show();
+        if (data.partial_url) {
+            $('#pathError').append(', would you like to ' +
+                                   '<a href="' + data.partial_url + '">' +
+                                   'go to ' + data.partial_path +
+                                   '</a>' +
+                                   ' instead?');
         }
-    });
+    } else {
+        $('#pathError').text(status).show();
+    }
 }
 
 $(document).ready(function() {

@@ -2,6 +2,10 @@
   font-family: Tahoma, Verdana, sans-serif;
 }
 
+.error {
+  color: red;
+}
+
 div.object {
   color: black;
   background-color: white;
