@@ -44,6 +44,10 @@ span.breadcrumbs {
   padding: 1px 2px;
 }
 
+span.breadcrumbs:hover {
+  border: 1px solid #00cc33;
+}
+
 input#gotoInput {
   display: block;
   width: 100%;
