@@ -101,9 +101,9 @@
   </div>
 </tal:block>
 
-<img id="collapseImg" style="display:none"
+<img id="collapseImg" style="display:none" alt=""
      tal:attributes="src context/++resource++zodbbrowser/collapse.png" />
-<img id="expandImg" style="display:none"
+<img id="expandImg" style="display:none" alt=""
      tal:attributes="src context/++resource++zodbbrowser/expand.png" />
 </metal:block>
 </metal:block>
