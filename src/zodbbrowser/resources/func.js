@@ -35,8 +35,21 @@ function activateGoTo() {
 }
 
 function ajaxErrorHandler(XMLHttpRequest, textStatus, errorThrown) {
-    $('#pathError').append('<strong style="color:red"> Error: ' +
-                           textStatus + "</strong>");
+    errorMessage = ""
+    if (textStatus == "parsererror") {
+        errorMessage = "Server returned malformed data"
+    } else if (textStatus == "error") {
+        errorMessage = "Unknown error (maybe server is offline?)"
+    } else if (textStatus == "timeout") {
+        errorMessage = "Server timeout"
+    } else if (textStatus == "notmodified") {
+        errorMessage = "Unknown error"
+    } else {
+        errorMessage = "Unknown error"
+    }
+
+    errorMessage = '<span class="error"> ' + errorMessage + '</strong>'
+    $('#pathError').html(errorMessage);
 }
 
 function ajaxSuccessHandler(data, status) {

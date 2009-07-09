@@ -23,8 +23,7 @@ class ZodbInfoView(BrowserView):
         return self.template()
 
     def locate_json(self, path):
-        return "sadfsadf{ { { fsd}Saf{#"
-#        return simplejson.dumps(self.locate(path))
+        return simplejson.dumps(self.locate(path))
 
     def jar(self):
         try:
