@@ -1,4 +1,3 @@
-import unittest
 import doctest
 
 from zope.app.testing import setup
