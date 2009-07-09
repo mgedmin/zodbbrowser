@@ -82,6 +82,7 @@ class TestGenericStateWithHistory(unittest.TestCase):
         transaction.commit()
 
     def tearDown(self):
+        transaction.abort()
         self.conn.close()
         self.db.close()
         self.storage.close()
