@@ -1,4 +1,4 @@
-from BTrees._OOBTree import OOBTree
+from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.mapping import PersistentMapping

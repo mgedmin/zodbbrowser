@@ -5,6 +5,7 @@ import shutil
 import os
 
 import transaction
+from BTrees.OOBTree import OOBTree
 from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.DB import DB
 from persistent import Persistent
@@ -16,7 +17,7 @@ from zope.component import provideAdapter
 from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.interfaces import IStateInterpreter
-from zodbbrowser.state import (GenericState, FallbackState)
+from zodbbrowser.state import (GenericState, FallbackState, EmptyOOBTreeState)
 
 
 class Frob(object):
@@ -97,6 +98,60 @@ class TestGenericStateWithHistory(unittest.TestCase):
         tid = self.bar._p_serial
         state = GenericState(self.bar, {'__parent__': self.foo}, tid)
         self.assertEquals(state.getParent().__name__, 'foo')
+
+
+class TestOOBTreeState(unittest.TestCase):
+
+    def setUp(self):
+        tree = OOBTree()
+        tree[1] = 42
+        tree[2] = 23
+        tree[3] = 17
+        state = tree.__getstate__()
+        self.state = EmptyOOBTreeState(None, state, None)
+
+    def test_interface_compliance(self):
+        verifyObject(IStateInterpreter, self.state)
+
+    def test_getName(self):
+        self.assertEquals(self.state.getName(), '???')
+
+    def test_getParent(self):
+        self.assertEquals(self.state.getParent(), None)
+
+    def test_listAttributes(self):
+        self.assertEquals(self.state.listAttributes(), None)
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()),
+                          [(1, 42), (2, 23), (3, 17)])
+
+    def test_asDict(self):
+        self.assertEquals(dict(self.state.asDict()), {1: 42, 2: 23, 3: 17})
+
+
+class TestEmptyOOBTreeState(unittest.TestCase):
+
+    def setUp(self):
+        self.state = EmptyOOBTreeState(None, None, None)
+
+    def test_interface_compliance(self):
+        verifyObject(IStateInterpreter, self.state)
+
+    def test_getName(self):
+        self.assertEquals(self.state.getName(), '???')
+
+    def test_getParent(self):
+        self.assertEquals(self.state.getParent(), None)
+
+    def test_listAttributes(self):
+        self.assertEquals(self.state.listAttributes(), None)
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()), [])
+
+    def test_asDict(self):
+        self.assertEquals(dict(self.state.asDict()), {})
 
 
 class TestFallbackState(unittest.TestCase):
