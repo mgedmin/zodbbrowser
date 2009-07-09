@@ -92,6 +92,12 @@
   </div>
 </tal:block>
 
+<div class="footer">
+  <a tal:attributes="href view/homepage">zodb browser</a>
+  v<span tal:replace="view/version" />
+  | <a href="@@zodbbrowser_help">help</a>
+</div>
+
 <img id="collapseImg" style="display:none" alt=""
      tal:attributes="src context/++resource++zodbbrowser/collapse.png" />
 <img id="expandImg" style="display:none" alt=""

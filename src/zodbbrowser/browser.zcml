@@ -27,6 +27,14 @@
       template="templates/view_macros.pt"
       />
 
+  <page
+      name="zodbbrowser_help"
+      for="*"
+      permission="zope.Public"
+      template="templates/help.pt"
+      class=".browser.ZodbHelpView"
+      />
+
   <resourceDirectory
       name="zodbbrowser"
       directory="resources"

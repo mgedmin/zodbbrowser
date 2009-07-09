@@ -1,4 +1,5 @@
 from BTrees._OOBTree import OOBTree
+from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.mapping import PersistentMapping
 from zope.component import adapts, getMultiAdapter
@@ -39,7 +40,10 @@ class GenericState(object):
         return self.state.get('__name__', '???')
 
     def getParent(self):
-        return self.state.get('__parent__')
+        parent = self.state.get('__parent__')
+        if self.tid and isinstance(parent, Persistent):
+            parent.__setstate__(loadState(parent, self.tid))
+        return parent
 
     def listAttributes(self):
         return self.state.items()

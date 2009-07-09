@@ -157,9 +157,6 @@ span.added {
 div.history {
 }
 
-div.attributes {
-}
-
 div.current {
   background: #ffa;
   border-bottom: 1px solid #fe0;
@@ -169,4 +166,21 @@ div.latest {
   background: #ffa;
   border-top: 1px solid #fe0;
   margin-bottom: 0;
+}
+
+div.footer {
+  float: right;
+  font-size: 12px;
+  margin: 4px;
+  color: #444;
+}
+div.footer a:link,
+div.footer a:visited {
+  color: #555;
+  text-decoration: none;
+}
+div.footer a:active,
+div.footer a:hover {
+  color: #666;
+  text-decoration: underline;
 }

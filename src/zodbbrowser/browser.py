@@ -11,17 +11,28 @@ from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
 import simplejson
 
+from zodbbrowser import __version__, __homepage__
 from zodbbrowser.object import ZodbObject
 
 
+class ZodbHelpView(BrowserView):
+    """Zodb help view"""
+
+    version = __version__
+    homepage = __homepage__
+
+
 class ZodbInfoView(BrowserView):
-    """Zodb info view"""
+    """Zodb browser view"""
 
     adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
 
     root_oid = 1 # XXX assumes a lot
+
+    version = __version__
+    homepage = __homepage__
 
     def __call__(self):
         return self.template()
