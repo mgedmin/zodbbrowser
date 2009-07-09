@@ -9,11 +9,12 @@ from zope.traversing.interfaces import IContainmentRoot
 
 from zope.testing import doctest
 
-from zodbbrowser.app import _gimmeHistory
 
 from zodbbrowser.app import ZodbObject
-from zodbbrowser.app import GenericValue, TupleValue, DictValue, ListValue, \
-                            PersistentValue, OOBTreeState, GenericState
+from zodbbrowser.value import (GenericValue, TupleValue, DictValue,
+                               ListValue, PersistentValue)
+from zodbbrowser.history import getHistory
+from zodbbrowser.state import OOBTreeState, GenericState
 
 
 class RootFolderStub(BTreeContainer):
@@ -104,7 +105,7 @@ def doctest_ZodbObject():
         >>> [a.name for a in o1.listItems()]
         ['key1', 'key3', 'key4']
 
-        >>> history = _gimmeHistory(o1.obj)
+        >>> history = getHistory(o1.obj)
         >>> len(history)
         3
         >>> o1.load(history[1]['tid'])

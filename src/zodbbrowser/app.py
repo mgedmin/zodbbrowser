@@ -2,44 +2,16 @@
 zodbbrowser application
 """
 
-import inspect
 import time
-from cgi import escape
-
-from BTrees._OOBTree import OOBTree
 
 from ZODB.utils import u64
 from persistent import Persistent
-from persistent.dict import PersistentDict
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
-from zope.component import adapts, getMultiAdapter
-from zope.interface import implements
-from zope.interface import Interface
+from zope.component import getMultiAdapter
 
-# be compatible with Zope 3.4:
-try:
-    from zope.container.folder import Folder
-except ImportError:
-    from zope.app.folder import Folder # BBB
-try:
-    from zope.container.sample import SampleContainer
-except ImportError:
-    from zope.app.container.sample import SampleContainer # BBB
-try:
-    from zope.container.btree import BTreeContainer
-except ImportError:
-    from zope.app.container.btree import BTreeContainer # BBB
-try:
-    from zope.container.ordered import OrderedContainer
-except ImportError:
-    from zope.app.container.ordered import OrderedContainer # BBB
-
-
-class IValueRenderer(Interface):
-
-    def render(self):
-        """Render object value to HTML."""
+from zodbbrowser.interfaces import IValueRenderer, IStateInterpreter
+from zodbbrowser.history import getHistory
 
 
 class ZodbObjectAttribute(object):
@@ -56,255 +28,6 @@ class ZodbObjectAttribute(object):
         return IValueRenderer(self.value).render(self.tid)
 
 
-class GenericValue(object):
-    adapts(Interface)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None, limit=200):
-        text = repr(self.context)
-        if len(text) > limit:
-            text = escape(text[:limit]) + '<span class="truncated">...</span>'
-        else:
-            text = escape(text)
-        return text
-
-
-class TupleValue(object):
-    adapts(tuple)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None):
-        html = []
-        for item in self.context:
-            html.append(IValueRenderer(item).render())
-        if len(html) == 1:
-            html.append('') # (item) -> (item, )
-        return '(%s)' % ', '.join(html)
-
-
-class ListValue(object):
-    adapts(list)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None):
-        html = []
-        for item in self.context:
-            html.append(IValueRenderer(item).render())
-        return '[%s]' % ', '.join(html)
-
-
-class DictValue(object):
-    adapts(dict)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None):
-        html = []
-        for key, value in sorted(self.context.items()):
-            html.append(IValueRenderer(key).render() + ': ' +
-                        IValueRenderer(value).render())
-        return '{%s}' % ', '.join(html)
-
-
-class PersistentValue(object):
-    adapts(Persistent)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = removeAllProxies(context)
-
-    def render(self, tid=None):
-        url = '@@zodbbrowser?oid=%d' % u64(self.context._p_oid)
-        if tid is not None:
-            url += "&amp;tid=" + str(u64(tid))
-        value = GenericValue(self.context).render()
-        return '<a href="%s">%s</a>' % (url, value)
-
-
-class IState(Interface):
-
-    def listAttributes(self):
-        """Return the attributes of this object as tuples (name, value)."""
-
-    def listItems(self):
-        """Return the items of this object as tuples (name, value)."""
-
-    def getParent(self):
-        """Return the parent of this object."""
-
-    def getName(self):
-        """Return the name of this object."""
-
-    def asDict(self):
-        """Return the state expressed as an attribute dictionary."""
-
-
-class FallbackState(object):
-    adapts(Interface, Interface, None)
-    implements(IState)
-
-    def __init__(self, type, state, tid):
-        pass
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return None
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return {}
-
-
-class IntState(object):
-    adapts(Interface, int, None)
-    implements(IState)
-
-    def __init__(self, type, state, tid):
-        self.state = state
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return [('int value', self.state)]
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return {'int value': self.state}
-
-
-class OOBTreeState(object):
-    adapts(OOBTree, tuple, None)
-    implements(IState)
-
-    def __init__(self, type, state, tid):
-        self.btree = OOBTree()
-        self.btree.__setstate__(state)
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return None
-
-    def listItems(self):
-        return self.btree.items()
-
-    def asDict(self):
-        return self.btree
-
-
-class EmptyOOBTreeState(OOBTreeState):
-    adapts(OOBTree, type(None), None)
-    implements(IState)
-
-
-class GenericState(object):
-    adapts(Interface, dict, None)
-    implements(IState)
-
-    def __init__(self, type, state, tid):
-        self.state = state
-        self.tid = tid
-
-    def getName(self):
-        return self.state.get('__name__', '???')
-
-    def getParent(self):
-        return self.state.get('__parent__')
-
-    def listAttributes(self):
-        return self.state.items()
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return self.state
-
-
-class PersistentDictState(GenericState):
-    adapts(PersistentDict, dict, None)
-
-    def listItems(self):
-        return sorted(self.state.get('data', {}).items())
-
-
-class FolderState(GenericState):
-    adapts(Folder, dict, None)
-
-    def listItems(self):
-        data = self.state.get('data')
-        if not data:
-            return []
-        # data will be an OOBTree
-        loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
-
-
-class SampleContainerState(GenericState):
-    adapts(SampleContainer, dict, None)
-
-    def listItems(self):
-        data = self.state.get('_SampleContainer__data')
-        if not data:
-            return []
-        # data will be a PersistentDict
-        loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
-
-
-class BTreeContainerState(GenericState):
-    adapts(BTreeContainer, dict, None)
-
-    def listItems(self):
-        # This is not a typo; BTreeContainer really uses
-        # _SampleContainer__data, for BBB
-        data = self.state.get('_SampleContainer__data')
-        if not data:
-            return []
-        # data will be an OOBTree
-        loadedstate = _loadState(data, tid=self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid), IState).listItems()
-
-
-class OrderedContainerState(GenericState):
-    adapts(OrderedContainer, dict, None)
-
-    def listItems(self):
-        container = OrderedContainer()
-        container.__setstate__(self.context)
-        container._data.__setstate__(_loadState(container._data, tid=self.tid))
-        container._order.__setstate__(_loadState(container._order, tid=self.tid))
-        return container.items()
-
-
 class ZodbObject(object):
 
     state = None
@@ -319,7 +42,8 @@ class ZodbObject(object):
     def load(self, tid=None):
         """Load current state if no tid is specified"""
         self.requestedTid = tid
-        self.history = _gimmeHistory(self.obj)
+        self.history = getHistory(self.obj)
+        # XXX unify with zodbbrowser.history.loadState
         if tid is not None:
             # load object state with tid less or equal to given tid
             self.current = False
@@ -327,7 +51,6 @@ class ZodbObject(object):
                 if u64(d['tid']) <= u64(tid):
                     self.tid = d['tid']
                     break
-            self.current = False
         else:
             self.tid = self.history[0]['tid']
         self.state = self._loadState(self.tid)
@@ -349,7 +72,7 @@ class ZodbObject(object):
     def _loadState(self, tid):
         loadedState = self.obj._p_jar.oldstate(self.obj, tid)
         return getMultiAdapter((self.obj, loadedState, self.requestedTid),
-                               IState)
+                               IStateInterpreter)
 
     def getName(self):
         if self.isRoot():
@@ -399,31 +122,6 @@ class ZodbObject(object):
             results[i]['index'] = len(results) - i
 
         return results
-
-
-def _loadState(obj, tid=None):
-    history = _gimmeHistory(obj)
-    if tid is None:
-        tid = history[0]['tid']
-    else:
-        for i, d in enumerate(history):
-            if u64(d['tid']) <= u64(tid):
-                tid = d['tid']
-                break
-    return obj._p_jar.oldstate(obj, tid)
-
-
-def _gimmeHistory(obj):
-    storage = obj._p_jar._storage
-    oid = obj._p_oid
-    history = None
-    # XXX OMG ouch
-    if 'length' in inspect.getargspec(storage.history)[0]: # ZEO
-        history = storage.history(oid, version='', length=999999999999)
-    else: # FileStorage
-        history = storage.history(oid, size=999999999999)
-
-    return history
 
 
 def _diff_dicts(this, other):

@@ -29,7 +29,10 @@ class ZodbInfoView(BrowserView):
         try:
             return self.request.annotations['ZODB.interfaces.IConnection']
         except KeyError:
-            return removeSecurityProxy(self.context)._p_jar
+            obj = removeSecurityProxy(self.context)
+            while not isinstance(obj, Persistent):
+                obj = removeSecurityProxy(obj.__parent__)
+            return obj._p_jar
 
     def locate(self, path):
         jar = self.jar()
