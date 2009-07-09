@@ -177,7 +177,7 @@ class OrderedContainerState(GenericState):
 
     def listItems(self):
         container = OrderedContainer()
-        container.__setstate__(self.context)
+        container.__setstate__(self.state)
         container._data.__setstate__(loadState(container._data,
                                                tid=self.tid))
         container._order.__setstate__(loadState(container._order,
