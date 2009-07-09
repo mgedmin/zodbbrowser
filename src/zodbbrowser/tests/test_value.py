@@ -1,10 +1,31 @@
 import unittest
+import sys
 
 from zope.app.testing import setup
 from zope.interface.verify import verifyObject
+from zope.interface import implements
+from zope.component import adapts, provideAdapter
 
 from zodbbrowser.interfaces import IValueRenderer
-from zodbbrowser.value import GenericValue
+from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue)
+
+
+class Frob(object):
+    pass
+
+
+class FrobRenderer(object):
+    adapts(Frob)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self, tid=None):
+        if tid:
+            return '<Frob [tid=%s]>' % tid
+        else:
+            return '<Frob>'
 
 
 class TestGenericValue(unittest.TestCase):
@@ -25,14 +46,96 @@ class TestGenericValue(unittest.TestCase):
                           """'a very lo<span class="truncated">...</span>""")
 
 
-def setUp(test):
-    setup.placelessSetUp()
+class TestTupleValue(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(GenericValue)
+        provideAdapter(FrobRenderer)
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_interface_compliance(self):
+        verifyObject(IValueRenderer, TupleValue(()))
+
+    def test_empty_tuple(self):
+        self.assertEquals(TupleValue(()).render(), '()')
+
+    def test_single_item_tuple(self):
+        self.assertEquals(TupleValue((Frob(), )).render(), '(<Frob>, )')
+
+    def test_longer_tuples(self):
+        self.assertEquals(TupleValue((1, Frob())).render(), '(1, <Frob>)')
+        self.assertEquals(TupleValue((1, Frob(), 2)).render(),
+                          '(1, <Frob>, 2)')
+
+    def test_tid_is_preserved(self):
+        self.assertEquals(TupleValue((Frob(), )).render(tid=42),
+                          '(<Frob [tid=42]>, )')
 
 
-def tearDown(test):
-    setup.placelessTearDown()
+class TestListValue(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(GenericValue)
+        provideAdapter(FrobRenderer)
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_interface_compliance(self):
+        verifyObject(IValueRenderer, ListValue([]))
+
+    def test_empty_list(self):
+        self.assertEquals(ListValue([]).render(), '[]')
+
+    def test_single_item_list(self):
+        self.assertEquals(ListValue([Frob()]).render(), '[<Frob>]')
+
+    def test_longer_lists(self):
+        self.assertEquals(ListValue([1, Frob()]).render(), '[1, <Frob>]')
+        self.assertEquals(ListValue([1, Frob(), 2]).render(),
+                          '[1, <Frob>, 2]')
+
+    def test_tid_is_preserved(self):
+        self.assertEquals(ListValue([Frob()]).render(tid=42),
+                          '[<Frob [tid=42]>]')
+
+
+class TestDictValue(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(GenericValue)
+        provideAdapter(FrobRenderer)
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_interface_compliance(self):
+        verifyObject(IValueRenderer, DictValue({}))
+
+    def test_empty_dict(self):
+        self.assertEquals(DictValue({}).render(), '{}')
+
+    def test_single_item_dict(self):
+        self.assertEquals(DictValue({1: Frob()}).render(),
+                          '{1: <Frob>}')
+
+    def test_longer_dicts(self):
+        self.assertEquals(DictValue({1: Frob(), 2: 3}).render(),
+                          '{1: <Frob>, 2: 3}')
+        self.assertEquals(DictValue({1: Frob(), 2: Frob(), 3: 4}).render(),
+                          '{1: <Frob>, 2: <Frob>, 3: 4}')
+
+    def test_tid_is_preserved(self):
+        self.assertEquals(DictValue({Frob(): Frob()}).render(tid=42),
+                          '{<Frob [tid=42]>: <Frob [tid=42]>}')
 
 
 def test_suite():
-    return unittest.makeSuite(TestGenericValue)
+    this = sys.modules[__name__]
+    return unittest.defaultTestLoader.loadTestsFromModule(this)
 
