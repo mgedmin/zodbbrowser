@@ -11,7 +11,7 @@ from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
 import simplejson
 
-from zodbbrowser.app import ZodbObject
+from zodbbrowser.object import ZodbObject
 
 
 class ZodbInfoView(BrowserView):

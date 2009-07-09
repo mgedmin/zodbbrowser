@@ -10,7 +10,7 @@ from zope.traversing.interfaces import IContainmentRoot
 from zope.testing import doctest
 
 
-from zodbbrowser.app import ZodbObject
+from zodbbrowser.object import ZodbObject
 from zodbbrowser.value import (GenericValue, TupleValue, DictValue,
                                ListValue, PersistentValue)
 from zodbbrowser.history import getHistory

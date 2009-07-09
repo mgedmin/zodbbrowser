@@ -1,7 +1,3 @@
-"""
-zodbbrowser application
-"""
-
 import time
 
 from ZODB.utils import u64
