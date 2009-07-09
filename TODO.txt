@@ -3,6 +3,7 @@ TODO
 
 - Compatibility with Zope 3.2
 - Command-line option to specify a htpasswd file name for protection
+- Complete test coverage
 - Buildbots for various python and zope versions
 - Figure out if it's possible to show a list of transactions
 - Interactive filtering by attribute name
