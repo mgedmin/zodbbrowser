@@ -10,7 +10,6 @@
   <adapter factory=".value.PersistentValue" />
 
   <adapter factory=".state.GenericState" />
-  <adapter factory=".state.IntState" />
   <adapter factory=".state.OOBTreeState" />
   <adapter factory=".state.EmptyOOBTreeState" />
   <adapter factory=".state.PersistentDictState" />

@@ -55,33 +55,6 @@ class GenericState(object):
         return self.state
 
 
-class IntState(object):
-    """Some objects represent their state as an int.
-
-    The only example I know of is BTrees.Length.Length.
-    """
-    adapts(Interface, int, None)
-    implements(IStateInterpreter)
-
-    def __init__(self, type, state, tid):
-        self.state = state
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return [('int value', self.state)]
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return {'int value': self.state}
-
-
 class OOBTreeState(object):
     """Non-empty OOBTrees have a complicated tuple structure."""
     adapts(OOBTree, tuple, None)
