@@ -28,25 +28,33 @@ function hideGoTo() {
 function activateGoTo() {
     var path = $('#gotoInput').val();
     var api = $('#api').val();
-    // XXX: our callback is not called if server returns malformed JSON
     $('#pathError').text("Loading...").slideDown();
-    $.getJSON(api, {'path': path}, function(data, status) {
-        if (data.url) {
-            window.location = data.url;
-            $('#pathError').text("Found.").slideDown().slideUp();
-        } else if (data.error) {
-            $('#pathError').text(data.error).show();
-            if (data.partial_url) {
-                $('#pathError').append(', would you like to ' +
-                                       '<a href="' + data.partial_url + '">' +
-                                       'go to ' + data.partial_path +
-                                       '</a>' +
-                                       ' instead?');
-            }
-        } else {
-            $('#pathError').text(status).show();
+    $.ajax({url: api, dataType:'json', data: "path=" + path,
+            timeout: 7000, success: ajaxSuccessHandler,
+            error: ajaxErrorHandler})
+}
+
+function ajaxErrorHandler(XMLHttpRequest, textStatus, errorThrown) {
+    $('#pathError').append('<strong style="color:red"> Error: ' +
+                           textStatus + "</strong>");
+}
+
+function ajaxSuccessHandler(data, status) {
+    if (data.url) {
+        window.location = data.url;
+        $('#pathError').text("Found.").slideDown().slideUp();
+    } else if (data.error) {
+        $('#pathError').text(data.error).show();
+        if (data.partial_url) {
+            $('#pathError').append(', would you like to ' +
+                                   '<a href="' + data.partial_url + '">' +
+                                   'go to ' + data.partial_path +
+                                   '</a>' +
+                                   ' instead?');
         }
-    });
+    } else {
+        $('#pathError').text(status).show();
+    }
 }
 
 $(document).ready(function() {
