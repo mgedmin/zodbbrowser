@@ -1,13 +1,8 @@
 import unittest
 import sys
-import tempfile
-import shutil
-import os
 
 import transaction
 from BTrees.OOBTree import OOBTree
-from ZODB.FileStorage.FileStorage import FileStorage
-from ZODB.DB import DB
 from persistent import Persistent
 from zope.app.testing import setup
 from zope.app.container.sample import SampleContainer
@@ -24,6 +19,7 @@ from zodbbrowser.state import (GenericState,
                                PersistentDictState,
                                PersistentMappingState,
                                FallbackState)
+from zodbbrowser.tests.realdb import RealDatabaseTest
 
 
 class Frob(object):
@@ -70,22 +66,6 @@ class TestGenericState(unittest.TestCase):
     def test_asDict(self):
         state = GenericState(Frob(), {'foo': 1, 'bar': 2, 'baz': 3}, None)
         self.assertEquals(state.asDict(), {'foo': 1, 'bar': 2, 'baz': 3})
-
-
-class RealDatabaseTest(unittest.TestCase):
-
-    def setUp(self):
-        self.tmpdir = tempfile.mkdtemp('testzodbbrowser')
-        self.storage = FileStorage(os.path.join(self.tmpdir, 'Data.fs'))
-        self.db = DB(self.storage)
-        self.conn = self.db.open()
-
-    def tearDown(self):
-        transaction.abort()
-        self.conn.close()
-        self.db.close()
-        self.storage.close()
-        shutil.rmtree(self.tmpdir)
 
 
 class TestGenericStateWithHistory(RealDatabaseTest):
