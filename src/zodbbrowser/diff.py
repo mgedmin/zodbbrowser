@@ -29,7 +29,12 @@ def compareDictsHTML(new, old, tid=None):
     for key, (action, newvalue, oldvalue) in sorted(diff.items()):
         what = action.split()[0]
         html.append('  <span class="diff %s">\n' % escape(what))
-        html.append('    <strong>%s</strong>: ' % escape(key))
+        if isinstance(key, basestring):
+            # XXX we're courting Unicode problems here
+            html.append('    <strong>%s</strong>: ' % escape(key))
+        else:
+            html.append('    <strong>%s</strong>: '
+                        % IValueRenderer(key).render(tid))
         if (action == CHANGED and isinstance(oldvalue, dict) and
             isinstance(newvalue, dict)):
             html.append('dictionary changed:\n')
