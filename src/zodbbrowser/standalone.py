@@ -17,6 +17,7 @@ from zope.app.server.servertype import IServerType
 from zope.app.appsetup.appsetup import SystemConfigurationParticipation
 from zope.component import getUtility
 from zope.server.taskthreads import ThreadedTaskDispatcher
+from zope.event import notify
 import zope.app.component.hooks
 
 
@@ -118,6 +119,9 @@ def main():
     parser.add_option('--listen', metavar='ADDRESS',
                       help='specify port (or host:port) to listen on',
                       default='localhost:8070')
+    parser.add_option('--rw', action='store_false', dest='readonly',
+                      default=True,
+                      help='open the database read-write (allows creation of the standard Zope local utilities if missing)')
     opts, args = parser.parse_args()
 
     options = Options()
@@ -146,23 +150,23 @@ def main():
 
     if opts.db:
         filename = opts.db
-        db = DB(FileStorage(filename, read_only=True))
+        db = DB(FileStorage(filename, read_only=opts.readonly))
     elif opts.zeo:
         if ':' in opts.zeo:
             zeo_address = opts.zeo.split(':', 1)
         else:
             zeo_address = opts.zeo
-        db = DB(ClientStorage(zeo_address, read_only=True))
+        db = DB(ClientStorage(zeo_address, read_only=opts.readonly))
     else:
         parser.error('please specify a database')
 
     configure(options)
 
-    ## notify(zope.app.appsetup.interfaces.DatabaseOpened(db))
+    notify(zope.app.appsetup.interfaces.DatabaseOpened(db))
 
     start_server(options, db)
 
-    ## notify(zope.app.appsetup.interfaces.ProcessStarting())
+    notify(zope.app.appsetup.interfaces.ProcessStarting())
 
     serve_forever()
 
