@@ -8,4 +8,4 @@ TODO
 - Figure out if it's possible to show a list of transactions
 - Interactive filtering by attribute name
 - Show persistent object attributes when hovering on a link
-- Help screen in a lightbox
+- Help page in a lightbox

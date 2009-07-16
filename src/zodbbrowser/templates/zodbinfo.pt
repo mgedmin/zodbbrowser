@@ -33,10 +33,21 @@
         <tal:block tal:condition="not:attributes">
           <span class="empty">There are none.</span>
         </tal:block>
-        <tal:block tal:repeat="attr attributes">
-          <strong tal:content="attr/name" />:
-          <tal:block replace="structure attr/rendered_value" />
+        <tal:block tal:condition="attributes">
+          <input type="submit" value="Filter history"
+                 onclick="filterHistory()"/>
+          <input type="button" value="Select all"
+                 onclick="$('.filter').attr('checked', true)"/>
+          <input type="button" value="Select none"
+                 onclick="$('.filter').attr('checked', false)"/>
           <br />
+          <tal:block tal:repeat="attr attributes">
+            <input type="checkbox" class="filter"
+                tal:attributes="name string:${attr/name}"/>
+            <strong tal:content="attr/name" />:
+            <tal:block replace="structure attr/rendered_value" />
+            <br />
+          </tal:block>
         </tal:block>
       </div>
     </div>
@@ -68,8 +79,8 @@
              alt="collapse" />&nbsp;History
       </h3>
       <div class="collapsible">
-        <div class="transaction"
-             tal:attributes="class python:view.getObjectRequestedTid() and 'transaction' or 'transaction latest'">
+        <div
+             tal:attributes="class python:view.getObjectRequestedTid() and 'none' or 'latest'">
           <h4 class="transaction">
             <a tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
               >Latest</a>

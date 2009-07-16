@@ -1,3 +1,38 @@
+function filterHistory() {
+    var transactions = $('div.transaction');
+    var filters = $('.filter');
+    var filterMap = Array();
+    var MAPPING_PREFIX = "map";
+
+    for (i = 0; i < filters.length; i++) {
+        var filter = filters[i];
+        if (filter.checked) {
+            filterMap[MAPPING_PREFIX + filter.name] = filter.checked;
+        }
+    }
+
+    for (i = 0; i < transactions.length; i++) {
+        transaction = transactions[i];
+        var diff = $($(transaction).children()[1]).children()
+        hasSelectedAttributes = false;
+        for (j = 0; j < diff.length; j++) {
+            var id = $($(diff[j]).children()[0]).text();
+            if (!(MAPPING_PREFIX + id in filterMap)) {
+                $(diff[j]).hide();
+            } else {
+                $(diff[j]).show();
+                hasSelectedAttributes = true;
+            }
+        }
+
+        if (!hasSelectedAttributes) {
+            $(transaction).hide();
+        } else {
+            $(transaction).show();
+        }
+    }
+}
+
 function collapseOrExpand() {
     var content = $(this).next();
     var icon = $(this).children('img');
