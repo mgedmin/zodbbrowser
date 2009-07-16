@@ -78,7 +78,7 @@ function ajaxErrorHandler(XMLHttpRequest, textStatus, errorThrown) {
     } else if (textStatus == "timeout") {
         errorMessage = "Server timeout";
     } else if (textStatus == "notmodified") {
-        errorMessage = "Unknown error";
+        errorMessage = "Server error (says resource not modified)";
     } else {
         errorMessage = "Unknown error";
     }
