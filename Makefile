@@ -56,10 +56,10 @@ release:
 	make distcheck
 	test -z "`bzr status`" || { echo "Your working tree is not clean"; bzr status; exit 1; }
 	# I'm chicken so I won't actually do these things yet
-	echo Please run $(PYTHON) sdist register upload
-	echo Please run bzr tag `$(PYTHON) setup.py --version`
-	echo Please increment the version number in src/zodbbrowser/__init__.py
-	echo Please add a new empty entry in CHANGES.txt
+	@echo Please run $(PYTHON) sdist register upload
+	@echo Please run bzr tag `$(PYTHON) setup.py --version`
+	@echo Please increment the version number in src/zodbbrowser/__init__.py
+	@echo Please add a new empty entry in CHANGES.txt
 
 #
 # Implementation
