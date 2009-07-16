@@ -11,3 +11,5 @@ tags
 .pydevproject
 .settings
 dist
+coverage
+Paste-1.7.2-py2.5.egg
