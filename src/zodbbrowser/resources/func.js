@@ -4,7 +4,7 @@ function filterHistory() {
     var filterMap = Array();
     var MAPPING_PREFIX = "map";
 
-    for (i = 0; i < filters.length; i++) {
+    for (var i = 0; i < filters.length; i++) {
         var filter = filters[i];
         if (filter.checked) {
             filterMap[MAPPING_PREFIX + filter.name] = filter.checked;
@@ -12,23 +12,23 @@ function filterHistory() {
     }
 
     for (i = 0; i < transactions.length; i++) {
-        transaction = transactions[i];
-        var diff = $($(transaction).children()[1]).children()
-        hasSelectedAttributes = false;
-        for (j = 0; j < diff.length; j++) {
+        var transaction = transactions[i];
+        var diff = $($(transaction).children()[1]).children();
+        var hasSelectedAttributes = false;
+        for (var j = 0; j < diff.length; j++) {
             var id = $($(diff[j]).children()[0]).text();
-            if (!(MAPPING_PREFIX + id in filterMap)) {
-                $(diff[j]).hide();
-            } else {
-                $(diff[j]).show();
+            if (MAPPING_PREFIX + id in filterMap) {
                 hasSelectedAttributes = true;
+                $(diff[j]).show();
+            } else {
+                $(diff[j]).hide();
             }
         }
 
-        if (!hasSelectedAttributes) {
-            $(transaction).hide();
-        } else {
+        if (hasSelectedAttributes) {
             $(transaction).show();
+        } else {
+            $(transaction).hide();
         }
     }
 }
@@ -66,24 +66,24 @@ function activateGoTo() {
     $('#pathError').text("Loading...").slideDown();
     $.ajax({url: api, dataType:'json', data: "path=" + path,
             timeout: 7000, success: ajaxSuccessHandler,
-            error: ajaxErrorHandler})
+            error: ajaxErrorHandler});
 }
 
 function ajaxErrorHandler(XMLHttpRequest, textStatus, errorThrown) {
-    errorMessage = ""
+    errorMessage = "";
     if (textStatus == "parsererror") {
-        errorMessage = "Server returned malformed data"
+        errorMessage = "Server returned malformed data";
     } else if (textStatus == "error") {
-        errorMessage = "Unknown error (maybe server is offline?)"
+        errorMessage = "Unknown error (maybe server is offline?)";
     } else if (textStatus == "timeout") {
-        errorMessage = "Server timeout"
+        errorMessage = "Server timeout";
     } else if (textStatus == "notmodified") {
-        errorMessage = "Unknown error"
+        errorMessage = "Unknown error";
     } else {
-        errorMessage = "Unknown error"
+        errorMessage = "Unknown error";
     }
 
-    errorMessage = '<span class="error"> ' + errorMessage + '</strong>'
+    errorMessage = '<span class="error"> ' + errorMessage + '</strong>';
     $('#pathError').html(errorMessage);
 }
 
