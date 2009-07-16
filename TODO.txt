@@ -1,10 +1,28 @@
 TODO
 ====
 
+Features:
+
 - Compatibility with Zope 3.2
 - Command-line option to specify a htpasswd file name for protection
-- Complete test coverage
-- Buildbots for various python and zope versions
-- Figure out if it's possible to show a list of transactions
 - Show persistent object attributes when hovering on a link
-- Help page in a lightbox
+- Figure out if it's possible to show a list of transactions
+- Help page in a javascripty-popup (lightbox-style)
+
+Refactorings:
+
+- Replace global getHistory/loadState with an IHistory adapter
+- Standalone app: see if you can replace the zope publisher with something
+  lightweight (WSGI?) so that you can inspect databases when their structure
+  is broken (no site/unpickleable site objects)
+- Unify URL generation logic in browser.py and object.py (maybe merge the
+  two files since they're very closely related)
+
+Tests:
+
+- Complete test coverage
+    - test ZEO ClientStorage integration (that ugly inspection hack)
+    - tests for browser views
+    - tests for javascript
+- Buildbots for various python and zope versions
+- make distcheck (python sdist; untar and run python sdist; compare the two)
