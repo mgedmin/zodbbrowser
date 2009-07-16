@@ -5,7 +5,10 @@ import transaction
 from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from zope.app.testing import setup
+from zope.app.folder import Folder
 from zope.app.container.sample import SampleContainer
+from zope.app.container.btree import BTreeContainer
+from zope.app.container.ordered import OrderedContainer
 from zope.interface.verify import verifyObject
 from zope.interface import implements
 from zope.component import provideAdapter
@@ -15,9 +18,13 @@ from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.history import getHistory, loadState
 from zodbbrowser.state import (GenericState,
                                EmptyOOBTreeState,
+                               FolderState,
                                OOBTreeState,
+                               OrderedContainerState,
+                               BTreeContainerState,
                                PersistentDictState,
                                PersistentMappingState,
+                               SampleContainerState,
                                FallbackState)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
@@ -30,7 +37,7 @@ class Root(Persistent, SampleContainer):
     implements(IContainmentRoot)
 
 
-class Folder(Persistent, SampleContainer):
+class SampleFolder(Persistent, SampleContainer):
     pass
 
 
@@ -73,8 +80,8 @@ class TestGenericStateWithHistory(RealDatabaseTest):
     def setUp(self):
         RealDatabaseTest.setUp(self)
         self.root = self.conn.root()['root'] = Root()
-        self.foo = self.root['foo'] = Folder()
-        self.bar = self.root['foo']['bar'] = Folder()
+        self.foo = self.root['foo'] = SampleFolder()
+        self.bar = self.root['foo']['bar'] = SampleFolder()
         transaction.commit()
         self.foo.__name__ = 'new'
         transaction.commit()
@@ -88,6 +95,88 @@ class TestGenericStateWithHistory(RealDatabaseTest):
         tid = self.bar._p_serial
         state = GenericState(self.bar, {'__parent__': self.foo}, tid)
         self.assertEquals(state.getParent().__name__, 'foo')
+
+
+class TestOrderedContainerState(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.container = self.conn.root()['container'] = OrderedContainer()
+        self.container['foo'] = 1
+        self.container['bar'] = 2
+        transaction.commit()
+        self.state = OrderedContainerState(None, self.container.__getstate__(),
+                                           None)
+
+    def test_listItems(self):
+        items = self.state.listItems()
+        self.assertEquals(list(self.state.listItems()),
+                          [('foo', 1), ('bar', 2)])
+
+
+class TestFolderState(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.folder = self.conn.root()['folder'] = Folder()
+        self.folder['foo'] = 1
+        self.folder['bar'] = 2
+        transaction.commit()
+        self.state = FolderState(None, self.folder.__getstate__(),
+                                 None)
+
+    def test_listItems(self):
+        items = self.state.listItems()
+        self.assertEquals(list(self.state.listItems()),
+                          [('bar', 2), ('foo', 1)])
+
+    def test_listItems_no_data(self):
+        state = FolderState(None, Folder().__getstate__(), None)
+        self.assertEquals(list(state.listItems()), []);
+
+
+class TestSampleContainerState(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.container = self.conn.root()['container'] = BTreeContainer()
+        self.container['foo'] = 1
+        self.container['bar'] = 2
+        transaction.commit()
+        self.state = SampleContainerState(None, self.container.__getstate__(),
+                                          None)
+
+    def test_listItems(self):
+        items = self.state.listItems()
+        self.assertEquals(list(self.state.listItems()),
+                          [('bar', 2), ('foo', 1)])
+
+    def test_listItems_no_data(self):
+        state = SampleContainerState(None, BTreeContainer().__getstate__(),
+                                     None)
+        self.assertEquals(list(state.listItems()), []);
+
+
+class TestBTreeContainerState(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.container = self.conn.root()['container'] = BTreeContainer()
+        self.container['foo'] = 1
+        self.container['bar'] = 2
+        transaction.commit()
+        self.state = BTreeContainerState(None, self.container.__getstate__(),
+                                         None)
+
+    def test_listItems(self):
+        items = self.state.listItems()
+        self.assertEquals(list(self.state.listItems()),
+                          [('bar', 2), ('foo', 1)])
+
+    def test_listItems_no_data(self):
+        state = BTreeContainerState(None, BTreeContainer().__getstate__(),
+                                    None)
+        self.assertEquals(list(state.listItems()), []);
 
 
 class TestOOBTreeState(unittest.TestCase):
