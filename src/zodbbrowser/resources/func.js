@@ -14,21 +14,25 @@ function filterHistory() {
     for (i = 0; i < transactions.length; i++) {
         var transaction = transactions[i];
         var diff = $($(transaction).children()[1]).children();
-        var hasSelectedAttributes = false;
+        var n_hidden = 0;
         for (var j = 0; j < diff.length; j++) {
             var id = $($(diff[j]).children()[0]).text();
             if (MAPPING_PREFIX + id in filterMap) {
-                hasSelectedAttributes = true;
                 $(diff[j]).show();
             } else {
                 $(diff[j]).hide();
+                n_hidden += 1;
             }
         }
-
-        if (hasSelectedAttributes) {
-            $(transaction).show();
-        } else {
-            $(transaction).hide();
+        var hidden_text = null;
+        if (n_hidden == 1) {
+            hidden_text = '1 item hidden';
+        } else if (n_hidden) {
+            hidden_text = n_hidden + ' items hidden';
+        }
+        $(transaction).children('.filtered').remove();
+        if (hidden_text) {
+            $(transaction).append('<div class="filtered">' + hidden_text + '</div>');
         }
     }
 }

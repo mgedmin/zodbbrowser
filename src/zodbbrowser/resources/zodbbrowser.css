@@ -97,7 +97,7 @@ h3.expander:hover {
 
 div.transaction {
   margin: 0;
-  padding-bottom: 2px;
+  padding-bottom: 1em;
 }
 
 h4.transaction {
@@ -142,7 +142,7 @@ div.object .truncated {
 div.diff {
   padding: 4px;
   margin-left: 2em;
-  margin-bottom: 1em;
+  margin-bottom: 0;
 }
 
 div.diff div.diff {
@@ -156,6 +156,13 @@ span.removed {
 
 span.added {
   color: #040;
+}
+
+div.filtered {
+  margin-left: 2em;
+  padding-left: 4px;
+  font-size: 12px;
+  color: #444;
 }
 
 div.history {

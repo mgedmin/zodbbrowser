@@ -40,8 +40,9 @@
                  onclick="$('.filter').attr('checked', false); filterHistory()"/>
           <br />
           <tal:block tal:repeat="attr attributes">
-            <input type="checkbox" class="filter" onchange="filterHistory()"
-                tal:attributes="name string:${attr/name}"/>
+            <input type="checkbox" class="filter" checked="checked"
+                   onchange="filterHistory()"
+                   tal:attributes="name string:${attr/name}"/>
             <strong tal:content="attr/name" />:
             <tal:block replace="structure attr/rendered_value" />
             <br />
