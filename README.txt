@@ -14,7 +14,9 @@ add this to your site.zcml::
   <include package="zodbbrowser" />
 
 Restart Zope and append @@zodbbrowser to the end of the URL to start
-browsing, e.g. http://localhost:8080/@@zodbbrowser.
+browsing, e.g. http://localhost:8080/@@zodbbrowser.  Or, if you still use
+ZMI (the Zope Management Interface), look for a new menu item titled
+"ZODB Browser".
 
 
 Usage as a standalone project
@@ -42,9 +44,17 @@ installation with extra packages::
   zodbbrowser /path/to/Data.fs
 
 
+Online help
+-----------
+
+There's a little 'help' link in the bottom-right corner of every page that
+describes the user interface in greater detail.
+
+
 Authors
 -------
 
 ZODB Browser was developed by Tautvilas Mečinskas (tautvilas@pov.lt) and
-Marius Gedminas (marius@pov.lt).  It is licenced under the `Zope Public
-Licence <http://www.zope.org/Resources/ZPL>`_.
+Marius Gedminas (marius@pov.lt) from `Programmers of Vilnius
+<http://pov.lt/>`_.  It is licenced under the `Zope Public Licence
+<http://www.zope.org/Resources/ZPL>`_.

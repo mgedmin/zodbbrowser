@@ -13,7 +13,8 @@ def get_version():
 
 def get_long_description():
     here = os.path.dirname(__file__)
-    return open(os.path.join(here, 'README.txt')).read()
+    return (open(os.path.join(here, 'README.txt')).read() + '\n\n' +
+            open(os.path.join(here, 'CHANGES.txt')).read())
 
 
 setup(
