@@ -122,6 +122,21 @@ def doctest_compareDictsHTML_html_quoting():
     """
 
 
+def doctest_compareDictsHTML_nonstring_keys():
+    """Tests for compareDicts
+
+        >>> old = {1: 2}
+        >>> new = {1: 3}
+        >>> print compareDictsHTML(new, old)
+        <div class="diff">
+          <span class="diff changed">
+            <strong>1</strong>: changed to 3<br />
+          </span>
+        </div>
+
+    """
+
+
 class SimpleValueRenderer(object):
     adapts(None)
     implements(IValueRenderer)

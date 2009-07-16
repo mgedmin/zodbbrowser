@@ -1,4 +1,4 @@
-from BTrees._OOBTree import OOBTree
+from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.mapping import PersistentMapping
@@ -55,43 +55,20 @@ class GenericState(object):
         return self.state
 
 
-class IntState(object):
-    """Some objects represent their state as an int.
-
-    The only example I know of is BTrees.Length.Length.
-    """
-    adapts(Interface, int, None)
-    implements(IStateInterpreter)
-
-    def __init__(self, type, state, tid):
-        self.state = state
-
-    def getName(self):
-        return '???'
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return [('int value', self.state)]
-
-    def listItems(self):
-        return None
-
-    def asDict(self):
-        return {'int value': self.state}
-
-
 class OOBTreeState(object):
     """Non-empty OOBTrees have a complicated tuple structure."""
     adapts(OOBTree, tuple, None)
     implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
-        # XXX: this ignores tid, which cause incorrect results to be presented
-        # if you have a large btree that uses multiple persistent buckets!
         self.btree = OOBTree()
         self.btree.__setstate__(state)
+        # Large btrees have more than one bucket; we have to load old states
+        # to all of them
+        while state and len(state) > 1:
+            bucket = state[1]
+            state = loadState(bucket, tid=tid)
+            bucket.__setstate__(state)
 
     def getName(self):
         return '???'

@@ -17,6 +17,7 @@ from zope.app.server.servertype import IServerType
 from zope.app.appsetup.appsetup import SystemConfigurationParticipation
 from zope.component import getUtility
 from zope.server.taskthreads import ThreadedTaskDispatcher
+from zope.event import notify
 import zope.app.component.hooks
 
 
@@ -28,13 +29,10 @@ class Options(object):
     features = ('zserver',) # maybe 'devmode' too?
     site_definition = """
         <configure xmlns="http://namespaces.zope.org/zope"
-            i18n:domain="zodbbrowser">
+                   i18n_domain="zodbbrowser">
           <include package="zope.app.securitypolicy" file="meta.zcml" />
           <include package="zope.app.zcmlfiles" file="meta.zcml" />
 
-          <include package="zope.publisher" />
-          <include package="zope.traversing" />
-          <include package="zope.traversing.browser" />
           <include package="zope.app.zcmlfiles" />
           <include package="zope.app.server" />
           <include package="zope.app.component" />
@@ -42,12 +40,6 @@ class Options(object):
           <include package="zope.publisher" />
           <include package="zope.traversing" />
           <include package="zope.traversing.browser" />
-
-<!--
-          <include package="zope.app.authentication" />
-          <include package="zope.app.securitypolicy" />
-          <include package="zope.session" />
-  -->
 
           <include package="zodbbrowser" />
 
@@ -119,9 +111,31 @@ def serve_forever():
 def main():
     logging.basicConfig(format="%(message)s")
 
-    parser = optparse.OptionParser('usage: %prog [/path/to/Data.fs]')
-    parser.add_option('--zeo')
+    parser = optparse.OptionParser(
+        'usage: %prog [options] [FILENAME | --zeo ADDRESS]',
+        description='Open a ZODB database and start a web-based browser app.')
+    parser.add_option('--zeo', metavar='ADDRESS',
+                      help='connect to ZEO server instead')
+    parser.add_option('--listen', metavar='ADDRESS',
+                      help='specify port (or host:port) to listen on',
+                      default='localhost:8070')
+    parser.add_option('--rw', action='store_false', dest='readonly',
+                      default=True,
+                      help='open the database read-write (allows creation of the standard Zope local utilities if missing)')
     opts, args = parser.parse_args()
+
+    options = Options()
+    if opts.listen:
+        if ':' in opts.listen:
+            host, port = opts.listen.rsplit(':', 1)
+        else:
+            host = 'localhost'
+            port = opts.listen
+        try:
+            port = int(port)
+        except ValueError:
+            parser.error('invalid TCP port: %s' % port)
+        options.listen_on = host, port
 
     if len(args) > 1:
         parser.error('too many arguments')
@@ -136,24 +150,23 @@ def main():
 
     if opts.db:
         filename = opts.db
-        db = DB(FileStorage(filename, read_only=True))
+        db = DB(FileStorage(filename, read_only=opts.readonly))
     elif opts.zeo:
         if ':' in opts.zeo:
             zeo_address = opts.zeo.split(':', 1)
         else:
             zeo_address = opts.zeo
-        db = DB(ClientStorage(zeo_address, read_only=True))
+        db = DB(ClientStorage(zeo_address, read_only=opts.readonly))
     else:
         parser.error('please specify a database')
 
-    options = Options()
     configure(options)
 
-    ## notify(zope.app.appsetup.interfaces.DatabaseOpened(db))
+    notify(zope.app.appsetup.interfaces.DatabaseOpened(db))
 
     start_server(options, db)
 
-    ## notify(zope.app.appsetup.interfaces.ProcessStarting())
+    notify(zope.app.appsetup.interfaces.ProcessStarting())
 
     serve_forever()
 

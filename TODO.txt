@@ -1,13 +1,10 @@
 TODO
 ====
 
-- Command-line option to specify port or host:port to listen on
-- Command-line option to specify a htpasswd file name for protection
-- Figure out how to start the standalone app without actually loading any
-  objects from the ZODB
-- Audit source code and verify that code of persistent objects is never
-  called (except maybe for __repr__ methods).
 - Compatibility with Zope 3.2
+- Command-line option to specify a htpasswd file name for protection
+- Complete test coverage
 - Buildbots for various python and zope versions
 - Figure out if it's possible to show a list of transactions
 - Interactive filtering by attribute name
+- Show persistent object attributes when hovering on a link
