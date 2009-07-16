@@ -6,6 +6,7 @@ TODO
 - Complete test coverage
 - Buildbots for various python and zope versions
 - Figure out if it's possible to show a list of transactions
-- Interactive filtering by attribute name
+- Interactive filtering by attribute name: if some attrs were removed, there's
+  no way to make them visible once you start clicking around
 - Show persistent object attributes when hovering on a link
 - Help page in a lightbox
