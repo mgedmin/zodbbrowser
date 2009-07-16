@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys
+import os
 from setuptools import setup, find_packages
 
 
@@ -11,18 +11,20 @@ def get_version():
     execfile(zodbbrowser, d)
     return d['__version__']
 
+class UltraMagicString(str):
+    # Catch-22:
+    # - if I return Unicode, python setup.py --long-description ad well
+    #   as python setup.py upload fail with a UnicodeEncodeError
+    # - if I return UTF-8 string, python setup.py sdist register
+    #   fails with an UnicodeDecodeError
+
+    def __unicode__(self):
+        return self.decode('UTF-8')
+
 def read_file(relative_filename):
     here = os.path.dirname(__file__)
     text = open(os.path.join(here, relative_filename)).read()
-    # Catch-22:
-    # - if I return Unicode, python setup.py --long-description fails with
-    #   an UnicodeEncodeError
-    # - if I return UTF-8 string, python setup.py sdist register upload
-    #   fails with an UnicodeDecodeError
-    if '--long-description' in sys.argv:
-        return text
-    else:
-        return text.decode('UTF-8')
+    return UltraMagicString(text)
 
 def get_long_description():
     return read_file('README.txt') + '\n\n' + read_file('CHANGES.txt')
