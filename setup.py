@@ -11,15 +11,28 @@ def get_version():
     execfile(zodbbrowser, d)
     return d['__version__']
 
-class UltraMagicString(str):
+class UltraMagicString(object):
     # Catch-22:
     # - if I return Unicode, python setup.py --long-description ad well
     #   as python setup.py upload fail with a UnicodeEncodeError
     # - if I return UTF-8 string, python setup.py sdist register
     #   fails with an UnicodeDecodeError
 
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
     def __unicode__(self):
-        return self.decode('UTF-8')
+        return self.value.decode('UTF-8')
+
+    def __add__(self, other):
+        return UltraMagicString(self.value + str(other))
+
+    def split(self, *args, **kw):
+        return self.value.split(*args, **kw)
+
 
 def read_file(relative_filename):
     here = os.path.dirname(__file__)
