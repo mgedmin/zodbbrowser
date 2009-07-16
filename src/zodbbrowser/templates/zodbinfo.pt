@@ -44,9 +44,9 @@
           </tal:block>
           <div class="buttons">
             <a class="jsbutton" href="javascript:filterAll()"
-               >select all</a>
+               >show all</a>
             <a class="jsbutton" href="javascript:filterNone()"
-               >unselect all</a>
+               >hide all</a>
           </div>
         </tal:block>
       </div>

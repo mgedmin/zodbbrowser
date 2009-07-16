@@ -47,6 +47,15 @@
   in the heading area.  To clear it and go back to always seeing the current
   state of the objects, click on 'Latest' in the history list.</p>
 
+  <h3>Filtering by attribute</h3>
+
+  <p>You can hide changes to uninteresting attributes in the history list by
+  unchecking checkboxes next to attribute names.  Click on "show all" to
+  remove the filtering and display all attributes.</p>
+
+  <p>In some cases (e.g. when attributes have been removed from the object),
+  checking all check boxes may show less than clicking on "show all".</p>
+
 </div>
 
 <div class="footer">
