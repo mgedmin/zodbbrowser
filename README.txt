@@ -34,3 +34,17 @@ Run bin/zodbbrowser specifying either a filename or a ZEO address ::
 Open http://localhost:8070 in a web browser.  Note that there are no
 access controls; all other users on the local machine will be able to
 access the database contents.
+
+Or you could use easy_install, if you're not afraid of cluttering your Python
+installation with extra packages::
+
+  easy_install zodbbrowser[app]
+  zodbbrowser /path/to/Data.fs
+
+
+Authors
+-------
+
+ZODB Browser was developed by Tautvilas Mečinskas (tautvilas@pov.lt) and
+Marius Gedminas (marius@pov.lt).  It is licenced under the `Zope Public
+Licence <http://www.zope.org/Resources/ZPL>`_.

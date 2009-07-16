@@ -2,19 +2,27 @@
 import os
 from setuptools import setup, find_packages
 
+
 def get_version():
+    # extracts it from src/zodbbrowser/__init__.py
     here = os.path.dirname(__file__)
     zodbbrowser = os.path.join(here, 'src', 'zodbbrowser', '__init__.py')
     d = {}
     execfile(zodbbrowser, d)
     return d['__version__']
 
+def get_long_description():
+    here = os.path.dirname(__file__)
+    return open(os.path.join(here, 'README.txt')).read()
+
 
 setup(
     name="zodbbrowser",
+    license='ZPL 2.1',
     maintainer="Programmers of Vilnius",
     maintainer_email="tautvilas@pov.lt",
     description="ZODB browser",
+    long_description=get_long_description(),
     version=get_version(),
     packages=find_packages('src'),
     include_package_data=True,
