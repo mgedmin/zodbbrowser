@@ -23,14 +23,14 @@ function filterHistory(showAll) {
 
     for (i = 0; i < transactions.length; i++) {
         var transaction = transactions[i];
-        var diff = $($(transaction).children()[1]).children();
+        var diffs = $(transaction).children('div.diff').children('div.diffitem');
         var n_hidden = 0;
-        for (var j = 0; j < diff.length; j++) {
-            var id = $($(diff[j]).children()[0]).text();
+        for (var j = 0; j < diffs.length; j++) {
+            var id = $($(diffs[j]).children()[0]).text();
             if (MAPPING_PREFIX + id in filterMap || showAll) {
-                $(diff[j]).show();
+                $(diffs[j]).show();
             } else {
-                $(diff[j]).hide();
+                $(diffs[j]).hide();
                 n_hidden += 1;
             }
         }

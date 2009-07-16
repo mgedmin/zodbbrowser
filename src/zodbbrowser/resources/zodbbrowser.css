@@ -145,16 +145,12 @@ div.diff {
   margin-bottom: 0;
 }
 
-div.diff div.diff {
-  margin-bottom: 0;
-}
-
-span.removed {
+.removed {
   text-decoration: line-through;
   color: #400;
 }
 
-span.added {
+.added {
   color: #040;
 }
 

@@ -22,24 +22,24 @@ def compareDicts(new, old):
     return diffs
 
 
-def compareDictsHTML(new, old, tid=None):
+def compareDictsHTML(new, old, tid=None, indent=''):
     """Compare two state dictionaries, return HTML."""
-    html = ['<div class="diff">\n']
+    html = [indent + '<div class="diff">\n']
     diff = compareDicts(new, old)
     for key, (action, newvalue, oldvalue) in sorted(diff.items()):
         what = action.split()[0]
-        html.append('  <span class="diff %s">\n' % escape(what))
+        html.append(indent + '  <div class="diffitem %s">\n' % escape(what))
         if isinstance(key, basestring):
             # XXX we're courting Unicode problems here
-            html.append('    <strong>%s</strong>: ' % escape(key))
+            html.append(indent + '    <strong>%s</strong>: ' % escape(key))
         else:
-            html.append('    <strong>%s</strong>: '
+            html.append(indent + '    <strong>%s</strong>: '
                         % IValueRenderer(key).render(tid))
         if (action == CHANGED and isinstance(oldvalue, dict) and
             isinstance(newvalue, dict)):
             html.append('dictionary changed:\n')
-            html.append('  </span>\n')
-            html.append(compareDictsHTML(newvalue, oldvalue, tid))
+            html.append(compareDictsHTML(newvalue, oldvalue, tid,
+                                         indent=indent + '    '))
         else:
             html.append(action)
             html.append(' ')
@@ -48,8 +48,8 @@ def compareDictsHTML(new, old, tid=None):
             else:
                 value = newvalue
             html.append(IValueRenderer(value).render(tid))
-            html.append('<br />\n')
-            html.append('  </span>\n')
-    html.append('</div>\n')
+            html.append('\n')
+        html.append(indent + '  </div>\n')
+    html.append(indent + '</div>\n')
     return ''.join(html)
 

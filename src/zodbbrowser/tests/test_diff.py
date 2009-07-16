@@ -38,15 +38,15 @@ def doctest_compareDictsHTML():
         >>> new = dict(a=1, b=3, e=4)
         >>> print compareDictsHTML(new, old)
         <div class="diff">
-          <span class="diff changed">
-            <strong>b</strong>: changed to 3<br />
-          </span>
-          <span class="diff removed">
-            <strong>c</strong>: removed 3<br />
-          </span>
-          <span class="diff added">
-            <strong>e</strong>: added 4<br />
-          </span>
+          <div class="diffitem changed">
+            <strong>b</strong>: changed to 3
+          </div>
+          <div class="diffitem removed">
+            <strong>c</strong>: removed 3
+          </div>
+          <div class="diffitem added">
+            <strong>e</strong>: added 4
+          </div>
         </div>
 
     """
@@ -59,26 +59,26 @@ def doctest_compareDictsHTML_recursive():
         >>> new = dict(a=1, b=dict(x=3, y=5), d=dict(x=42), e=42, f=dict(x=4))
         >>> print compareDictsHTML(new, old)
         <div class="diff">
-          <span class="diff changed">
+          <div class="diffitem changed">
             <strong>b</strong>: dictionary changed:
-          </span>
-        <div class="diff">
-          <span class="diff changed">
-            <strong>x</strong>: changed to 3<br />
-          </span>
-        </div>
-          <span class="diff removed">
-            <strong>c</strong>: removed 3<br />
-          </span>
-          <span class="diff changed">
-            <strong>d</strong>: changed to {'x': 42}<br />
-          </span>
-          <span class="diff changed">
-            <strong>e</strong>: changed to 42<br />
-          </span>
-          <span class="diff added">
-            <strong>f</strong>: added {'x': 4}<br />
-          </span>
+            <div class="diff">
+              <div class="diffitem changed">
+                <strong>x</strong>: changed to 3
+              </div>
+            </div>
+          </div>
+          <div class="diffitem removed">
+            <strong>c</strong>: removed 3
+          </div>
+          <div class="diffitem changed">
+            <strong>d</strong>: changed to {'x': 42}
+          </div>
+          <div class="diffitem changed">
+            <strong>e</strong>: changed to 42
+          </div>
+          <div class="diffitem added">
+            <strong>f</strong>: added {'x': 4}
+          </div>
         </div>
 
     """
@@ -91,17 +91,17 @@ def doctest_compareDictsHTML_tid_is_used():
         >>> new = dict(a=2, b=dict(x=3, y=5))
         >>> print compareDictsHTML(new, old, tid=42)
         <div class="diff">
-          <span class="diff changed">
-            <strong>a</strong>: changed to 2 [tid=42]<br />
-          </span>
-          <span class="diff changed">
+          <div class="diffitem changed">
+            <strong>a</strong>: changed to 2 [tid=42]
+          </div>
+          <div class="diffitem changed">
             <strong>b</strong>: dictionary changed:
-          </span>
-        <div class="diff">
-          <span class="diff changed">
-            <strong>x</strong>: changed to 3 [tid=42]<br />
-          </span>
-        </div>
+            <div class="diff">
+              <div class="diffitem changed">
+                <strong>x</strong>: changed to 3 [tid=42]
+              </div>
+            </div>
+          </div>
         </div>
 
     """
@@ -114,9 +114,9 @@ def doctest_compareDictsHTML_html_quoting():
         >>> new = {'<': 'less than'}
         >>> print compareDictsHTML(new, old)
         <div class="diff">
-          <span class="diff added">
-            <strong>&lt;</strong>: added 'less than'<br />
-          </span>
+          <div class="diffitem added">
+            <strong>&lt;</strong>: added 'less than'
+          </div>
         </div>
 
     """
@@ -129,9 +129,9 @@ def doctest_compareDictsHTML_nonstring_keys():
         >>> new = {1: 3}
         >>> print compareDictsHTML(new, old)
         <div class="diff">
-          <span class="diff changed">
-            <strong>1</strong>: changed to 3<br />
-          </span>
+          <div class="diffitem changed">
+            <strong>1</strong>: changed to 3
+          </div>
         </div>
 
     """
