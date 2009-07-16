@@ -165,6 +165,15 @@ div.filtered {
   color: #444;
 }
 
+div.buttons {
+  padding: 4px;
+}
+a.jsbutton:link,
+a.jsbutton:visited {
+  color: green;
+  padding: 1px 4px;
+}
+
 div.history {
 }
 

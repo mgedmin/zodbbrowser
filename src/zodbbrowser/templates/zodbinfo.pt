@@ -34,11 +34,6 @@
           <span class="empty">There are none.</span>
         </tal:block>
         <tal:block tal:condition="attributes">
-          <input type="button" value="Select all"
-                 onclick="$('.filter').attr('checked', true); filterHistory()"/>
-          <input type="button" value="Select none"
-                 onclick="$('.filter').attr('checked', false); filterHistory()"/>
-          <br />
           <tal:block tal:repeat="attr attributes">
             <input type="checkbox" class="filter" checked="checked"
                    onchange="filterHistory()"
@@ -47,6 +42,14 @@
             <tal:block replace="structure attr/rendered_value" />
             <br />
           </tal:block>
+          <div class="buttons">
+            <a class="jsbutton" href="#"
+               onclick="$('.filter').attr('checked', true); filterHistory(); return false"
+               >select all</a>
+            <a class="jsbutton" href="#"
+               onclick="$('.filter').attr('checked', false); filterHistory(); return false"
+               >unselect all</a>
+          </div>
         </tal:block>
       </div>
     </div>
