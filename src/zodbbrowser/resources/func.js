@@ -60,15 +60,6 @@ function hideGoTo() {
     setTimeout(function(){ $('#pathError').slideUp(); }, 50);
 }
 
-function activateGoTo() {
-    var path = $('#gotoInput').val();
-    var api = $('#api').val();
-    $('#pathError').text("Loading...").slideDown();
-    $.ajax({url: api, dataType:'json', data: "path=" + path,
-            timeout: 7000, success: ajaxSuccessHandler,
-            error: ajaxErrorHandler});
-}
-
 function ajaxErrorHandler(XMLHttpRequest, textStatus, errorThrown) {
     errorMessage = "";
     if (textStatus == "parsererror") {
@@ -103,6 +94,15 @@ function ajaxSuccessHandler(data, status) {
     } else {
         $('#pathError').text(status).show();
     }
+}
+
+function activateGoTo() {
+    var path = $('#gotoInput').val();
+    var api = $('#api').val();
+    $('#pathError').text("Loading...").slideDown();
+    $.ajax({url: api, dataType:'json', data: "path=" + path,
+            timeout: 7000, success: ajaxSuccessHandler,
+            error: ajaxErrorHandler});
 }
 
 $(document).ready(function() {
