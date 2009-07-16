@@ -1,4 +1,14 @@
-function filterHistory() {
+function filterAll() {
+    $('.filter').attr('checked', true);
+    filterHistory(true);
+}
+
+function filterNone() {
+    $('.filter').attr('checked', false);
+    filterHistory();
+}
+
+function filterHistory(showAll) {
     var transactions = $('div.transaction');
     var filters = $('.filter');
     var filterMap = Array();
@@ -17,7 +27,7 @@ function filterHistory() {
         var n_hidden = 0;
         for (var j = 0; j < diff.length; j++) {
             var id = $($(diff[j]).children()[0]).text();
-            if (MAPPING_PREFIX + id in filterMap) {
+            if (MAPPING_PREFIX + id in filterMap || showAll) {
                 $(diff[j]).show();
             } else {
                 $(diff[j]).hide();

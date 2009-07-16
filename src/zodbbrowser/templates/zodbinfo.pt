@@ -43,11 +43,9 @@
             <br />
           </tal:block>
           <div class="buttons">
-            <a class="jsbutton" href="#"
-               onclick="$('.filter').attr('checked', true); filterHistory(); return false"
+            <a class="jsbutton" href="javascript:filterAll()"
                >select all</a>
-            <a class="jsbutton" href="#"
-               onclick="$('.filter').attr('checked', false); filterHistory(); return false"
+            <a class="jsbutton" href="javascript:filterNone()"
                >unselect all</a>
           </div>
         </tal:block>
