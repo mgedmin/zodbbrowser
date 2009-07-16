@@ -1,7 +1,7 @@
 <metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
 <metal:block fill-slot="content">
 
-<div class="object" id="#helptext">
+<div class="object" id="helptext">
 
 <div class="heading">
   <h1>ZODB Browser</h1>
@@ -52,7 +52,7 @@
 <div class="footer">
   <a tal:attributes="href view/homepage">zodb browser</a>
   v<span tal:replace="view/version" />
-  | <a id="#help" href="@@zodbbrowser_help">help</a>
+  | <a id="help" href="@@zodbbrowser_help">help</a>
 </div>
 
 </div>
