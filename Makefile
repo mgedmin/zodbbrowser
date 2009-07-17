@@ -22,6 +22,10 @@ coverage:
 	bin/test --coverage=coverage
 	bin/coverage parts/test/coverage
 
+.PHONY: tags
+tags:
+	bin/ctags
+
 .PHONY: dist
 dist: check
 	$(PYTHON) setup.py sdist
