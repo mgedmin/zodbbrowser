@@ -1,11 +1,10 @@
 import doctest
 
 from zope.app.testing import setup
-from zope.component import adapts, provideAdapter
-from zope.interface import implements
+from zope.component import provideAdapter
 
-from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.diff import compareDicts, compareDictsHTML
+from zodbbrowser.testing import SimpleValueRenderer
 
 
 def pprintDict(d):
@@ -135,20 +134,6 @@ def doctest_compareDictsHTML_nonstring_keys():
         </div>
 
     """
-
-
-class SimpleValueRenderer(object):
-    adapts(None)
-    implements(IValueRenderer)
-
-    def __init__(self, context):
-        self.context = context
-
-    def render(self, tid=None):
-        s = repr(self.context)
-        if tid:
-            s += ' [tid=%s]' % tid
-        return s
 
 
 def setUp(test):
