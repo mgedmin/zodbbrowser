@@ -3,13 +3,13 @@ import os
 from setuptools import setup, find_packages
 
 
-def get_version():
+def get_version_and_homepage():
     # extracts it from src/zodbbrowser/__init__.py
     here = os.path.dirname(__file__)
     zodbbrowser = os.path.join(here, 'src', 'zodbbrowser', '__init__.py')
     d = {}
     execfile(zodbbrowser, d)
-    return d['__version__']
+    return d['__version__'], d['__homepage__']
 
 class UltraMagicString(object):
     # Catch-22:
@@ -43,14 +43,18 @@ def get_long_description():
     return read_file('README.txt') + '\n\n' + read_file('CHANGES.txt')
 
 
+version, homepage = get_version_and_homepage()
+long_description = get_long_description()
+
 setup(
     name="zodbbrowser",
     license='ZPL 2.1',
     maintainer="Programmers of Vilnius",
     maintainer_email="tautvilas@pov.lt",
     description="ZODB browser",
-    long_description=get_long_description(),
-    version=get_version(),
+    long_description=long_description,
+    version=version,
+    url=homepage,
     packages=find_packages('src'),
     include_package_data=True,
     zip_safe=False,
