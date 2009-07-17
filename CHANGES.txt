@@ -5,6 +5,8 @@ Changes
 0.4 (unreleased)
 ~~~~~~~~~~~~~~~~
 
+- Fixed install error on Windows (path cannot end in /).
+
 
 0.3 (2009-07-17)
 ~~~~~~~~~~~~~~~~
