@@ -51,6 +51,15 @@ There's a little 'help' link in the bottom-right corner of every page that
 describes the user interface in greater detail.
 
 
+Alternatives
+------------
+
+There's a package called z3c.zodbbrowser in the Zope svn repository that
+implements the same idea (but without history browsing) as a GUI desktop
+application written using wxPython.  It doesn't have a website and was never
+released to the Python Package Index.
+
+
 Authors
 -------
 
