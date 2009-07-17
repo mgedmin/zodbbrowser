@@ -1,24 +1,27 @@
+import unittest
 import transaction
 import tempfile
 import shutil
+import sys
 import os
+
 from BTrees.OOBTree import OOBTree
 from ZODB.FileStorage import FileStorage
 from ZODB import DB
 from zope.app.container.btree import BTreeContainer
+from zope.app.testing import setup
 from zope.component import provideAdapter
 from zope.interface import implements
 from zope.traversing.interfaces import IContainmentRoot
-
 from zope.testing import doctest
 
-
-from zodbbrowser.object import ZodbObject
+from zodbbrowser.object import ZodbObject, ZodbObjectAttribute
 from zodbbrowser.history import getHistory
 from zodbbrowser.value import (GenericValue, TupleValue, DictValue,
                                ListValue, PersistentValue)
 from zodbbrowser.state import OOBTreeState, GenericState
 from zodbbrowser.tests.test_diff import pprintDict
+from zodbbrowser.testing import SimpleValueRenderer
 
 
 class RootFolderStub(BTreeContainer):
@@ -27,6 +30,25 @@ class RootFolderStub(BTreeContainer):
 
 class PersistentStub(BTreeContainer):
     pass
+
+
+class TestZodbObjectAttribute(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(SimpleValueRenderer)
+        self.attribute = ZodbObjectAttribute('foo', 42L, 't565')
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_rendered_name(self):
+        self.assertEquals(self.attribute.rendered_name(),
+                          "'foo' [tid=t565]")
+
+    def test_rendered_value(self):
+        self.assertEquals(self.attribute.rendered_value(),
+                          "42L [tid=t565]")
 
 
 def setUp(test):
@@ -146,7 +168,7 @@ def doctest_ZodbObject():
         'href': '@@zodbbrowser?oid=3&tid=...',
         'index': 2,
         'short': '...',
-        'size': 113L,
+        'size': 113,
         'tid': '...',
         'time': ...,
         'user_name': '',
@@ -158,9 +180,13 @@ def doctest_ZodbObject():
 
 
 def test_suite():
-    suite = doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
-                                 optionflags=doctest.ELLIPSIS
+    this = sys.modules[__name__]
+    return unittest.TestSuite([
+        unittest.defaultTestLoader.loadTestsFromModule(this),
+        doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
+                             optionflags=doctest.ELLIPSIS
                                     | doctest.NORMALIZE_WHITESPACE
                                     | doctest.REPORT_NDIFF
-                                    | doctest.REPORT_ONLY_FIRST_FAILURE)
-    return suite
+                                    | doctest.REPORT_ONLY_FIRST_FAILURE),
+    ])
+
