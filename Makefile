@@ -18,6 +18,11 @@ all: bin/buildout
 check test: bin/test
 	bin/test
 
+.PHONY: coverage
+coverage:
+	bin/test --coverage=coverage
+	bin/coverage parts/test/coverage
+
 .PHONY: dist
 dist:
 	$(PYTHON) setup.py sdist

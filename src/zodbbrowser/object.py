@@ -72,10 +72,7 @@ class ZodbObject(object):
                                IStateInterpreter)
 
     def getName(self):
-        if self.isRoot():
-            return "ROOT"
-        else:
-            return self.state.getName()
+        return self.state.getName()
 
     def getObjectId(self):
         return u64(self.obj._p_oid)
