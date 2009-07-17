@@ -1,2 +1,2 @@
-__version__ = '0.3.1'
+__version__ = '0.4dev'
 __homepage__ = 'http://launchpad.net/zodbbrowser'
