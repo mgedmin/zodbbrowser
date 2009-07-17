@@ -3,8 +3,7 @@
 #
 
 # Or you may want to select an explicit Python version, e.g.
-#   PYTHON = python2.5
-PYTHON = python
+PYTHON = python2.5
 
 #
 # Interesting targets
@@ -24,7 +23,7 @@ coverage:
 	bin/coverage parts/test/coverage
 
 .PHONY: dist
-dist:
+dist: check
 	$(PYTHON) setup.py sdist
 
 .PHONY: distcheck
