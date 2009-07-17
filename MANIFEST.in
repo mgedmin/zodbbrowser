@@ -1,4 +1,4 @@
 include buildout.cfg
 include Makefile
 include *.txt
-recursive-include src/ *.zcml *.pt *.js *.css *.png
+recursive-include src *.zcml *.pt *.js *.css *.png
