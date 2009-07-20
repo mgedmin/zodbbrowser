@@ -7,6 +7,7 @@ import os
 
 from BTrees.OOBTree import OOBTree
 from ZODB.FileStorage import FileStorage
+from ZODB.utils import u64
 from ZODB import DB
 from zope.app.container.btree import BTreeContainer
 from zope.app.testing import setup
@@ -115,6 +116,11 @@ def doctest_ZodbObject():
         >>> u'\N{SNOWMAN}' == o3.getName()
         True
 
+    Get object id
+
+        >>> o1.getObjectId() == u64(o1.obj._p_oid)
+        True
+
     List attributes and items
 
         >>> [a.name for a in o1.listItems()]
@@ -130,7 +136,7 @@ def doctest_ZodbObject():
         >>> o2.listItems() == None
         True
 
-    Get parent anr root
+    Get parent and root
 
         >>> o4.getParent()
         <zodbbrowser.tests.test_object.PersistentStub object at ...>
@@ -168,7 +174,7 @@ def doctest_ZodbObject():
         'href': '@@zodbbrowser?oid=3&tid=...',
         'index': 2,
         'short': '...',
-        'size': 113,
+        'size': ...,
         'tid': '...',
         'time': ...,
         'user_name': '',

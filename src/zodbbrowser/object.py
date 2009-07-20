@@ -89,8 +89,6 @@ class ZodbObject(object):
     def listHistory(self):
         """List transactions that modified a persistent object."""
         results = []
-        if not isinstance(self.obj, Persistent):
-            return results
 
         for n, d in enumerate(self.history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
