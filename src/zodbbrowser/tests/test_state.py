@@ -4,14 +4,12 @@ import sys
 import transaction
 from BTrees.OOBTree import OOBTree
 from persistent import Persistent
-from zope.app.testing import setup
 from zope.app.folder import Folder
 from zope.app.container.sample import SampleContainer
 from zope.app.container.btree import BTreeContainer
 from zope.app.container.ordered import OrderedContainer
 from zope.interface.verify import verifyObject
 from zope.interface import implements
-from zope.component import provideAdapter
 from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.interfaces import IStateInterpreter

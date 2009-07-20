@@ -1,7 +1,6 @@
 import time
 
 from ZODB.utils import u64
-from persistent import Persistent
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
 from zope.component import getMultiAdapter
