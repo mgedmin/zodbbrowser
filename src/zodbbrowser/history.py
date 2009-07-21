@@ -1,7 +1,6 @@
 import inspect
 
 from ZODB.utils import tid_repr
-from ZODB.POSException import POSKeyError
 from persistent import Persistent
 
 

@@ -1,7 +1,6 @@
 import time
 
 from ZODB.utils import u64
-from persistent import Persistent
 from zope.traversing.interfaces import IContainmentRoot
 from zope.proxy import removeAllProxies
 from zope.component import getMultiAdapter
@@ -89,8 +88,6 @@ class ZodbObject(object):
     def listHistory(self):
         """List transactions that modified a persistent object."""
         results = []
-        if not isinstance(self.obj, Persistent):
-            return results
 
         for n, d in enumerate(self.history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
