@@ -5,20 +5,6 @@ The ZODB browser allows you to inspect persistent objects stored in the ZODB,
 view their attributes and historical changes made to them.
 
 
-Usage as a plugin
------------------
-
-Add zodbbrowser to the list of eggs (e.g. in buildout.cfg of your app) and
-add this to your site.zcml::
-
-  <include package="zodbbrowser" />
-
-Restart Zope and append @@zodbbrowser to the end of the URL to start
-browsing, e.g. http://localhost:8080/@@zodbbrowser.  Or, if you still use
-ZMI (the Zope Management Interface), look for a new menu item titled
-"ZODB Browser".
-
-
 Usage as a standalone project
 -----------------------------
 
@@ -33,15 +19,40 @@ Run bin/zodbbrowser specifying either a filename or a ZEO address ::
   bin/zodbbrowser --zeo localhost:9080
   bin/zodbbrowser --zeo /path/to/zeosock
 
+If you don't have a spare Data.fs to test with, you can create a new empty
+one with just the barest Zope 3 scaffolding in it::
+
+  bin/zodbbrowser empty.fs --rw
+
 Open http://localhost:8070 in a web browser.  Note that there are no
 access controls; all other users on the local machine will be able to
 access the database contents.
 
-Or you could use easy_install, if you're not afraid of cluttering your Python
-installation with extra packages::
+Or you could try to use easy_install.  It may work or it may not, depending
+on the current state of all the dependencies (buildout.cfg hardcodes
+dependency version to a known-working-together state, called the "Zope 3.4
+Known Good Set", so buildout-based installs are safer) ::
 
   easy_install zodbbrowser[app]
   zodbbrowser /path/to/Data.fs
+
+
+Command-line options
+--------------------
+
+Run ``bin/zodbbrowser --help`` to see a full and up-to-date list of
+command-line options::
+
+  Usage: zodbbrowser [options] [FILENAME | --zeo ADDRESS]
+
+  Open a ZODB database and start a web-based browser app.
+
+  Options:
+    -h, --help        show this help message and exit
+    --zeo=ADDRESS     connect to ZEO server instead
+    --listen=ADDRESS  specify port (or host:port) to listen on
+    --rw              open the database read-write (allows creation of the
+                      standard Zope local utilities if missing)
 
 
 Online help
@@ -49,6 +60,20 @@ Online help
 
 There's a little 'help' link in the bottom-right corner of every page that
 describes the user interface in greater detail.
+
+
+Usage as a plugin
+-----------------
+
+Add zodbbrowser to the list of eggs (e.g. in buildout.cfg of your app) and
+add this to your site.zcml::
+
+  <include package="zodbbrowser" />
+
+Rerun bin/buildout, restart Zope and append @@zodbbrowser to the end of the
+URL to start browsing, e.g. http://localhost:8080/@@zodbbrowser.  Or, if you
+still use ZMI (the Zope Management Interface), look for a new menu item
+titled "ZODB Browser".
 
 
 Alternatives
@@ -67,3 +92,5 @@ ZODB Browser was developed by Tautvilas Mečinskas (tautvilas@pov.lt) and
 Marius Gedminas (marius@pov.lt) from `Programmers of Vilnius
 <http://pov.lt/>`_.  It is licenced under the `Zope Public Licence
 <http://www.zope.org/Resources/ZPL>`_.
+
+Please report bugs at https://bugs.launchpad.net/zodbbrowser
