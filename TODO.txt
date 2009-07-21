@@ -7,6 +7,12 @@ Features:
 - Command-line option to specify a htpasswd file name for protection
 - Show persistent object attributes when hovering on a link
 - Figure out if it's possible to show a list of transactions
+    speed test: 66428 transactions in a 2 gb data.fs take ~12 seconds to
+    iterate
+    another 1.6 gb data.fs with 126735 transactions took 42 seconds
+    a third 8 gb data.fs with 922737 transactions took 85 seconds (this is a
+    newer, faster server: disk I/O at 100 megs/s instead of 8 megs/s of the
+    old one)
 - Help page in a javascripty-popup (lightbox-style)
 
 Refactorings:
@@ -25,4 +31,3 @@ Tests:
     - tests for browser views
     - tests for javascript
 - Buildbots for various python and zope versions
-- make distcheck (python sdist; untar and run python sdist; compare the two)
