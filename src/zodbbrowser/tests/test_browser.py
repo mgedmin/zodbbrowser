@@ -1,18 +1,27 @@
+import unittest
 import transaction
+import tempfile
+import shutil
+import sys
+import os
+
 from BTrees.OOBTree import OOBTree
 from ZODB.FileStorage import FileStorage
+from ZODB.utils import u64
 from ZODB import DB
 from zope.app.container.btree import BTreeContainer
+from zope.app.testing import setup
 from zope.component import provideAdapter
 from zope.interface import implements
-from zope.testbrowser.testing import Browser
 from zope.traversing.interfaces import IContainmentRoot
-
 from zope.testing import doctest
 
-from zodbbrowser.value import (GenericValue, TupleValue, DictValue, ListValue,
-                               PersistentValue)
+from zodbbrowser.object import ZodbObject, ZodbObjectAttribute
+from zodbbrowser.value import (GenericValue, TupleValue, DictValue,
+                               ListValue, PersistentValue)
 from zodbbrowser.state import OOBTreeState, GenericState
+from zodbbrowser.tests.test_diff import pprintDict
+from zodbbrowser.testing import SimpleValueRenderer
 
 
 class RootFolderStub(BTreeContainer):
@@ -23,10 +32,30 @@ class PersistentStub(BTreeContainer):
     pass
 
 
+class TestZodbObjectAttribute(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(SimpleValueRenderer)
+        self.attribute = ZodbObjectAttribute('foo', 42L, 't565')
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_rendered_name(self):
+        self.assertEquals(self.attribute.rendered_name(),
+                          "'foo' [tid=t565]")
+
+    def test_rendered_value(self):
+        self.assertEquals(self.attribute.rendered_value(),
+                          "42L [tid=t565]")
+
+
 def setUp(test):
-    storage = FileStorage("test.fs")
-    test.db = DB(storage)
-    test.connection = test.db.open()
+    test.tmpdir = tempfile.mkdtemp('testzodbbrowser')
+    test.storage = FileStorage(os.path.join(test.tmpdir, 'Data.fs'))
+    test.db = DB(test.storage)
+    test.conn = test.db.open()
 
     provideAdapter(GenericValue)
     provideAdapter(TupleValue)
@@ -48,30 +77,121 @@ def setUp(test):
     sampleTree.insert('key2', 'valuey')
     sampleTree.insert('key3', 'valuez')
     root.data = sampleTree
-
-    test.connection.root()['test_app'] = root
+#
+    test.conn.root()['test_app'] = root
     transaction.commit()
 
     test.globs['dbroot'] = root
 
 
 def tearDown(test):
-    test.connection.close()
+    transaction.abort()
+    test.conn.close()
     test.db.close()
+    test.storage.close()
+    shutil.rmtree(test.tmpdir)
 
 
-def doctest_ZodbOBject():
+def oldZodbObjectDoctest():
     """Create some ZodbObjects
 
-        >>> browser = Browser()
+        >>> root = ZodbObject(dbroot)
+        >>> root.load()
+        >>> o1 = ZodbObject(dbroot.data)
+        >>> o1.load()
+        >>> o2 = ZodbObject(dbroot['item2'])
+        >>> o2.load()
+        >>> o3 = ZodbObject(dbroot[u'\N{SNOWMAN}'])
+        >>> o3.load()
+        >>> o4 = ZodbObject(dbroot['item2']['item2.1'])
+        >>> o4.load()
+
+    Test name property
+
+        >>> o1.getName()
+        '???'
+        >>> o2.getName()
+        u'item2'
+        >>> u'\N{SNOWMAN}' == o3.getName()
+        True
+
+    Get object id
+
+        >>> o1.getObjectId() == u64(o1.obj._p_oid)
+        True
+
+    List attributes and items
+
+        >>> [a.name for a in o1.listItems()]
+        ['key1', 'key2', 'key3']
+        >>> [a.name for a in o2.listAttributes()]
+        ['_BTreeContainer__len', '_SampleContainer__data', '__name__', '__parent__']
+        >>> o2.listAttributes()[3].rendered_name()
+        "'__parent__'"
+        >>> o2.listAttributes()[3].rendered_value()
+        '<a href="@@zodbbrowser?oid=1">&lt;zodbbrowser.tests.test_object.RootFolderStub object at ...;</a>'
+        >>> o1.listAttributes() == None
+        True
+        >>> o2.listItems() == None
+        True
+
+    Get parent and root
+
+        >>> o4.getParent()
+        <zodbbrowser.tests.test_object.PersistentStub object at ...>
+        >>> root.isRoot()
+        True
+        >>> o4.isRoot()
+        False
+
+    Test history functions
+
+        >>> dbroot.data['key4'] = "new value"
+        >>> transaction.commit()
+        >>> del dbroot.data['key2']
+        >>> transaction.commit()
+        >>> [a.name for a in o1.listItems()]
+        ['key1', 'key2', 'key3']
+        >>> o1.load()
+        >>> [a.name for a in o1.listItems()]
+        ['key1', 'key3', 'key4']
+
+        >>> history = getHistory(o1.obj)
+        >>> len(history)
+        3
+        >>> o1.load(history[1]['tid'])
+        >>> [a.name for a in o1.listItems()]
+        ['key1', 'key2', 'key3', 'key4']
+
+        >>> history = o1.listHistory()
+        >>> len(history)
+        3
+        >>> pprintDict(history[1])
+        {'current': True,
+        'description': '',
+        'diff': '...key4...added...',
+        'href': '@@zodbbrowser?oid=3&tid=...',
+        'index': 2,
+        'short': '...',
+        'size': ...,
+        'tid': '...',
+        'time': ...,
+        'user_name': '',
+        'utid': ...L,
+        'version': ''}
+
 
     """
 
 
 def test_suite():
-    suite = doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
-                                 optionflags=doctest.ELLIPSIS
+    this = sys.modules[__name__]
+    return unittest.TestSuite([
+        unittest.defaultTestLoader.loadTestsFromModule(this),
+        doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
+                             optionflags=doctest.ELLIPSIS
                                     | doctest.NORMALIZE_WHITESPACE
                                     | doctest.REPORT_NDIFF
-                                    | doctest.REPORT_ONLY_FIRST_FAILURE)
-    return suite
+                                    | doctest.REPORT_ONLY_FIRST_FAILURE),
+    ])
+
