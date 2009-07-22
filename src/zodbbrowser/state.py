@@ -5,6 +5,7 @@ from persistent.mapping import PersistentMapping
 from zope.component import adapts, getMultiAdapter
 from zope.interface import implements, Interface
 from zope.proxy import removeAllProxies
+from ZODB.utils import tid_repr
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
