@@ -1,107 +1,105 @@
 <metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
 <metal:block fill-slot="content">
 
-<tal:block define="object view/obj">
-  <div class="object">
-    <div class="heading">
-      <h1 id="path">
-        <span class="breadcrumbs" tal:content="structure view/getBreadcrumbs" />
-      </h1>
-      <h1 id="goto" style="display:none">
-        <input type="hidden" id="api" name="api" value="@@zodbbrowser_path_to_oid" />
-        <input type="text" class="goto" id="gotoInput" name="goto"
-               tal:attributes="value view/getPath"/>
-      </h1>
-      <span id="pathError" style="display:none"></span>
-      <h2 class="type" tal:content="view/getObjectType" />
-      <div class="tid-info" tal:condition="not:object/current">
-        at <a tal:attributes="href string:#tid${view/getObjectTid}"
-              tal:content="view/getObjectTidNice"></a>
-        <tal:span tal:content="string:(last change before or at
-                                 ${view/getObjectRequestedTidNice})"/>
-      </div>
+<div class="object">
+  <div class="heading">
+    <h1 id="path">
+      <span class="breadcrumbs" tal:content="structure view/getBreadcrumbs" />
+    </h1>
+    <h1 id="goto" style="display:none">
+      <input type="hidden" id="api" name="api" value="@@zodbbrowser_path_to_oid" />
+      <input type="text" class="goto" id="gotoInput" name="goto"
+             tal:attributes="value view/getPath"/>
+    </h1>
+    <span id="pathError" style="display:none"></span>
+    <h2 class="type" tal:content="view/getObjectType" />
+    <div class="tid-info" tal:condition="not:view/latest">
+      at <a tal:attributes="href string:#tid${view/getStateTid}"
+            tal:content="view/getStateTidNice"></a>
+      <tal:span tal:content="string:(last change before or at
+                               ${view/getRequestedTidNice})"/>
     </div>
+  </div>
 
-    <div class="attributes"
-         tal:define="attributes object/listAttributes"
-         tal:condition="python:attributes is not None">
-      <h3 class="expander">
-        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
-             alt="collapse" />&nbsp;Attributes
-      </h3>
-      <div class="collapsible">
-        <tal:block tal:condition="not:attributes">
-          <span class="empty">There are none.</span>
-        </tal:block>
-        <tal:block tal:condition="attributes">
-          <tal:block tal:repeat="attr attributes">
-            <input type="checkbox" class="filter" checked="checked"
-                   onchange="filterHistory()"
-                   tal:attributes="name string:${attr/name}"/>
-            <strong tal:content="attr/name" />:
-            <tal:block replace="structure attr/rendered_value" />
-            <br />
-          </tal:block>
-          <div class="buttons">
-            <a class="jsbutton" href="javascript:filterAll()"
-               >show all</a>
-            <a class="jsbutton" href="javascript:filterNone()"
-               >hide all</a>
-          </div>
-        </tal:block>
-      </div>
-    </div>
-
-    <div class="items"
-         tal:define="items object/listItems"
-         tal:condition="python:items is not None">
-      <h3 class="expander">
-        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
-             alt="collapse" />&nbsp;Items
-      </h3>
-      <div class="collapsible">
-        <tal:block tal:condition="not:items">
-          <span class="empty">There are none.</span>
-        </tal:block>
-        <tal:block tal:repeat="item items">
-          <strong tal:content="item/name" />:
-          <tal:block replace="structure item/rendered_value" />
+  <div class="attributes"
+       tal:define="attributes view/listAttributes"
+       tal:condition="python:attributes is not None">
+    <h3 class="expander">
+      <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
+           alt="collapse" />&nbsp;Attributes
+    </h3>
+    <div class="collapsible">
+      <tal:block tal:condition="not:attributes">
+        <span class="empty">There are none.</span>
+      </tal:block>
+      <tal:block tal:condition="attributes">
+        <tal:block tal:repeat="attr attributes">
+          <input type="checkbox" class="filter" checked="checked"
+                 onchange="filterHistory()"
+                 tal:attributes="name string:${attr/name}"/>
+          <strong tal:content="attr/name" />:
+          <tal:block replace="structure attr/rendered_value" />
           <br />
         </tal:block>
-      </div>
-    </div>
-
-    <div class="history"
-         tal:define="history object/listHistory"
-         tal:condition="history">
-      <h3 class="expander">
-        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
-             alt="collapse" />&nbsp;History
-      </h3>
-      <div class="collapsible">
-        <div
-             tal:attributes="class python:view.getObjectRequestedTid() and 'none' or 'latest'">
-          <h4 class="transaction">
-            <a tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
-              >Latest</a>
-          </h4>
+        <div class="buttons">
+          <a class="jsbutton" href="javascript:filterAll()"
+             >show all</a>
+          <a class="jsbutton" href="javascript:filterNone()"
+             >hide all</a>
         </div>
-        <div class="transaction" tal:repeat="history history"
-            tal:attributes="class python:(history['current'] or repeat['history'].start() and not view.getObjectRequestedTid())
-                                            and 'transaction current' or 'transaction'">
-          <h4 class="transaction" tal:attributes="id string:tid${history/utid}">
-            <a tal:attributes="href history/href">
-              #<span tal:replace="history/index" />:
-              <span tal:content="history/short" />
-            </a>
-          </h4>
-          <div class="diff" tal:replace="structure history/diff">
-          </div>
+      </tal:block>
+    </div>
+  </div>
+
+  <div class="items"
+       tal:define="items view/listItems"
+       tal:condition="python:items is not None">
+    <h3 class="expander">
+      <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
+           alt="collapse" />&nbsp;Items
+    </h3>
+    <div class="collapsible">
+      <tal:block tal:condition="not:items">
+        <span class="empty">There are none.</span>
+      </tal:block>
+      <tal:block tal:repeat="item items">
+        <strong tal:content="item/name" />:
+        <tal:block replace="structure item/rendered_value" />
+        <br />
+      </tal:block>
+    </div>
+  </div>
+
+  <div class="history"
+       tal:define="history view/listHistory"
+       tal:condition="history">
+    <h3 class="expander">
+      <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
+           alt="collapse" />&nbsp;History
+    </h3>
+    <div class="collapsible">
+      <div
+           tal:attributes="class python:view.getRequestedTid() and 'none' or 'latest'">
+        <h4 class="transaction">
+          <a tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
+            >Latest</a>
+        </h4>
+      </div>
+      <div class="transaction" tal:repeat="history history"
+          tal:attributes="class python:(history['current'] or repeat['history'].start() and not view.getRequestedTid())
+                                          and 'transaction current' or 'transaction'">
+        <h4 class="transaction" tal:attributes="id string:tid${history/utid}">
+          <a tal:attributes="href history/href">
+            #<span tal:replace="history/index" />:
+            <span tal:content="history/short" />
+          </a>
+        </h4>
+        <div class="diff" tal:replace="structure history/diff">
         </div>
       </div>
     </div>
   </div>
-</tal:block>
+</div>
 
 <div class="footer">
   <a tal:attributes="href view/homepage">zodb browser</a>

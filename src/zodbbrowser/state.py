@@ -4,6 +4,7 @@ from persistent.dict import PersistentDict
 from persistent.mapping import PersistentMapping
 from zope.component import adapts, getMultiAdapter
 from zope.interface import implements, Interface
+from zope.proxy import removeAllProxies
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
@@ -24,7 +25,59 @@ except ImportError:
     from zope.app.container.ordered import OrderedContainer # BBB
 
 from zodbbrowser.interfaces import IStateInterpreter
-from zodbbrowser.history import loadState
+from zodbbrowser.history import ZodbObjectHistory
+
+
+class LoadedState(object):
+
+    state = None
+    tid = None
+
+
+def _loadState(obj, tid=None):
+    """Load (old) state of a Persistent object."""
+    # sadly ZODB has no API for get revision at or before tid
+    history = ZodbObjectHistory(obj)
+    for record in history:
+        if tid is None or record['tid'] <= tid:
+            result = LoadedState()
+            result.state = obj._p_jar.oldstate(obj, record['tid']);
+            result.tid = record['tid']
+            return result
+    raise Exception('%r did not exist in or before transaction %r' %
+                    (obj, tid_repr(tid)))
+
+
+class ZodbObjectState(object):
+    implements(IStateInterpreter)
+
+    def __init__(self, obj, tid=None):
+        self.obj = removeAllProxies(obj)
+        self.tid = None
+        self.requestedTid = tid
+        self._load()
+
+    def _load(self):
+        loadedState = _loadState(self.obj, self.requestedTid)
+        self.tid = loadedState.tid
+        self.state = getMultiAdapter((self.obj, loadedState.state,
+                                      self.requestedTid),
+                                     IStateInterpreter)
+
+    def listAttributes(self):
+        return self.state.listAttributes()
+
+    def listItems(self):
+        return self.state.listItems()
+
+    def getParent(self):
+        return self.state.getParent()
+
+    def getName(self):
+        return self.state.getName()
+
+    def asDict(self):
+        return self.state.asDict()
 
 
 class GenericState(object):
@@ -42,7 +95,7 @@ class GenericState(object):
     def getParent(self):
         parent = self.state.get('__parent__')
         if self.tid and isinstance(parent, Persistent):
-            parent.__setstate__(loadState(parent, self.tid))
+            parent.__setstate__(_loadState(parent, self.tid).state)
         return parent
 
     def listAttributes(self):
@@ -67,7 +120,7 @@ class OOBTreeState(object):
         # to all of them
         while state and len(state) > 1:
             bucket = state[1]
-            state = loadState(bucket, tid=tid)
+            state = _loadState(bucket, tid=tid).state
             bucket.__setstate__(state)
 
     def getName(self):
@@ -117,7 +170,7 @@ class FolderState(GenericState):
         if not data:
             return []
         # data will be an OOBTree
-        loadedstate = loadState(data, tid=self.tid)
+        loadedstate = _loadState(data, tid=self.tid).state
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
 
@@ -131,7 +184,7 @@ class SampleContainerState(GenericState):
         if not data:
             return []
         # data will be a PersistentDict
-        loadedstate = loadState(data, tid=self.tid)
+        loadedstate = _loadState(data, tid=self.tid).state
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
 
@@ -147,7 +200,7 @@ class BTreeContainerState(GenericState):
         if not data:
             return []
         # data will be an OOBTree
-        loadedstate = loadState(data, tid=self.tid)
+        loadedstate = _loadState(data, tid=self.tid).state
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
 
@@ -159,10 +212,10 @@ class OrderedContainerState(GenericState):
     def listItems(self):
         container = OrderedContainer()
         container.__setstate__(self.state)
-        container._data.__setstate__(loadState(container._data,
-                                               tid=self.tid))
-        container._order.__setstate__(loadState(container._order,
-                                                tid=self.tid))
+        container._data.__setstate__(_loadState(container._data,
+                                               tid=self.tid).state)
+        container._order.__setstate__(_loadState(container._order,
+                                                tid=self.tid).state)
         return container.items()
 
 

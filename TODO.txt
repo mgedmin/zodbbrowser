@@ -17,12 +17,9 @@ Features:
 
 Refactorings:
 
-- Replace global getHistory/loadState with an IHistory adapter
 - Standalone app: see if you can replace the zope publisher with something
   lightweight (WSGI?) so that you can inspect databases when their structure
   is broken (no site/unpickleable site objects)
-- Unify URL generation logic in browser.py and object.py (maybe merge the
-  two files since they're very closely related)
 
 Tests:
 

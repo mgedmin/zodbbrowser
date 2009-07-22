@@ -1,7 +1,9 @@
+import time
 from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.app.publication.zopepublication import ZopePublication
+from zope.traversing.interfaces import IContainmentRoot
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
@@ -13,7 +15,10 @@ from persistent.TimeStamp import TimeStamp
 import simplejson
 
 from zodbbrowser import __version__, __homepage__
-from zodbbrowser.object import ZodbObject
+from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.state import ZodbObjectState
+from zodbbrowser.value import IValueRenderer
+from zodbbrowser.diff import compareDictsHTML
 
 
 class ZodbHelpView(BrowserView):
@@ -21,6 +26,20 @@ class ZodbHelpView(BrowserView):
 
     version = __version__
     homepage = __homepage__
+
+
+class ZodbObjectAttribute(object):
+
+    def __init__(self, name, value, tid=None):
+        self.name = name
+        self.value = value
+        self.tid = tid
+
+    def rendered_name(self):
+        return IValueRenderer(self.name).render(self.tid)
+
+    def rendered_value(self):
+        return IValueRenderer(self.value).render(self.tid)
 
 
 class ZodbInfoView(BrowserView):
@@ -34,7 +53,47 @@ class ZodbInfoView(BrowserView):
     homepage = __homepage__
 
     def __call__(self):
+        self.obj = None
+
+        if 'oid' not in self.request and isinstance(self.context, Persistent):
+            self.obj = self.context
+        else:
+            oid = p64(int(self.request.get('oid', self.root_oid)))
+            jar = self.jar()
+            self.obj = jar.get(oid)
+
+        self.history = ZodbObjectHistory(self.obj)
+        self.latest = True
+        if 'tid' in self.request:
+            self.state = ZodbObjectState(self.obj, p64(int(self.request['tid'])))
+            self.latest = False
+        else:
+            self.state = ZodbObjectState(self.obj)
         return self.template()
+
+    def getRequestedTid(self):
+        if 'tid' in self.request:
+            return self.request['tid']
+        else:
+            return None
+
+    def getRequestedTidNice(self):
+        if 'tid' in self.request:
+            return self._tidToTimestamp(p64(int(self.request['tid'])))
+        else:
+            return None
+
+    def getObjectId(self):
+        return u64(self.obj._p_oid)
+
+    def getObjectType(self):
+        return str(getattr(self.obj, '__class__', None))
+
+    def getStateTid(self):
+        return u64(self.state.tid)
+
+    def getStateTidNice(self):
+        return self._tidToTimestamp(self.state.tid)
 
     @property
     def root_oid(self):
@@ -90,101 +149,106 @@ class ZodbInfoView(BrowserView):
         return dict(oid=oid,
                     url=self.getUrl(oid))
 
-    def obj(self):
-        self.obj = None
-
-        if 'oid' not in self.request and isinstance(self.context, Persistent):
-            self.obj = ZodbObject(self.context)
-        else:
-            oid = p64(int(self.request.get('oid', self.root_oid)))
-            jar = self.jar()
-            self.obj = ZodbObject(jar.get(oid))
-
-        if 'tid' not in self.request:
-            self.obj.load()
-        else:
-            self.obj.load(p64(int(self.request['tid'])))
-
-        return self.obj
-
-    def getObjectId(self):
-        return self.obj.getObjectId()
-
-    def getObjectTid(self):
-        return u64(self.obj.tid)
-
-    def getObjectTidNice(self):
-        return self.tidToTimestamp(self.obj.tid)
-
-    def getObjectRequestedTid(self):
-        if self.obj.requestedTid is None:
-            return None
-        else:
-            return u64(self.obj.requestedTid)
-
-    def getObjectRequestedTidNice(self):
-        if self.obj.requestedTid is None:
-            return None
-        else:
-            return self.tidToTimestamp(self.obj.requestedTid)
-
-    def getObjectType(self):
-        return str(getattr(self.obj.obj, '__class__', None))
-
-    def getUrl(self, oid=None):
+    def getUrl(self, oid=None, tid=None):
         url = "@@zodbbrowser?oid="
         if oid is not None:
             url += str(oid)
         else:
-            url += str(self.obj.getObjectId())
-        if 'tid' in self.request:
+            url += str(self.getObjectId())
+
+        if tid is None and 'tid' in self.request:
             url += "&tid=" + self.request['tid']
+        elif tid is not None:
+            url += "&tid=" + str(tid)
         return url
 
     def getPath(self):
         path = []
         object = self.obj
+        state = self.state
         while True:
-            if object.isRoot():
+            if IContainmentRoot.providedBy(object):
                 seen_root = True
                 path.append('')
             else:
-                path.append(object.getName() or '???')
-            parent = object.getParent()
+                path.append(state.getName() or '???')
+            parent = state.getParent()
             if parent is None:
                 break
-            object = ZodbObject(parent)
-            object.load()
+            object = parent
+            state = ZodbObjectState(object, self.state.requestedTid)
         return '/'.join(reversed(path))
 
     def getBreadcrumbs(self):
         breadcrumbs = []
         object = self.obj
+        state = self.state
         seen_root = False
         while True:
-            if object.isRoot():
+            if IContainmentRoot.providedBy(object):
                 seen_root = True
                 breadcrumb = '<a href="%s">/</a>' % (
-                                    escape(self.getUrl(object.getObjectId())))
+                                    escape(self.getUrl(u64(object._p_oid))))
             else:
                 breadcrumb = '<a href="%s">%s</a>' % (
-                                    escape(self.getUrl(object.getObjectId())),
-                                    object.getName())
+                                    escape(self.getUrl(u64(object._p_oid))),
+                                    state.getName())
                 if breadcrumbs:
                     breadcrumb += '/'
             breadcrumbs.append(breadcrumb)
-            parent = object.getParent()
+            parent = state.getParent()
             if parent is None:
                 break
-            object = ZodbObject(parent)
-            object.load()
+            object = parent
+            state = ZodbObjectState(object, self.state.requestedTid)
 
         if not seen_root:
             breadcrumbs.append('<a href="%s">/</a>' %
                                     escape(self.getUrl(self.root_oid)))
         return ''.join(reversed(breadcrumbs))
 
-    def tidToTimestamp(self, tid):
+    def listAttributes(self):
+        attrs = self.state.listAttributes()
+        if attrs is None:
+            return None
+        return [ZodbObjectAttribute(name, value, self.state.requestedTid)
+                for name, value in sorted(attrs)]
+
+    def listItems(self):
+        items = self.state.listItems()
+        if items is None:
+            return None
+        return [ZodbObjectAttribute(name, value, self.state.requestedTid)
+                for name, value in items]
+
+    def listHistory(self):
+        """List transactions that modified a persistent object."""
+        results = []
+
+        for n, d in enumerate(self.history.history):
+            short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
+                                       time.localtime(d['time']))) + " "
+                     + d['user_name'] + " "
+                     + d['description'])
+            url = self.getUrl(tid=u64(d['tid']))
+            current = d['tid'] == self.state.tid and \
+                                  self.state.requestedTid is not None
+            curState = ZodbObjectState(self.obj, d['tid']).asDict()
+            if n < len(self.history) - 1:
+                oldState = ZodbObjectState(self.obj, self.history[n + 1]['tid']).asDict()
+            else:
+                oldState = {}
+            diff = compareDictsHTML(curState, oldState, d['tid'])
+
+            results.append(dict(short=short, utid=u64(d['tid']),
+                                href=url, current=current, diff=diff, **d))
+
+        for i in range(len(results)):
+            results[i]['index'] = len(results) - i
+
+        return results
+
+    def _tidToTimestamp(self, tid):
         if isinstance(tid, str) and len(tid) == 8:
             return str(TimeStamp(tid))
         return tid_repr(tid)
