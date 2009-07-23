@@ -31,6 +31,9 @@ class StandaloneZodbBrowserTestCase(unittest.TestCase):
         self.serverThread = threading.Thread(name='server',
                                              target=serve_forever,
                                              kwargs=dict(interval=0.5))
+        # Daemon threads are evil and cause weird errors on shutdown,
+        # but we want ^C to not hang
+        self.serverThread.setDaemon(True)
         self.serverThread.start()
 
     def tearDown(self):
