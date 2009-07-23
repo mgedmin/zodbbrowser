@@ -136,6 +136,24 @@ def doctest_compareDictsHTML_nonstring_keys():
     """
 
 
+def doctest_compareDictsHTML_has_no_unicode_problems():
+    r"""Tests for compareDicts
+
+        >>> old = {u'\N{SNOWMAN}': 1, '\xFE': 2}
+        >>> new = {u'\N{SNOWMAN}': 2, '\xFE': 3}
+        >>> print compareDictsHTML(new, old)
+        <div class="diff">
+          <div class="diffitem changed">
+            <strong>'\xfe'</strong>: changed to 3
+          </div>
+          <div class="diffitem changed">
+            <strong>u'\u2603'</strong>: changed to 2
+          </div>
+        </div>
+
+    """
+
+
 def setUp(test):
     setup.placelessSetUp()
     provideAdapter(SimpleValueRenderer)

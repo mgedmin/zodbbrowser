@@ -22,15 +22,25 @@ def compareDicts(new, old):
     return diffs
 
 
+def isascii(s):
+    """See if the string can be safely converted to unicode."""
+    try:
+        s.encode('ascii')
+    except UnicodeError:
+        return False
+    else:
+        return True
+
+
 def compareDictsHTML(new, old, tid=None, indent=''):
     """Compare two state dictionaries, return HTML."""
     html = [indent + '<div class="diff">\n']
     diff = compareDicts(new, old)
-    for key, (action, newvalue, oldvalue) in sorted(diff.items()):
+    for key, (action, newvalue, oldvalue) in sorted(diff.items(),
+                                            key=lambda (k, v): (type(k), k)):
         what = action.split()[0]
         html.append(indent + '  <div class="diffitem %s">\n' % escape(what))
-        if isinstance(key, basestring):
-            # XXX we're courting Unicode problems here
+        if isinstance(key, basestring) and isascii(key):
             html.append(indent + '    <strong>%s</strong>: ' % escape(key))
         else:
             html.append(indent + '    <strong>%s</strong>: '
