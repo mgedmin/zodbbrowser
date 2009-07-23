@@ -10,32 +10,22 @@ class ZodbObjectHistory(object):
         self.storage = self.obj._p_jar._storage
         self.oid = self.obj._p_oid
         self.history = None
-        self.count = 0
         self._load()
 
     def __len__(self):
         return len(self.history)
 
-    def next(self):
-        if self.count >= len(self.history):
-            self.count = 0
-            raise StopIteration
-        else:
-            c = self.count
-            self.count = c + 1
-            return self.history[c]
-
     def _load(self):
         """Load history of changes made to a Persistent object.
-    
+
         Returns a list of dictionaries, from latest revision to the oldest.
         The dicts have various interesting pieces of data, such as:
-    
+
             tid -- transaction ID (a byte string, usually 8 bytes)
             time -- transaction timestamp (number of seconds since the Unix epoch)
             user_name -- name of the user responsible for the change
             description -- short description (often a URL)
-    
+
         Probably only works with FileStorage and ZEO ClientStorage.
         """
         all_of_it = 999999999999 # ought to be sufficient
@@ -48,7 +38,4 @@ class ZodbObjectHistory(object):
 
     def __getitem__(self, item):
         return self.history[item]
-
-    def __iter__(self):
-        return self
 
