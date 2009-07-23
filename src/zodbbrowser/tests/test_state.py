@@ -8,9 +8,11 @@ from zope.app.folder import Folder
 from zope.app.container.sample import SampleContainer
 from zope.app.container.btree import BTreeContainer
 from zope.app.container.ordered import OrderedContainer
+from zope.app.testing import setup
 from zope.interface.verify import verifyObject
 from zope.interface import implements
 from zope.traversing.interfaces import IContainmentRoot
+from zope.component import provideAdapter
 
 from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.history import ZodbObjectHistory
@@ -161,7 +163,9 @@ class TestOrderedContainerState(RealDatabaseTest):
 class TestFolderState(RealDatabaseTest):
 
     def setUp(self):
+        setup.placelessSetUp()
         RealDatabaseTest.setUp(self)
+        provideAdapter(OOBTreeState)
         self.folder = self.conn.root()['folder'] = Folder()
         self.folder['foo'] = 1
         self.folder['bar'] = 2
@@ -169,9 +173,13 @@ class TestFolderState(RealDatabaseTest):
         self.state = FolderState(None, self.folder.__getstate__(),
                                  None)
 
-#    def test_listItems(self):
-#        self.assertEquals(list(self.state.listItems()),
-#                          [('bar', 2), ('foo', 1)])
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()),
+                          [('bar', 2), ('foo', 1)])
 
     def test_listItems_no_data(self):
         state = FolderState(None, Folder().__getstate__(), None)
@@ -181,7 +189,9 @@ class TestFolderState(RealDatabaseTest):
 class TestSampleContainerState(RealDatabaseTest):
 
     def setUp(self):
+        setup.placelessSetUp()
         RealDatabaseTest.setUp(self)
+        provideAdapter(OOBTreeState)
         self.container = self.conn.root()['container'] = BTreeContainer()
         self.container['foo'] = 1
         self.container['bar'] = 2
@@ -189,9 +199,13 @@ class TestSampleContainerState(RealDatabaseTest):
         self.state = SampleContainerState(None, self.container.__getstate__(),
                                           None)
 
-#    def test_listItems(self):
-#        self.assertEquals(list(self.state.listItems()),
-#                          [('bar', 2), ('foo', 1)])
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()),
+                          [('bar', 2), ('foo', 1)])
 
     def test_listItems_no_data(self):
         state = SampleContainerState(None, BTreeContainer().__getstate__(),
@@ -202,7 +216,9 @@ class TestSampleContainerState(RealDatabaseTest):
 class TestBTreeContainerState(RealDatabaseTest):
 
     def setUp(self):
+        setup.placelessSetUp()
         RealDatabaseTest.setUp(self)
+        provideAdapter(OOBTreeState)
         self.container = self.conn.root()['container'] = BTreeContainer()
         self.container['foo'] = 1
         self.container['bar'] = 2
@@ -210,9 +226,13 @@ class TestBTreeContainerState(RealDatabaseTest):
         self.state = BTreeContainerState(None, self.container.__getstate__(),
                                          None)
 
-#    def test_listItems(self):
-#        self.assertEquals(list(self.state.listItems()),
-#                          [('bar', 2), ('foo', 1)])
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()),
+                          [('bar', 2), ('foo', 1)])
 
     def test_listItems_no_data(self):
         state = BTreeContainerState(None, BTreeContainer().__getstate__(),
