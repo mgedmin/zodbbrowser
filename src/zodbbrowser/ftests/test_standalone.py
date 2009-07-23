@@ -64,14 +64,14 @@ class ServerController(object):
             #      setup.placelessTearDown()
 
 
-class FunctionalTestLayer(object):
+class TestsWithoutServer(object):
     """Functional tests for no special setup.
 
     Used simply for grouping purposes.
     """
 
 
-class StandaloneZodbBrowserTestLayer(object):
+class TestsWithServer(object):
     """Functional tests with a web app running in the background."""
 
     @classmethod
@@ -92,7 +92,7 @@ class StandaloneZodbBrowserTestLayer(object):
 
 class TestCanCreateEmptyDataFs(unittest.TestCase):
 
-    layer = FunctionalTestLayer
+    layer = TestsWithoutServer
 
     def setUp(self):
         self.tempdir = tempfile.mkdtemp('zodbbrowser')
@@ -155,8 +155,8 @@ def printResults(html, method, arg, pretty_print=True):
         # header, but let's assume UTF-8, which is the only charset that
         # we use in our system
         html = html.contents.decode('UTF-8')
-    html = html.replace(StandaloneZodbBrowserTestLayer.url,
-                        'http://localhost/')
+    # XXX: not the most appropriate place for this
+    html = html.replace(TestsWithServer.url, 'http://localhost/')
     results = getattr(fromstring(html), method)(arg)
     for element in results:
         if isinstance(element, basestring):
@@ -226,7 +226,7 @@ def setUp(test):
     test.globs['Browser'] = Browser
     test.globs['printXPath'] = printXPath
     test.globs['printCSSPath'] = printCSSPath
-    test.globs['url'] = StandaloneZodbBrowserTestLayer.url
+    test.globs['url'] = TestsWithServer.url
 
 
 def test_suite():
@@ -241,12 +241,15 @@ def test_suite():
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),
             'YYYY-MM-DD HH:MM:SS'),
     ])
-    for files in ['browsing.txt']:
-        test = doctest.DocFileSuite('browsing.txt',
+    here = os.path.dirname(__file__)
+    for filename in os.listdir(here):
+        if not filename.endswith('.txt') or filename.startswith('.'):
+            continue
+        test = doctest.DocFileSuite(filename,
                                     setUp=setUp,
                                     checker=checker,
                                     optionflags=doctest.REPORT_NDIFF)
-        test.layer = StandaloneZodbBrowserTestLayer
+        test.layer = TestsWithServer
         suite.addTest(test)
     return suite
 
