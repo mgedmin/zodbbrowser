@@ -55,9 +55,10 @@ class ZodbInfoView(BrowserView):
     def __call__(self):
         self.obj = None
 
-        if 'oid' not in self.request and isinstance(self.context, Persistent):
-            self.obj = self.context
-        else:
+        if 'oid' not in self.request:
+            self.obj = self.findClosestPersistent()
+
+        if self.obj is None:
             oid = p64(int(self.request.get('oid', self.root_oid)))
             jar = self.jar()
             self.obj = jar.get(oid)
@@ -70,6 +71,15 @@ class ZodbInfoView(BrowserView):
         else:
             self.state = ZodbObjectState(self.obj)
         return self.template()
+
+    def findClosestPersistent(self):
+        obj = removeSecurityProxy(self.context)
+        while not isinstance(obj, Persistent):
+            try:
+                obj = obj.__parent__
+            except AttributeError:
+                return None
+        return obj
 
     def getRequestedTid(self):
         if 'tid' in self.request:
