@@ -5,6 +5,7 @@ ZODB Browser as a standalone app
 This is a pile of hacks since bootstrapping a Zope 3 based app is incredibly
 painful.
 """
+import sys
 import asyncore
 import socket
 import optparse
@@ -97,19 +98,27 @@ def start_server(options, db):
     server.create(options.server_type, task_dispatcher, db,
                   ip=host, port=port, verbose=options.verbose)
 
-    print "Listening on http://%s:%d/" % (host or socket.gethostname(),
-                                          port)
+    if options.verbose:
+        print "Listening on http://%s:%d/" % (host or socket.gethostname(),
+                                              port)
 
-def serve_forever():
+def serve_forever(interval=30.0):
     try:
         while asyncore.socket_map:
-            asyncore.poll(30.0)
+            asyncore.poll(interval)
     except KeyboardInterrupt:
         pass
 
 
-def main():
+def stop_serving():
+    asyncore.close_all()
+
+
+def main(args=None, start_serving=True):
     logging.basicConfig(format="%(message)s")
+
+    if args is None:
+        args = sys.argv[1:]
 
     parser = optparse.OptionParser(
         'usage: %prog [options] [FILENAME | --zeo ADDRESS]',
@@ -119,12 +128,17 @@ def main():
     parser.add_option('--listen', metavar='ADDRESS',
                       help='specify port (or host:port) to listen on',
                       default='localhost:8070')
+    parser.add_option('-q', '--quiet', action='store_false', dest='verbose',
+                      default=True,
+                      help='be quiet')
     parser.add_option('--rw', action='store_false', dest='readonly',
                       default=True,
                       help='open the database read-write (allows creation of the standard Zope local utilities if missing)')
-    opts, args = parser.parse_args()
+    opts, args = parser.parse_args(args)
 
     options = Options()
+    options.verbose = opts.verbose
+
     if opts.listen:
         if ':' in opts.listen:
             host, port = opts.listen.rsplit(':', 1)
@@ -168,7 +182,8 @@ def main():
 
     notify(zope.app.appsetup.interfaces.ProcessStarting())
 
-    serve_forever()
+    if start_serving:
+        serve_forever()
 
 
 if __name__ == '__main__':
