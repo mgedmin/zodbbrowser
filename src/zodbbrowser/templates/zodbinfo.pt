@@ -80,8 +80,7 @@
            alt="collapse" />&nbsp;History
     </h3>
     <div class="collapsible">
-      <div
-           tal:attributes="class python:view.getRequestedTid() and 'none' or 'latest'">
+      <div tal:attributes="class python:view.getRequestedTid() and 'none' or 'latest'">
         <h4 class="transaction">
           <a tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
             >Latest</a>
