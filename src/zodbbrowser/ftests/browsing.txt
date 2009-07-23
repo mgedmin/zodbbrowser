@@ -1,0 +1,17 @@
+ZODB Browsing
+-------------
+
+You can start by looking at the root folder
+
+    >>> browser = Browser(url)
+
+We see the object's path (which is '/' for the root folder) at the top
+
+    >>> ##printXPath(browser, '//h1[id()=="path"]')
+    >>> printCSSPath(browser, 'h1#path')
+    <h1 id="path">
+      <span class="breadcrumbs">
+        <a href="@@zodbbrowser?oid=1">/</a>
+      </span>
+    </h1>
+

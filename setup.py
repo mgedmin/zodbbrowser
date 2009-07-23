@@ -11,6 +11,7 @@ def get_version_and_homepage():
     execfile(zodbbrowser, d)
     return d['__version__'], d['__homepage__']
 
+
 class UltraMagicString(object):
     # Catch-22:
     # - if I return Unicode, python setup.py --long-description ad well
@@ -76,6 +77,7 @@ setup(
             "zope.app.container",
             "zope.app.testing",
             "zope.testbrowser",
+            "lxml",
             ],
         app=[
             "zope.app.authentication",
