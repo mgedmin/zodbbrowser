@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import tempfile
 import shutil
@@ -9,6 +10,7 @@ from cgi import escape
 from lxml.html import fromstring, tostring
 from ZODB.POSException import ReadOnlyError
 from zope.testing import doctest
+from zope.testing.renormalizing import RENormalizing
 from zope.testbrowser.browser import Browser
 from zope.testbrowser.interfaces import IBrowser
 from zope.app.testing import setup
@@ -193,21 +195,29 @@ def fixupWhitespace(element, indent=0, step=2):
     children = element.getchildren()
 
     element.text = stripify(element.text)
+    # heuristic for splitting long elements
+    should_split = (len(str(element.attrib)) > 40 or
+                    len(escape(element.text)) > 40)
+    if should_split:
+        element.text = ('\n' + ' ' * (indent + step) + element.text.lstrip())
     if children:
         element.text += '\n' + ' ' * (indent + step)
     else:
-        if len(escape(element.text)) > 40:
-            element.text = ('\n' + ' ' * (indent + step) + element.text + '\n'
-                            + ' ' * indent)
+        if '\n' in element.text:
+            element.text += '\n' + ' ' * indent
 
     for idx, child in enumerate(children):
         fixupWhitespace(child, indent + step, step)
         if idx == len(children) - 1:
-            child.tail += ' ' * indent
+            child.tail += '\n' + ' ' * indent
         else:
-            child.tail += ' ' * (indent + step)
+            child.tail += '\n' + ' ' * (indent + step)
 
-    element.tail = stripify(element.tail) + '\n'
+    if indent == 0:
+        element.tail = None
+    element.tail = stripify(element.tail)
+    if element.tail and element.tail.startswith(' '):
+        element.tail = '\n' +  ' ' * indent + element.tail.lstrip()
 
 
 def setUp(test):
@@ -220,9 +230,13 @@ def setUp(test):
 def test_suite():
     this = sys.modules[__name__]
     suite = unittest.defaultTestLoader.loadTestsFromModule(this)
+    checker = RENormalizing([
+        (re.compile(r'object at 0x[0-9a-f]+'), 'object at 0xXXXXXXX'),
+    ])
     for files in ['browsing.txt']:
         test = doctest.DocFileSuite('browsing.txt',
                                     setUp=setUp,
+                                    checker=checker,
                                     optionflags=doctest.REPORT_NDIFF)
         test.layer = StandaloneZodbBrowserTestLayer
         suite.addTest(test)

@@ -25,12 +25,75 @@ After that we have three sections: Attributes, Items and History
 
     >>> printCSSPath(browser, 'h3.expander')
     <h3 class="expander">
-      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png"> Attributes
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
+      Attributes
     </h3>
     <h3 class="expander">
-      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png"> Items
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
+      Items
     </h3>
     <h3 class="expander">
-      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png"> History
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
+      History
     </h3>
+
+
+Attributes
+~~~~~~~~~~
+
+Attributes lists all the attributes stored in the database
+
+    >>> printCSSPath(browser, 'div.attributes span.attr > strong')
+    <strong>__annotations__</strong>
+    <strong>__provides__</strong>
+    <strong>_sm</strong>
+    <strong>data</strong>
+
+and their values, of course.  Where the values are persistent object
+references, we show hyperlinks
+
+    >>> printXPath(browser,
+    ...     '//span[@class="attr" and ./strong[text()="__annotations__"]]')
+    <span class="attr">
+      <strong>__annotations__</strong>:
+      <a href="@@zodbbrowser?oid=2">
+        &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt;
+      </a>
+    </span>
+
+Where the values are non-persistent, we show their representation
+
+    >>> printXPath(browser,
+    ...     '//strong[text()="__provides__"]/parent::span[@class="attr"]')
+    <span class="attr">
+      <strong>__provides__</strong>:
+                &lt;zope.interface.Provides object at 0xXXXXXXX&gt;
+    </span>
+
+
+Items
+~~~~~
+
+The 'Items' section is only present on things that are container-like.
+Usually it duplicates information accessible via some attribute.  In
+this particular case, all the items are stored in the 'data' attribute
+
+    >>> printXPath(browser,
+    ...     '//span[@class="attr" and ./strong[text()="data"]]')
+    <span class="attr">
+      <strong>data</strong>:
+      <a href="@@zodbbrowser?oid=3">
+        &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt;
+      </a>
+    </span>
+
+To save on clicking, they're extracted from the subobject and presented
+here directly:
+
+    >>> printCSSPath(browser, 'div.items > div.collapsible')
+    <div class="collapsible">
+      <span class="empty">There are none.</span>
+    </div>
+
+In this case, there are no items.
 

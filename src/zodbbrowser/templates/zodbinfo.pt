@@ -37,8 +37,10 @@
           <input type="checkbox" class="filter" checked="checked"
                  onchange="filterHistory()"
                  tal:attributes="name string:${attr/name}"/>
+          <span class="attr">
           <strong tal:content="attr/name" />:
-          <tal:block replace="structure attr/rendered_value" />
+            <tal:block replace="structure attr/rendered_value" />
+          </span>
           <br />
         </tal:block>
         <div class="buttons">
