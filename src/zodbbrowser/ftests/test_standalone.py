@@ -79,7 +79,7 @@ class TestsWithServer(object):
         cls.server = ServerController()
         cls.tempdir = tempfile.mkdtemp('zodbbrowser')
         cls.data_fs = os.path.join(cls.tempdir, 'data.fs')
-        # TODO: copy some predefined test data
+        # TODO: copy some predefined test data perhaps
         cls.server.run(cls.data_fs, '--rw')
         cls.url = cls.server.url
 
@@ -155,7 +155,8 @@ def printResults(html, method, arg, pretty_print=True):
         # header, but let's assume UTF-8, which is the only charset that
         # we use in our system
         html = html.contents.decode('UTF-8')
-    # XXX: not the most appropriate place for this
+    # XXX: not the most appropriate place for this.  I cannot do it with
+    # a renormalizer since at that point the server URL is not yet known
     html = html.replace(TestsWithServer.url, 'http://localhost/')
     results = getattr(fromstring(html), method)(arg)
     for element in results:
@@ -173,6 +174,10 @@ def printResults(html, method, arg, pretty_print=True):
 
 
 def stripify(s):
+    """Strip indentation and trailing whitespace from a string.
+
+    This is a rather quirky internal function.
+    """
     if s is None:
         s = ''
     had_space = s[:1].isspace()
@@ -185,6 +190,7 @@ def stripify(s):
 
 
 def fixupWhitespace(element, indent=0, step=2):
+    """Normalize whitespace on lxml elements."""
     # Input:
     #   <tag ...>[text]<children ...></tag>[tail]
     # Output:

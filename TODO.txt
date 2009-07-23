@@ -25,6 +25,13 @@ Tests:
 
 - Complete test coverage
     - test ZEO ClientStorage integration (that ugly inspection hack)
-    - tests for browser views
+    - unit tests for browser view code (will likely require refactoring)
+    - tests for test infrastructure (things like html pretty-printing)
     - tests for javascript
 - Buildbots for various python and zope versions
+- Figure out how to stop zserver worker threads that our tests leave behind
+- Implement ServerController.findUnusedPort
+- Perhaps subclass testbrowser's Browser and add printXPath/printCSSPath
+  methods to it directly.  I'm angling to make the ugly URL transformation
+  in it somewhat less ugly, since the browser knows the URL and wouldn't need
+  to hardcode a reference to TestsWithServer layer
