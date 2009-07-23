@@ -4,6 +4,7 @@ import tempfile
 import shutil
 import unittest
 import threading
+from cgi import escape
 
 from lxml.html import fromstring, tostring
 from ZODB.POSException import ReadOnlyError
@@ -164,7 +165,7 @@ def printResults(html, method, arg, pretty_print=True):
         if value:
             print value
     if not results:
-        print "Not found: %s" % xpath
+        print "Not found: %s" % arg
 
 
 def fixupWhitespace(element, indent=0, step=2):
@@ -182,6 +183,10 @@ def fixupWhitespace(element, indent=0, step=2):
     element.text = (element.text or '').strip()
     if children:
         element.text += '\n' + ' ' * (indent + step)
+    else:
+        if len(escape(element.text)) > 40:
+            element.text = ('\n' + ' ' * (indent + step) + element.text + '\n'
+                            + ' ' * indent)
 
     for idx, child in enumerate(children):
         fixupWhitespace(child, indent + step, step)
@@ -206,7 +211,8 @@ def test_suite():
     suite = unittest.defaultTestLoader.loadTestsFromModule(this)
     for files in ['browsing.txt']:
         test = doctest.DocFileSuite('browsing.txt',
-                                    setUp=setUp)
+                                    setUp=setUp,
+                                    optionflags=doctest.REPORT_NDIFF)
         test.layer = StandaloneZodbBrowserTestLayer
         suite.addTest(test)
     return suite

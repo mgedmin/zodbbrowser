@@ -7,7 +7,6 @@ You can start by looking at the root folder
 
 We see the object's path (which is '/' for the root folder) at the top
 
-    >>> ##printXPath(browser, '//h1[id()=="path"]')
     >>> printCSSPath(browser, 'h1#path')
     <h1 id="path">
       <span class="breadcrumbs">
@@ -15,3 +14,9 @@ We see the object's path (which is '/' for the root folder) at the top
       </span>
     </h1>
 
+We see the class name right underneath that
+
+    >>> printCSSPath(browser, 'h2.type')
+    <h2 class="type">
+      &lt;class 'zope.app.folder.folder.Folder'&gt;
+    </h2>
