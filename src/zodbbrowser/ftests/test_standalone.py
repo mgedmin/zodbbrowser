@@ -177,6 +177,8 @@ def stripify(s):
         s = ''
     had_space = s[:1].isspace()
     s = s.strip()
+    if '\n' in s:
+        s = ' '.join(l.strip() for l in s.splitlines())
     if had_space and s:
         s = ' ' + s
     return s
@@ -198,7 +200,7 @@ def fixupWhitespace(element, indent=0, step=2):
     # heuristic for splitting long elements
     should_split = (len(str(element.attrib)) > 40 or
                     len(escape(element.text)) > 40)
-    if should_split:
+    if should_split and element.text:
         element.text = ('\n' + ' ' * (indent + step) + element.text.lstrip())
     if children:
         element.text += '\n' + ' ' * (indent + step)
@@ -232,6 +234,12 @@ def test_suite():
     suite = unittest.defaultTestLoader.loadTestsFromModule(this)
     checker = RENormalizing([
         (re.compile(r'object at 0x[0-9a-f]+'), 'object at 0xXXXXXXX'),
+        (re.compile(r'\btid[0-9]+'), 'tidXXXXXXXXXXXXXXXXXX'),
+        (re.compile(r'\btid=[0-9]+'), 'tid=XXXXXXXXXXXXXXXXXX'),
+        (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d[.]\d\d\d\d\d\d'),
+            'YYYY-MM-DD HH:MM:SS.SSSSSS'),
+        (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),
+            'YYYY-MM-DD HH:MM:SS'),
     ])
     for files in ['browsing.txt']:
         test = doctest.DocFileSuite('browsing.txt',

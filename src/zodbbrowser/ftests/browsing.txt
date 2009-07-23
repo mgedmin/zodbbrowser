@@ -66,8 +66,7 @@ Where the values are non-persistent, we show their representation
     >>> printXPath(browser,
     ...     '//strong[text()="__provides__"]/parent::span[@class="attr"]')
     <span class="attr">
-      <strong>__provides__</strong>:
-                &lt;zope.interface.Provides object at 0xXXXXXXX&gt;
+      <strong>__provides__</strong>: &lt;zope.interface.Provides object at 0xXXXXXXX&gt;
     </span>
 
 
@@ -96,4 +95,88 @@ here directly:
     </div>
 
 In this case, there are no items.
+
+
+History
+~~~~~~~
+
+The 'History' section shows all the transactions that modified this object.
+When you pack the database, old transactions are discarded and will no longer
+be visible.
+
+This is a fresh database, so it has only one transaction:
+
+    >>> printCSSPath(browser, 'div.history h4')
+    <h4 class="transaction">
+      <a href="@@zodbbrowser?oid=1">Latest</a>
+    </h4>
+    <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
+      <a href="@@zodbbrowser?oid=1&amp;tid=XXXXXXXXXXXXXXXXXX">
+        #1:
+        <span>YYYY-MM-DD HH:MM:SS</span>
+      </a>
+    </h4>
+
+Each transaction shows which attributes have changed
+
+    >>> printCSSPath(browser, 'div.transaction > div.diff')
+    <div class="diff">
+      <div class="diffitem added">
+        <strong>__annotations__</strong>: added
+        <a href="@@zodbbrowser?oid=2&amp;tid=XXXXXXXXXXXXXXXXXX">
+          &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt;
+        </a>
+      </div>
+      <div class="diffitem added">
+        <strong>__provides__</strong>: added &lt;zope.interface.Provides object at 0xa88e7ec&gt;
+      </div>
+      <div class="diffitem added">
+        <strong>_sm</strong>: added
+        <a href="@@zodbbrowser?oid=4&amp;tid=XXXXXXXXXXXXXXXXXX">
+          &lt;LocalSiteManager ++etc++site&gt;
+        </a>
+      </div>
+      <div class="diffitem added">
+        <strong>data</strong>: added
+        <a href="@@zodbbrowser?oid=3&amp;tid=XXXXXXXXXXXXXXXXXX">
+          &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt;
+        </a>
+      </div>
+    </div>
+
+
+History browsing
+----------------
+
+Hyperlinks inside transactions point to specific object versions (this
+matters when there's more than one).  Click on any to see how the
+world looked at the time when that particular transaction was committed
+
+    >>> browser.getLink(url='oid=3&tid=').click()
+    >>> printCSSPath(browser, 'h2.type')
+    <h2 class="type">&lt;type 'BTrees.OOBTree.OOBTree'&gt;</h2>
+
+Incidentally, you can see how the breadcrumbs look when the object you're
+looking at has no ``__parent__`` attribute to hint at its location:
+
+    >>> printCSSPath(browser, 'h1#path')
+    <h1 id="path">
+      <span class="breadcrumbs">
+        <a href="@@zodbbrowser?oid=1&amp;tid=XXXXXXXXXXXXXXXXXX">
+          /
+        </a>
+        <a href="@@zodbbrowser?oid=3&amp;tid=XXXXXXXXXXXXXXXXXX">
+          ???
+        </a>
+      </span>
+    </h1>
+
+There's a new yellow bar in the title area reminding you that you're
+looking at an old snapshot instead of the current state
+
+    >>> printCSSPath(browser, 'div.tid-info')
+    <div class="tid-info"> at
+      <a href="#tidXXXXXXXXXXXXXXXXXX">YYYY-MM-DD HH:MM:SS.SSSSSS</a>
+      (last change before or at YYYY-MM-DD HH:MM:SS.SSSSSS)
+    </div>
 
