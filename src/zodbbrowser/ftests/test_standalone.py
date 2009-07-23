@@ -35,7 +35,7 @@ class ServerController(object):
         if not self.port_number:
             self.port_number = self.findUnusedPort()
 
-        self.url = 'http://localhost:%d' % self.port_number
+        self.url = 'http://localhost:%d/' % self.port_number
 
         args += ('--listen', str(self.port_number))
         args += ('--quiet', )
@@ -153,6 +153,8 @@ def printResults(html, method, arg, pretty_print=True):
         # header, but let's assume UTF-8, which is the only charset that
         # we use in our system
         html = html.contents.decode('UTF-8')
+    html = html.replace(StandaloneZodbBrowserTestLayer.url,
+                        'http://localhost/')
     results = getattr(fromstring(html), method)(arg)
     for element in results:
         if isinstance(element, basestring):
@@ -168,6 +170,16 @@ def printResults(html, method, arg, pretty_print=True):
         print "Not found: %s" % arg
 
 
+def stripify(s):
+    if s is None:
+        s = ''
+    had_space = s[:1].isspace()
+    s = s.strip()
+    if had_space and s:
+        s = ' ' + s
+    return s
+
+
 def fixupWhitespace(element, indent=0, step=2):
     # Input:
     #   <tag ...>[text]<children ...></tag>[tail]
@@ -180,7 +192,7 @@ def fixupWhitespace(element, indent=0, step=2):
 
     children = element.getchildren()
 
-    element.text = (element.text or '').strip()
+    element.text = stripify(element.text)
     if children:
         element.text += '\n' + ' ' * (indent + step)
     else:
@@ -195,8 +207,7 @@ def fixupWhitespace(element, indent=0, step=2):
         else:
             child.tail += ' ' * (indent + step)
 
-    element.tail = (element.tail or '').strip()
-    element.tail += '\n'
+    element.tail = stripify(element.tail) + '\n'
 
 
 def setUp(test):

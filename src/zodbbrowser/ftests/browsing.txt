@@ -20,3 +20,17 @@ We see the class name right underneath that
     <h2 class="type">
       &lt;class 'zope.app.folder.folder.Folder'&gt;
     </h2>
+
+After that we have three sections: Attributes, Items and History
+
+    >>> printCSSPath(browser, 'h3.expander')
+    <h3 class="expander">
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png"> Attributes
+    </h3>
+    <h3 class="expander">
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png"> Items
+    </h3>
+    <h3 class="expander">
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png"> History
+    </h3>
+
