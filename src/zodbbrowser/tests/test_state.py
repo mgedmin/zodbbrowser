@@ -46,6 +46,23 @@ class PersistentObject(Persistent):
     pass # we need a subclass so we get a __dict__
 
 
+class TestZodbObjectState(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        provideAdapter(GenericState)
+        self.obj = self.conn.root()['obj'] = SampleFolder()
+        transaction.commit()
+
+    def testZodbObjectState(self):
+        state = ZodbObjectState(self.obj)
+        self.assertEquals(state.listItems(), None)
+        self.assertTrue(state.listAttributes()[0][0], '_SampleContainer__data')
+        self.assertEquals(state.getParent(), None)
+        self.assertEquals(state.getName(), '???')
+        self.assertTrue('_SampleContainer__data' in state.asDict().keys())
+
+
 class TestLoadState(RealDatabaseTest):
 
     def setUp(self):
