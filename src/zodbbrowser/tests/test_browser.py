@@ -60,8 +60,10 @@ class TestZodbInfoView(RealDatabaseTest):
     def setUp(self):
         RealDatabaseTest.setUp(self)
         self.root = self.conn.root()
-        self.stub = self.root['stub'] = PersistentStub()
-        self.nonpersistent = self.root['stub']['nonpersistent'] = 'string'
+        self.root['stub'] = PersistentStub()
+        self.root['stub']['member'] = {'notpersistent':'string'}
+        self.root['root'] = RootFolderStub()
+        self.root['root']['item'] = PersistentStub()
         transaction.commit()
         provideAdapter(GenericState)
 
@@ -86,8 +88,8 @@ class TestZodbInfoView(RealDatabaseTest):
         print view.obj._p_oid
 
     def testFindClosestPersistent(self):
-        view = ZodbInfoView(self.nonpersistent, TestRequest())
-        self.assertEquals(view.findClosestPersistent(), None)
+        view = ZodbInfoView(self.root['stub']['member'], TestRequest())
+        self.assertEquals(view.findClosestPersistent(), self.root['stub']['member'])
 
     def testGetRequestedTid(self):
         view = ZodbInfoView(self.root, TestRequest())
@@ -115,14 +117,25 @@ class TestZodbInfoView(RealDatabaseTest):
         jsonResult = view.locate_json('/')
         self.assertTrue('"url": "@@zodbbrowser?oid=0"' in jsonResult)
         self.assertTrue('"oid": 0' in jsonResult)
-        jsonResult = view.locate_json('/stub/nonpersistent')
-        self.assertTrue('"url": "@@zodbbrowser?oid=4"' in jsonResult)
-        self.assertTrue('"oid": 4' in jsonResult)
+        jsonResult = view.locate_json('/stub/member/notpersistent')
+        self.assertTrue('"partial_url"' in jsonResult)
+        self.assertTrue('"partial_oid"' in jsonResult)
+        self.assertTrue('"error": "Not persistent: /stub/member/notpersistent"')
         jsonResult = view.locate_json('/stub/nonexistent')
         self.assertTrue('"partial_url": "@@zodbbrowser?oid=1"' in jsonResult)
         self.assertTrue('"partial_path": "/stub", ' in jsonResult)
         self.assertTrue('"error": "Not found: /stub/nonexistent"}' in jsonResult)
         self.assertTrue('"partial_oid": 1' in jsonResult)
+
+    def testGetPath(self):
+        view = ZodbInfoView(self.root, TestRequest())
+        view.template = lambda: ' '
+        view()
+        self.assertEquals(view.getPath(), '???')
+        view = ZodbInfoView(self.root['root']['item'], TestRequest())
+        view.template = lambda: ' '
+        view()
+        self.assertEquals(view.getPath(), '/item')
 
 
 def test_suite():
