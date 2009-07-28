@@ -57,6 +57,12 @@ class TestZodbObjectAttribute(unittest.TestCase):
 
 class TestZodbInfoView(RealDatabaseTest):
 
+    def _zodbInfoView(self, obj, request):
+        view = ZodbInfoView(obj, request)
+        view.template = lambda: ''
+        view()
+        return view
+
     def setUp(self):
         RealDatabaseTest.setUp(self)
         self.root = self.conn.root()
@@ -69,22 +75,17 @@ class TestZodbInfoView(RealDatabaseTest):
 
     def testCall(self):
         request = TestRequest()
-        view = ZodbInfoView(self.root, request)
-        view.template = lambda: ''
+        view = self._zodbInfoView(self.root, request)
         self.assertEquals(view(), '')
         self.assertEquals(view.latest, True)
 
         request = TestRequest(form={'tid':u64(ZodbObjectState(self.root).tid)})
-        view = ZodbInfoView(self.root, request)
-        view.template = lambda: ''
-        view()
+        view = self._zodbInfoView(self.root, request)
         self.assertEquals(view.latest, False)
 
         request = TestRequest(form={'oid':u64(self.root._p_oid)})
         request.annotations['ZODB.interfaces.IConnection'] = self.root._p_jar
-        view = ZodbInfoView(None, request)
-        view.template = lambda: ''
-        view()
+        view = self._zodbInfoView(None, request)
         print view.obj._p_oid
 
     def testFindClosestPersistent(self):
@@ -102,9 +103,7 @@ class TestZodbInfoView(RealDatabaseTest):
                           '1905-05-13 03:32:22.050327')
 
     def testPrimitiveMethods(self):
-        view = ZodbInfoView(self.root, TestRequest())
-        view.template = lambda: 'x'
-        view()
+        view = self._zodbInfoView(self.root, TestRequest())
         self.assertEquals(view.getObjectId(), u64(self.root._p_oid))
         self.assertTrue('PersistentMapping' in view.getObjectType())
         self.assertEquals(view.getStateTid(),
@@ -113,7 +112,7 @@ class TestZodbInfoView(RealDatabaseTest):
                           view._tidToTimestamp(ZodbObjectState(self.root).tid))
 
     def testLocate(self):
-        view = ZodbInfoView(self.root, TestRequest())
+        view = self._zodbInfoView(self.root, TestRequest())
         jsonResult = view.locate_json('/')
         self.assertTrue('"url": "@@zodbbrowser?oid=0"' in jsonResult)
         self.assertTrue('"oid": 0' in jsonResult)
@@ -128,14 +127,25 @@ class TestZodbInfoView(RealDatabaseTest):
         self.assertTrue('"partial_oid": 1' in jsonResult)
 
     def testGetPath(self):
-        view = ZodbInfoView(self.root, TestRequest())
-        view.template = lambda: ' '
-        view()
+        view = self._zodbInfoView(self.root, TestRequest())
         self.assertEquals(view.getPath(), '???')
-        view = ZodbInfoView(self.root['root']['item'], TestRequest())
-        view.template = lambda: ' '
-        view()
+        view = self._zodbInfoView(self.root['root']['item'], TestRequest())
         self.assertEquals(view.getPath(), '/item')
+
+    def testGetUrl(self):
+        view = self._zodbInfoView(self.root, TestRequest())
+        self.assertEquals(view.getUrl(), '@@zodbbrowser?oid=' +
+                          str(u64(self.root._p_oid)))
+        view = self._zodbInfoView(self.root, TestRequest())
+        self.assertEquals(view.getUrl(1, 2), '@@zodbbrowser?oid=1&tid=2')
+        view = ZodbInfoView(self.root, TestRequest(form={'tid':'2'}))
+        self.assertEquals(view.getUrl(1), '@@zodbbrowser?oid=1&tid=2')
+
+    def testGetBreadcrumbs(self):
+        view = self._zodbInfoView(self.root, TestRequest())
+        self.assertEquals(view.getBreadcrumbs(),
+                          '<a href="@@zodbbrowser?oid=0">/</a>'\
+                          '<a href="@@zodbbrowser?oid=0">???</a>')
 
 
 def test_suite():
