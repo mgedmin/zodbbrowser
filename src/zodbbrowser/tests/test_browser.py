@@ -7,7 +7,7 @@ import os
 
 from BTrees.OOBTree import OOBTree
 from ZODB.FileStorage import FileStorage
-from ZODB.utils import u64
+from ZODB.utils import u64, p64
 from ZODB import DB
 from zope.app.container.btree import BTreeContainer
 from zope.app.testing import setup, ztapi
@@ -20,7 +20,7 @@ from zope.testing import doctest
 
 from zodbbrowser.value import (GenericValue, TupleValue, DictValue,
                                ListValue, PersistentValue)
-from zodbbrowser.state import OOBTreeState, GenericState
+from zodbbrowser.state import OOBTreeState, GenericState, ZodbObjectState
 from zodbbrowser.browser import ZodbObjectAttribute, ZodbHelpView, ZodbInfoView
 from zodbbrowser.tests.test_diff import pprintDict
 from zodbbrowser.testing import SimpleValueRenderer
@@ -59,14 +59,71 @@ class TestZodbInfoView(RealDatabaseTest):
 
     def setUp(self):
         RealDatabaseTest.setUp(self)
-        request = TestRequest()
-        root = self.conn.root()
-        self.view = ZodbInfoView(root, request)
-        self.view.template = lambda: ''
+        self.root = self.conn.root()
+        self.stub = self.root['stub'] = PersistentStub()
+        self.nonpersistent = self.root['stub']['nonpersistent'] = 'string'
+        transaction.commit()
         provideAdapter(GenericState)
 
-#    def testCall(self):
-#        self.view()
+    def testCall(self):
+        request = TestRequest()
+        view = ZodbInfoView(self.root, request)
+        view.template = lambda: ''
+        self.assertEquals(view(), '')
+        self.assertEquals(view.latest, True)
+
+        request = TestRequest(form={'tid':u64(ZodbObjectState(self.root).tid)})
+        view = ZodbInfoView(self.root, request)
+        view.template = lambda: ''
+        view()
+        self.assertEquals(view.latest, False)
+
+        request = TestRequest(form={'oid':u64(self.root._p_oid)})
+        request.annotations['ZODB.interfaces.IConnection'] = self.root._p_jar
+        view = ZodbInfoView(None, request)
+        view.template = lambda: ''
+        view()
+        print view.obj._p_oid
+
+    def testFindClosestPersistent(self):
+        view = ZodbInfoView(self.nonpersistent, TestRequest())
+        self.assertEquals(view.findClosestPersistent(), None)
+
+    def testGetRequestedTid(self):
+        view = ZodbInfoView(self.root, TestRequest())
+        self.assertEquals(view.getRequestedTid(), None)
+        self.assertEquals(view.getRequestedTidNice(), None)
+        view = ZodbInfoView(self.root,
+                            TestRequest(form={'tid':'12345678912345678'}))
+        self.assertEquals(view.getRequestedTid(), '12345678912345678')
+        self.assertEquals(view.getRequestedTidNice(),
+                          '1905-05-13 03:32:22.050327')
+
+    def testPrimitiveMethods(self):
+        view = ZodbInfoView(self.root, TestRequest())
+        view.template = lambda: 'x'
+        view()
+        self.assertEquals(view.getObjectId(), u64(self.root._p_oid))
+        self.assertTrue('PersistentMapping' in view.getObjectType())
+        self.assertEquals(view.getStateTid(),
+                          u64(ZodbObjectState(self.root).tid))
+        self.assertEquals(view.getStateTidNice(),
+                          view._tidToTimestamp(ZodbObjectState(self.root).tid))
+
+    def testLocate(self):
+        view = ZodbInfoView(self.root, TestRequest())
+        jsonResult = view.locate_json('/')
+        self.assertTrue('"url": "@@zodbbrowser?oid=0"' in jsonResult)
+        self.assertTrue('"oid": 0' in jsonResult)
+        jsonResult = view.locate_json('/stub/nonpersistent')
+        self.assertTrue('"url": "@@zodbbrowser?oid=4"' in jsonResult)
+        self.assertTrue('"oid": 4' in jsonResult)
+        jsonResult = view.locate_json('/stub/nonexistent')
+        self.assertTrue('"partial_url": "@@zodbbrowser?oid=1"' in jsonResult)
+        self.assertTrue('"partial_path": "/stub", ' in jsonResult)
+        self.assertTrue('"error": "Not found: /stub/nonexistent"}' in jsonResult)
+        self.assertTrue('"partial_oid": 1' in jsonResult)
+
 
 def test_suite():
     this = sys.modules[__name__]

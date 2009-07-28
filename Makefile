@@ -19,7 +19,7 @@ check test: bin/test
 
 .PHONY: coverage
 coverage:
-	bin/test --coverage=coverage
+	bin/test -u --coverage=coverage
 	bin/coverage parts/test/coverage
 
 .PHONY: tags
