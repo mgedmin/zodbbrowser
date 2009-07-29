@@ -1,28 +1,17 @@
 import unittest
 import transaction
-import tempfile
-import shutil
 import sys
-import os
 
-from BTrees.OOBTree import OOBTree
-from ZODB.FileStorage import FileStorage
-from ZODB.utils import u64, p64
-from ZODB import DB
+from ZODB.utils import u64
 from zope.app.container.btree import BTreeContainer
-from zope.app.testing import setup, ztapi
-from zope.app.pagetemplate.simpleviewclass import SimpleViewClass
+from zope.app.testing import setup
 from zope.component import provideAdapter
 from zope.interface import implements
 from zope.publisher.browser import TestRequest
 from zope.traversing.interfaces import IContainmentRoot
-from zope.testing import doctest
 
-from zodbbrowser.value import (GenericValue, TupleValue, DictValue,
-                               ListValue, PersistentValue)
-from zodbbrowser.state import OOBTreeState, GenericState, ZodbObjectState
-from zodbbrowser.browser import ZodbObjectAttribute, ZodbHelpView, ZodbInfoView
-from zodbbrowser.tests.test_diff import pprintDict
+from zodbbrowser.state import GenericState, ZodbObjectState
+from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
 from zodbbrowser.testing import SimpleValueRenderer
 
 from realdb import RealDatabaseTest
