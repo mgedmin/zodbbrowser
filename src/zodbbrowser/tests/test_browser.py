@@ -80,6 +80,10 @@ class TestZodbInfoView(RealDatabaseTest):
     def testFindClosestPersistent(self):
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
         self.assertEquals(view.findClosestPersistent(), self.root['stub']['member'])
+        view = ZodbInfoView(self.root['stub']['member']['notpersistent'],
+                            TestRequest())
+        self.assertEquals(view.findClosestPersistent(),
+                          None)
 
     def testGetRequestedTid(self):
         view = ZodbInfoView(self.root, TestRequest())
@@ -129,13 +133,6 @@ class TestZodbInfoView(RealDatabaseTest):
         self.assertEquals(view.getUrl(1, 2), '@@zodbbrowser?oid=1&tid=2')
         view = ZodbInfoView(self.root, TestRequest(form={'tid':'2'}))
         self.assertEquals(view.getUrl(1), '@@zodbbrowser?oid=1&tid=2')
-
-    def testGetBreadcrumbs(self):
-        view = self._zodbInfoView(self.root, TestRequest())
-        self.assertEquals(view.getBreadcrumbs(),
-                          '<a href="@@zodbbrowser?oid=0">/</a>'\
-                          '<a href="@@zodbbrowser?oid=0">???</a>')
-
 
 def test_suite():
     this = sys.modules[__name__]
