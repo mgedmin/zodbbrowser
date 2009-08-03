@@ -289,6 +289,28 @@ class TestZodbInfoView(unittest.TestCase):
         view.state.listAttributes = lambda: None
         self.assertEquals(view.listAttributes(), None)
 
+    def test_listItems(self):
+        view = ZodbInfoView(None, None)
+        view.state = ZodbObjectStateStub(PersistentStub())
+        view.state.requestedTid = 42
+        view.state.listItems = lambda: [('zoinks', 17),
+                                        ('scoobysnack', None)]
+        self.assertEquals(view.listItems(),
+                          [ZodbObjectAttribute('zoinks', 17, 42),
+                           ZodbObjectAttribute('scoobysnack', None, 42)])
+
+    def test_listItems_empty(self):
+        view = ZodbInfoView(None, None)
+        view.state = ZodbObjectStateStub(PersistentStub())
+        view.state.listItems = lambda: []
+        self.assertEquals(view.listItems(), [])
+
+    def test_listItems_none_exist(self):
+        view = ZodbInfoView(None, None)
+        view.state = ZodbObjectStateStub(PersistentStub())
+        view.state.listItems = lambda: None
+        self.assertEquals(view.listItems(), None)
+
 
 def test_suite():
     this = sys.modules[__name__]
