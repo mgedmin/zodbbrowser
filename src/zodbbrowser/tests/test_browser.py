@@ -119,12 +119,6 @@ class TestZodbInfoView(RealDatabaseTest):
         self.assertTrue('"error": "Not found: /stub/nonexistent"}' in jsonResult)
         self.assertTrue('"partial_oid": 1' in jsonResult)
 
-    def testGetPath(self):
-        view = self._zodbInfoView(self.root, TestRequest())
-        self.assertEquals(view.getPath(), '???')
-        view = self._zodbInfoView(self.root['root']['item'], TestRequest())
-        self.assertEquals(view.getPath(), '/item')
-
     def testGetUrl(self):
         view = self._zodbInfoView(self.root, TestRequest())
         self.assertEquals(view.getUrl(), '@@zodbbrowser?oid=' +
@@ -178,39 +172,39 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
 
     def test_root(self):
         view = self.createView(self.root)
-        breadcrumbs = view.getBreadcrumbs()
-        self.assertEquals(breadcrumbs,
+        self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>')
+        self.assertEquals(view.getPath(), '/')
 
     def test_non_root(self):
         view = self.createView(self.foo)
-        breadcrumbs = view.getBreadcrumbs()
-        self.assertEquals(breadcrumbs,
+        self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '<a href="@@zodbbrowser?oid=27">foo</a>')
+        self.assertEquals(view.getPath(), '/foo')
 
     def test_more_levels(self):
         view = self.createView(self.foobar)
-        breadcrumbs = view.getBreadcrumbs()
-        self.assertEquals(breadcrumbs,
+        self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '<a href="@@zodbbrowser?oid=27">foo</a>/'
                           '<a href="@@zodbbrowser?oid=32">bar</a>')
+        self.assertEquals(view.getPath(), '/foo/bar')
 
     def test_unknown(self):
         view = self.createView(self.unknown)
-        breadcrumbs = view.getBreadcrumbs()
-        self.assertEquals(breadcrumbs,
+        self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '<a href="@@zodbbrowser?oid=15">???</a>')
+        self.assertEquals(view.getPath(), '/???')
 
     def test_unknown_child(self):
         view = self.createView(self.unknown_child)
-        breadcrumbs = view.getBreadcrumbs()
-        self.assertEquals(breadcrumbs,
+        self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '<a href="@@zodbbrowser?oid=15">???</a>/'
                           '<a href="@@zodbbrowser?oid=17">child</a>')
+        self.assertEquals(view.getPath(), '/???/child')
 
 
 def test_suite():
