@@ -4,6 +4,7 @@ import sys
 
 from ZODB.utils import u64, p64
 from zope.app.container.btree import BTreeContainer
+from zope.app.container.interfaces import IContained
 from zope.app.testing import setup
 from zope.component import provideAdapter
 from zope.interface import implements
@@ -23,6 +24,12 @@ class RootFolderStub(BTreeContainer):
 
 class PersistentStub(BTreeContainer):
     pass
+
+
+class NonpersistentStub(dict):
+    implements(IContained)
+
+    __name__ = __parent__ = None
 
 
 class TestZodbObjectAttribute(unittest.TestCase):
@@ -79,7 +86,8 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         RealDatabaseTest.setUp(self)
         self.root = self.conn.root()
         self.root['stub'] = PersistentStub()
-        self.root['stub']['member'] = {'notpersistent': 'string'}
+        self.root['stub']['member'] = NonpersistentStub()
+        self.root['stub']['member']['notpersistent'] = 'string'
         self.root['root'] = RootFolderStub()
         self.root['root']['item'] = PersistentStub()
         transaction.commit()
@@ -99,9 +107,15 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         request.annotations['ZODB.interfaces.IConnection'] = self.root._p_jar
         view = self._zodbInfoView(None, request)
 
+    def testGetJar(self):
+        view = ZodbInfoView(self.root, TestRequest())
+        self.assertEquals(view.jar(), self.root._p_jar)
+        view = ZodbInfoView(self.root['stub']['member'], TestRequest())
+        self.assertEquals(view.jar(), self.root._p_jar)
+
     def testFindClosestPersistent(self):
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
-        self.assertEquals(view.findClosestPersistent(), self.root['stub']['member'])
+        self.assertEquals(view.findClosestPersistent(), self.root['stub'])
         view = ZodbInfoView(self.root['stub']['member']['notpersistent'],
                             TestRequest())
         self.assertEquals(view.findClosestPersistent(),
