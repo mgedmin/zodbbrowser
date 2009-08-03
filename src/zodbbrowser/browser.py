@@ -203,7 +203,8 @@ class ZodbInfoView(BrowserView):
         html = []
         for name, url in self.getBreadcrumbs():
             if url:
-                html.append('<a href="%s">%s</a>' % (escape(url), escape(name)))
+                html.append('<a href="%s">%s</a>' % (escape(url, True),
+                                                     escape(name)))
             else:
                 html.append(escape(name))
         return ''.join(html)
