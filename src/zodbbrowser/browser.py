@@ -59,7 +59,7 @@ class ZodbInfoView(BrowserView):
             self.obj = self.findClosestPersistent()
 
         if self.obj is None:
-            oid = p64(int(self.request.get('oid', self.root_oid)))
+            oid = p64(int(self.request.get('oid', self.getRootOid())))
             jar = self.jar()
             self.obj = jar.get(oid)
 
@@ -105,10 +105,6 @@ class ZodbInfoView(BrowserView):
     def getStateTidNice(self):
         return self._tidToTimestamp(self.state.tid)
 
-    @property
-    def root_oid(self): # BBB
-        return self.getRootOid()
-
     def getRootOid(self):
         root = self.jar().root()
         try:
@@ -131,7 +127,7 @@ class ZodbInfoView(BrowserView):
 
     def locate(self, path):
         jar = self.jar()
-        oid = self.root_oid
+        oid = self.getRootOid()
         partial = here = '/'
         obj = jar.get(p64(oid))
         not_found = object()
@@ -217,7 +213,7 @@ class ZodbInfoView(BrowserView):
 
         if not seen_root:
             breadcrumbs.append('<a href="%s">/</a>' %
-                                    escape(self.getUrl(self.root_oid)))
+                                    escape(self.getUrl(self.getRootOid())))
         return ''.join(reversed(breadcrumbs))
 
     def listAttributes(self):
