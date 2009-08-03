@@ -75,7 +75,6 @@ class TestZodbInfoView(RealDatabaseTest):
         request = TestRequest(form={'oid':u64(self.root._p_oid)})
         request.annotations['ZODB.interfaces.IConnection'] = self.root._p_jar
         view = self._zodbInfoView(None, request)
-        print view.obj._p_oid
 
     def testFindClosestPersistent(self):
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
