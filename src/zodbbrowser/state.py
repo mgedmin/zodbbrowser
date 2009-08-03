@@ -5,7 +5,8 @@ from persistent.mapping import PersistentMapping
 from zope.component import adapts, getMultiAdapter
 from zope.interface import implements, Interface
 from zope.proxy import removeAllProxies
-from ZODB.utils import tid_repr
+from zope.traversing.interfaces import IContainmentRoot
+from ZODB.utils import tid_repr, u64
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
@@ -74,14 +75,26 @@ class ZodbObjectState(object):
     def getParent(self):
         return self.state.getParent()
 
-    def getParentState(self):
-        return ZodbObjectState(self.getParent(), self.requestedTid)
-
     def getName(self):
         return self.state.getName()
 
     def asDict(self):
         return self.state.asDict()
+
+    # These are not part of IStateInterpreter
+
+    def getObjectId(self):
+        return u64(self.obj._p_oid)
+
+    def isRoot(self):
+        return IContainmentRoot.providedBy(self.obj)
+
+    def getParentState(self):
+        parent = self.getParent()
+        if parent is None:
+            return None
+        else:
+            return ZodbObjectState(parent, self.requestedTid)
 
 
 class GenericState(object):

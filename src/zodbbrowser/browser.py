@@ -3,7 +3,6 @@ from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.app.publication.zopepublication import ZopePublication
-from zope.traversing.interfaces import IContainmentRoot
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
@@ -94,7 +93,7 @@ class ZodbInfoView(BrowserView):
             return None
 
     def getObjectId(self):
-        return u64(self.obj._p_oid)
+        return self.state.getObjectId()
 
     def getObjectType(self):
         return str(getattr(self.obj, '__class__', None))
@@ -173,27 +172,25 @@ class ZodbInfoView(BrowserView):
 
     def getBreadcrumbs(self):
         breadcrumbs = []
-        obj = self.obj
         state = self.state
         seen_root = False
         while True:
-            url = self.getUrl(u64(obj._p_oid))
-            if IContainmentRoot.providedBy(obj):
+            url = self.getUrl(state.getObjectId())
+            if state.isRoot():
                 breadcrumbs.append(('/', url))
                 seen_root = True
             else:
                 if breadcrumbs:
                     breadcrumbs.append(('/', None))
                 breadcrumbs.append((state.getName() or '???', url))
-            obj = state.getParent()
-            if obj is None:
+            state = state.getParentState()
+            if state is None:
                 if not seen_root:
                     url = self.getUrl(self.getRootOid())
                     breadcrumbs.append(('/', None))
                     breadcrumbs.append(('...', None))
                     breadcrumbs.append(('/', url))
                 break
-            state = state.getParentState()
         return breadcrumbs[::-1]
 
     def getPath(self):

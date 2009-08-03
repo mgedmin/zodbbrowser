@@ -140,7 +140,15 @@ class ZodbObjectStateStub(object):
     def getParent(self):
         return self.context.__parent__
 
+    def isRoot(self):
+        return IContainmentRoot.providedBy(self.context)
+
+    def getObjectId(self):
+        return u64(self.context._p_oid)
+
     def getParentState(self):
+        if self.getParent() is None:
+            return None
         return ZodbObjectStateStub(self.getParent())
 
 
