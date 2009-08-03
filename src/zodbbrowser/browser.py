@@ -40,6 +40,18 @@ class ZodbObjectAttribute(object):
     def rendered_value(self):
         return IValueRenderer(self.value).render(self.tid)
 
+    def __repr__(self):
+        return '%s(%r, %r, %r)' % (self.name, self.value, self.tid)
+
+    def __eq__(self, other):
+        if self.__class__ != other.__class__:
+            return False
+        return (self.name, self.value, self.tid) == (other.name, other.value,
+                                                     other.tid)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class ZodbInfoView(BrowserView):
     """Zodb browser view"""

@@ -265,6 +265,30 @@ class TestZodbInfoView(unittest.TestCase):
                           '<a href="so&quot;there">foo&gt;</a>'
                           '/bar&lt;baz')
 
+    def test_listAttributes(self):
+        view = ZodbInfoView(None, None)
+        view.state = ZodbObjectStateStub(PersistentStub())
+        view.state.requestedTid = 42
+        view.state.listAttributes = lambda: [('zoinks', 17),
+                                             ('scoobysnack', None)]
+        self.assertEquals(view.listAttributes(),
+                          [ZodbObjectAttribute('scoobysnack', None, 42),
+                           ZodbObjectAttribute('zoinks', 17, 42)])
+
+    def test_listAttributes_empty(self):
+        view = ZodbInfoView(None, None)
+        view.state = ZodbObjectStateStub(PersistentStub())
+        view.state.requestedTid = 42
+        view.state.listAttributes = lambda: []
+        self.assertEquals(view.listAttributes(), [])
+
+    def test_listAttributes_none_exist(self):
+        view = ZodbInfoView(None, None)
+        view.state = ZodbObjectStateStub(PersistentStub())
+        view.state.requestedTid = 42
+        view.state.listAttributes = lambda: None
+        self.assertEquals(view.listAttributes(), None)
+
 
 def test_suite():
     this = sys.modules[__name__]
