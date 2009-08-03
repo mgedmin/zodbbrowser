@@ -334,6 +334,13 @@ class TestZodbInfoView(unittest.TestCase):
         view.state.listItems = lambda: None
         self.assertEquals(view.listItems(), None)
 
+    def test_tidToTimestamp(self):
+        view = ZodbInfoView(None, None)
+        self.assertEquals(view._tidToTimestamp(p64(12345678912345678)),
+                          '1905-05-13 03:32:22.050327')
+        self.assertEquals(view._tidToTimestamp('something else'),
+                          "'something else'")
+
 
 def test_suite():
     this = sys.modules[__name__]
