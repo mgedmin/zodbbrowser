@@ -188,7 +188,7 @@ class ZodbInfoView(BrowserView):
             state = state.getParentState()
         return '/' + '/'.join(reversed(path))
 
-    def getBreadcrumbs(self):
+    def getBreadcrumbsHTML(self):
         breadcrumbs = []
         object = self.obj
         state = self.state

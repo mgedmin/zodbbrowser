@@ -4,7 +4,7 @@
 <div class="object">
   <div class="heading">
     <h1 id="path">
-      <span class="breadcrumbs" tal:content="structure view/getBreadcrumbs" />
+      <span class="breadcrumbs" tal:content="structure view/getBreadcrumbsHTML" />
     </h1>
     <h1 id="goto" style="display:none">
       <input type="hidden" id="api" name="api" value="@@zodbbrowser_path_to_oid" />

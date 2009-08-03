@@ -177,20 +177,20 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
 
     def test_root(self):
         view = self.createView(self.root)
-        self.assertEquals(view.getBreadcrumbs(),
+        self.assertEquals(view.getBreadcrumbsHTML(),
                           '<a href="@@zodbbrowser?oid=1">/</a>')
         self.assertEquals(view.getPath(), '/')
 
     def test_non_root(self):
         view = self.createView(self.foo)
-        self.assertEquals(view.getBreadcrumbs(),
+        self.assertEquals(view.getBreadcrumbsHTML(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '<a href="@@zodbbrowser?oid=27">foo</a>')
         self.assertEquals(view.getPath(), '/foo')
 
     def test_more_levels(self):
         view = self.createView(self.foobar)
-        self.assertEquals(view.getBreadcrumbs(),
+        self.assertEquals(view.getBreadcrumbsHTML(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '<a href="@@zodbbrowser?oid=27">foo</a>/'
                           '<a href="@@zodbbrowser?oid=32">bar</a>')
@@ -198,7 +198,7 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
 
     def test_unknown(self):
         view = self.createView(self.unknown)
-        self.assertEquals(view.getBreadcrumbs(),
+        self.assertEquals(view.getBreadcrumbsHTML(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '.../'
                           '<a href="@@zodbbrowser?oid=15">???</a>')
@@ -206,7 +206,7 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
 
     def test_unknown_child(self):
         view = self.createView(self.unknown_child)
-        self.assertEquals(view.getBreadcrumbs(),
+        self.assertEquals(view.getBreadcrumbsHTML(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '.../'
                           '<a href="@@zodbbrowser?oid=15">???</a>/'
@@ -215,7 +215,7 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
 
     def test_unparented(self):
         view = self.createView(self.unparented)
-        self.assertEquals(view.getBreadcrumbs(),
+        self.assertEquals(view.getBreadcrumbsHTML(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '.../'
                           '<a href="@@zodbbrowser?oid=19">wat</a>')
@@ -223,7 +223,7 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
 
     def test_unnamed_direct_child_of_root(self):
         view = self.createView(self.unnamed)
-        self.assertEquals(view.getBreadcrumbs(),
+        self.assertEquals(view.getBreadcrumbsHTML(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
                           '<a href="@@zodbbrowser?oid=55">???</a>')
         self.assertEquals(view.getPath(), '/???')
