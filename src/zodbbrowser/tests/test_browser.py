@@ -43,6 +43,29 @@ class TestZodbObjectAttribute(unittest.TestCase):
         self.assertEquals(self.attribute.rendered_value(),
                           "42L [tid=t565]")
 
+    def test_repr(self):
+        self.assertEquals(repr(self.attribute),
+                          "ZodbObjectAttribute('foo', 42L, 't565')")
+
+    def test_equality(self):
+        self.assertEquals(self.attribute,
+                          ZodbObjectAttribute('foo', 42L, 't565'))
+
+    def test_inequality(self):
+        self.assertNotEquals(self.attribute,
+                             ZodbObjectAttribute('foo', 42L, 't575'))
+        self.assertNotEquals(self.attribute,
+                             ZodbObjectAttribute('foo', 43L, 't565'))
+        self.assertNotEquals(self.attribute,
+                             ZodbObjectAttribute('fox', 42L, 't565'))
+        self.assertNotEquals(self.attribute,
+                             object())
+
+    def test_not_equals(self):
+        self.assertFalse(self.attribute !=
+                          ZodbObjectAttribute('foo', 42L, 't565'))
+        self.assertTrue(self.attribute != object())
+
 
 class TestZodbInfoViewWithRealDb(RealDatabaseTest):
 

@@ -41,7 +41,8 @@ class ZodbObjectAttribute(object):
         return IValueRenderer(self.value).render(self.tid)
 
     def __repr__(self):
-        return '%s(%r, %r, %r)' % (self.name, self.value, self.tid)
+        return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name,
+                                   self.value, self.tid)
 
     def __eq__(self, other):
         if self.__class__ != other.__class__:
