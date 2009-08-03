@@ -90,6 +90,7 @@ def configure(options):
 
 
 def start_server(options, db):
+    global task_dispatcher
     task_dispatcher = ThreadedTaskDispatcher()
     task_dispatcher.setThreadCount(options.threads)
 
@@ -111,6 +112,7 @@ def serve_forever(interval=30.0):
 
 
 def stop_serving():
+    task_dispatcher.shutdown(False)
     asyncore.close_all()
 
 
