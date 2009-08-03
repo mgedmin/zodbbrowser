@@ -74,6 +74,9 @@ class ZodbObjectState(object):
     def getParent(self):
         return self.state.getParent()
 
+    def getParentState(self):
+        return ZodbObjectState(self.getParent(), self.requestedTid)
+
     def getName(self):
         return self.state.getName()
 

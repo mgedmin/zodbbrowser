@@ -2,7 +2,7 @@ import unittest
 import transaction
 import sys
 
-from ZODB.utils import u64
+from ZODB.utils import u64, p64
 from zope.app.container.btree import BTreeContainer
 from zope.app.testing import setup
 from zope.component import provideAdapter
@@ -133,6 +133,85 @@ class TestZodbInfoView(RealDatabaseTest):
         self.assertEquals(view.getUrl(1, 2), '@@zodbbrowser?oid=1&tid=2')
         view = ZodbInfoView(self.root, TestRequest(form={'tid':'2'}))
         self.assertEquals(view.getUrl(1), '@@zodbbrowser?oid=1&tid=2')
+
+
+
+class ZodbObjectStateStub(object):
+
+    def __init__(self, context):
+        self.context = context
+
+    def getName(self):
+        return self.context.__name__ or '???'
+
+    def getParent(self):
+        return self.context.__parent__
+
+    def getParentState(self):
+        return ZodbObjectStateStub(self.getParent())
+
+
+class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
+
+    def setUp(self):
+        self.root = RootFolderStub()
+        self.root._p_oid = p64(1)
+        self.foo = PersistentStub()
+        self.foo._p_oid = p64(27)
+        self.root['foo'] = self.foo
+        self.foobar = PersistentStub()
+        self.foobar._p_oid = p64(32)
+        self.foo['bar'] = self.foobar
+        self.unknown = PersistentStub()
+        self.unknown._p_oid = p64(15)
+        self.unknown_child = PersistentStub()
+        self.unknown_child._p_oid = p64(17)
+        self.unknown['child'] = self.unknown_child
+
+    def createView(self, obj):
+        view = ZodbInfoView(obj, TestRequest())
+        view.obj = obj
+        view.state = ZodbObjectStateStub(view.obj)
+        view.requestedTid = None
+        view.getRootOid = lambda: 1
+        return view
+
+    def test_root(self):
+        view = self.createView(self.root)
+        breadcrumbs = view.getBreadcrumbs()
+        self.assertEquals(breadcrumbs,
+                          '<a href="@@zodbbrowser?oid=1">/</a>')
+
+    def test_non_root(self):
+        view = self.createView(self.foo)
+        breadcrumbs = view.getBreadcrumbs()
+        self.assertEquals(breadcrumbs,
+                          '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '<a href="@@zodbbrowser?oid=27">foo</a>')
+
+    def test_more_levels(self):
+        view = self.createView(self.foobar)
+        breadcrumbs = view.getBreadcrumbs()
+        self.assertEquals(breadcrumbs,
+                          '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '<a href="@@zodbbrowser?oid=27">foo</a>/'
+                          '<a href="@@zodbbrowser?oid=32">bar</a>')
+
+    def test_unknown(self):
+        view = self.createView(self.unknown)
+        breadcrumbs = view.getBreadcrumbs()
+        self.assertEquals(breadcrumbs,
+                          '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '<a href="@@zodbbrowser?oid=15">???</a>')
+
+    def test_unknown_child(self):
+        view = self.createView(self.unknown_child)
+        breadcrumbs = view.getBreadcrumbs()
+        self.assertEquals(breadcrumbs,
+                          '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '<a href="@@zodbbrowser?oid=15">???</a>/'
+                          '<a href="@@zodbbrowser?oid=17">child</a>')
+
 
 def test_suite():
     this = sys.modules[__name__]

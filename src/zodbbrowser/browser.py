@@ -106,7 +106,10 @@ class ZodbInfoView(BrowserView):
         return self._tidToTimestamp(self.state.tid)
 
     @property
-    def root_oid(self):
+    def root_oid(self): # BBB
+        return self.getRootOid()
+
+    def getRootOid(self):
         root = self.jar().root()
         try:
             root = root[ZopePublication.root_name]
@@ -210,7 +213,7 @@ class ZodbInfoView(BrowserView):
             if parent is None:
                 break
             object = parent
-            state = ZodbObjectState(object, self.state.requestedTid)
+            state = state.getParentState()
 
         if not seen_root:
             breadcrumbs.append('<a href="%s">/</a>' %
