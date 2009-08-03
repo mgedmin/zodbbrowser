@@ -68,11 +68,11 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         self.assertEquals(view(), '')
         self.assertEquals(view.latest, True)
 
-        request = TestRequest(form={'tid':u64(ZodbObjectState(self.root).tid)})
+        request = TestRequest(form={'tid': u64(ZodbObjectState(self.root).tid)})
         view = self._zodbInfoView(self.root, request)
         self.assertEquals(view.latest, False)
 
-        request = TestRequest(form={'oid':u64(self.root._p_oid)})
+        request = TestRequest(form={'oid': u64(self.root._p_oid)})
         request.annotations['ZODB.interfaces.IConnection'] = self.root._p_jar
         view = self._zodbInfoView(None, request)
 
