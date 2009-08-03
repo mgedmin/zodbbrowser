@@ -56,7 +56,7 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         RealDatabaseTest.setUp(self)
         self.root = self.conn.root()
         self.root['stub'] = PersistentStub()
-        self.root['stub']['member'] = {'notpersistent':'string'}
+        self.root['stub']['member'] = {'notpersistent': 'string'}
         self.root['root'] = RootFolderStub()
         self.root['root']['item'] = PersistentStub()
         transaction.commit()
@@ -89,7 +89,7 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         self.assertEquals(view.getRequestedTid(), None)
         self.assertEquals(view.getRequestedTidNice(), None)
         view = ZodbInfoView(self.root,
-                            TestRequest(form={'tid':'12345678912345678'}))
+                            TestRequest(form={'tid': '12345678912345678'}))
         self.assertEquals(view.getRequestedTid(), '12345678912345678')
         self.assertEquals(view.getRequestedTidNice(),
                           '1905-05-13 03:32:22.050327')
@@ -124,7 +124,7 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
                           str(u64(self.root._p_oid)))
         view = self._zodbInfoView(self.root, TestRequest())
         self.assertEquals(view.getUrl(1, 2), '@@zodbbrowser?oid=1&tid=2')
-        view = ZodbInfoView(self.root, TestRequest(form={'tid':'2'}))
+        view = ZodbInfoView(self.root, TestRequest(form={'tid': '2'}))
         self.assertEquals(view.getUrl(1), '@@zodbbrowser?oid=1&tid=2')
 
 
