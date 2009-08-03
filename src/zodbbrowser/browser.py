@@ -182,8 +182,7 @@ class ZodbInfoView(BrowserView):
                 path.append(state.getName() or '???')
             parent = state.getParent()
             if parent is None:
-                if state.getName() not in (None, '', '???'):
-                    path.append('???')
+                path.append('...')
                 break
             object = parent
             state = state.getParentState()
@@ -208,8 +207,8 @@ class ZodbInfoView(BrowserView):
             breadcrumbs.append(breadcrumb)
             parent = state.getParent()
             if parent is None:
-                if state.getName() not in (None, '', '???'):
-                    breadcrumbs.append('???/')
+                if not seen_root:
+                    breadcrumbs.append('.../')
                 break
             object = parent
             state = state.getParentState()

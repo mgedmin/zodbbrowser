@@ -164,6 +164,9 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
         self.unparented = PersistentStub()
         self.unparented._p_oid = p64(19)
         self.unparented.__name__ = 'wat'
+        self.unnamed = PersistentStub()
+        self.unnamed._p_oid = p64(55)
+        self.unnamed.__parent__ = self.root
 
     def createView(self, obj):
         view = ZodbInfoView(obj, TestRequest())
@@ -198,24 +201,33 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
         view = self.createView(self.unknown)
         self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '.../'
                           '<a href="@@zodbbrowser?oid=15">???</a>')
-        self.assertEquals(view.getPath(), '/???')
+        self.assertEquals(view.getPath(), '/.../???')
 
     def test_unknown_child(self):
         view = self.createView(self.unknown_child)
         self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '.../'
                           '<a href="@@zodbbrowser?oid=15">???</a>/'
                           '<a href="@@zodbbrowser?oid=17">child</a>')
-        self.assertEquals(view.getPath(), '/???/child')
+        self.assertEquals(view.getPath(), '/.../???/child')
 
     def test_unparented(self):
         view = self.createView(self.unparented)
         self.assertEquals(view.getBreadcrumbs(),
                           '<a href="@@zodbbrowser?oid=1">/</a>'
-                          '???/'
+                          '.../'
                           '<a href="@@zodbbrowser?oid=19">wat</a>')
-        self.assertEquals(view.getPath(), '/???/wat')
+        self.assertEquals(view.getPath(), '/.../wat')
+
+    def test_unnamed_direct_child_of_root(self):
+        view = self.createView(self.unnamed)
+        self.assertEquals(view.getBreadcrumbs(),
+                          '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '<a href="@@zodbbrowser?oid=55">???</a>')
+        self.assertEquals(view.getPath(), '/???')
 
 
 def test_suite():
