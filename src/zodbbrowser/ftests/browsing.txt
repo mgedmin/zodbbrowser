@@ -164,7 +164,7 @@ looking at has no ``__parent__`` attribute to hint at its location:
       <span class="breadcrumbs">
         <a href="@@zodbbrowser?oid=1&amp;tid=XXXXXXXXXXXXXXXXXX">
           /
-        </a>
+        </a>.../
         <a href="@@zodbbrowser?oid=3&amp;tid=XXXXXXXXXXXXXXXXXX">
           ???
         </a>
