@@ -177,12 +177,13 @@ class ZodbInfoView(BrowserView):
         state = self.state
         while True:
             if IContainmentRoot.providedBy(object):
-                seen_root = True
                 break
             else:
                 path.append(state.getName() or '???')
             parent = state.getParent()
             if parent is None:
+                if state.getName() not in (None, '', '???'):
+                    path.append('???')
                 break
             object = parent
             state = state.getParentState()
@@ -201,12 +202,14 @@ class ZodbInfoView(BrowserView):
             else:
                 breadcrumb = '<a href="%s">%s</a>' % (
                                     escape(self.getUrl(u64(object._p_oid))),
-                                    state.getName())
+                                    state.getName() or '???')
                 if breadcrumbs:
                     breadcrumb += '/'
             breadcrumbs.append(breadcrumb)
             parent = state.getParent()
             if parent is None:
+                if state.getName() not in (None, '', '???'):
+                    breadcrumbs.append('???/')
                 break
             object = parent
             state = state.getParentState()

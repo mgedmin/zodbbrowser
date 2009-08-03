@@ -136,7 +136,7 @@ class ZodbObjectStateStub(object):
         self.context = context
 
     def getName(self):
-        return self.context.__name__ or '???'
+        return self.context.__name__
 
     def getParent(self):
         return self.context.__parent__
@@ -161,6 +161,9 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
         self.unknown_child = PersistentStub()
         self.unknown_child._p_oid = p64(17)
         self.unknown['child'] = self.unknown_child
+        self.unparented = PersistentStub()
+        self.unparented._p_oid = p64(19)
+        self.unparented.__name__ = 'wat'
 
     def createView(self, obj):
         view = ZodbInfoView(obj, TestRequest())
@@ -205,6 +208,14 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
                           '<a href="@@zodbbrowser?oid=15">???</a>/'
                           '<a href="@@zodbbrowser?oid=17">child</a>')
         self.assertEquals(view.getPath(), '/???/child')
+
+    def test_unparented(self):
+        view = self.createView(self.unparented)
+        self.assertEquals(view.getBreadcrumbs(),
+                          '<a href="@@zodbbrowser?oid=1">/</a>'
+                          '???/'
+                          '<a href="@@zodbbrowser?oid=19">wat</a>')
+        self.assertEquals(view.getPath(), '/???/wat')
 
 
 def test_suite():
