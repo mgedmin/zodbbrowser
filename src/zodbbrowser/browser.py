@@ -171,52 +171,42 @@ class ZodbInfoView(BrowserView):
             url += "&tid=" + str(tid)
         return url
 
-    def getPath(self):
-        path = []
-        object = self.obj
-        state = self.state
-        while True:
-            if IContainmentRoot.providedBy(object):
-                break
-            else:
-                path.append(state.getName() or '???')
-            parent = state.getParent()
-            if parent is None:
-                path.append('...')
-                break
-            object = parent
-            state = state.getParentState()
-        return '/' + '/'.join(reversed(path))
-
-    def getBreadcrumbsHTML(self):
+    def getBreadcrumbs(self):
         breadcrumbs = []
-        object = self.obj
+        obj = self.obj
         state = self.state
         seen_root = False
         while True:
-            if IContainmentRoot.providedBy(object):
+            url = self.getUrl(u64(obj._p_oid))
+            if IContainmentRoot.providedBy(obj):
+                breadcrumbs.append(('/', url))
                 seen_root = True
-                breadcrumb = '<a href="%s">/</a>' % (
-                                    escape(self.getUrl(u64(object._p_oid))))
             else:
-                breadcrumb = '<a href="%s">%s</a>' % (
-                                    escape(self.getUrl(u64(object._p_oid))),
-                                    state.getName() or '???')
                 if breadcrumbs:
-                    breadcrumb += '/'
-            breadcrumbs.append(breadcrumb)
-            parent = state.getParent()
-            if parent is None:
+                    breadcrumbs.append(('/', None))
+                breadcrumbs.append((state.getName() or '???', url))
+            obj = state.getParent()
+            if obj is None:
                 if not seen_root:
-                    breadcrumbs.append('.../')
+                    url = self.getUrl(self.getRootOid())
+                    breadcrumbs.append(('/', None))
+                    breadcrumbs.append(('...', None))
+                    breadcrumbs.append(('/', url))
                 break
-            object = parent
             state = state.getParentState()
+        return breadcrumbs[::-1]
 
-        if not seen_root:
-            breadcrumbs.append('<a href="%s">/</a>' %
-                                    escape(self.getUrl(self.getRootOid())))
-        return ''.join(reversed(breadcrumbs))
+    def getPath(self):
+        return ''.join(name for name, url in self.getBreadcrumbs())
+
+    def getBreadcrumbsHTML(self):
+        html = []
+        for name, url in self.getBreadcrumbs():
+            if url:
+                html.append('<a href="%s">%s</a>' % (escape(url), escape(name)))
+            else:
+                html.append(escape(name))
+        return ''.join(html)
 
     def listAttributes(self):
         attrs = self.state.listAttributes()
