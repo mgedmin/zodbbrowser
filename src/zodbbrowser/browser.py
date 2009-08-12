@@ -71,14 +71,15 @@ class ZodbInfoView(BrowserView):
             self.obj = self.findClosestPersistent()
 
         if self.obj is None:
-            oid = p64(int(self.request.get('oid', self.getRootOid())))
+            oid = p64(int(self.request.get('oid', self.getRootOid()), 0))
             jar = self.jar()
             self.obj = jar.get(oid)
 
         self.history = ZodbObjectHistory(self.obj)
         self.latest = True
         if 'tid' in self.request:
-            self.state = ZodbObjectState(self.obj, p64(int(self.request['tid'])))
+            self.state = ZodbObjectState(self.obj,
+                                         p64(int(self.request['tid'], 0)))
             self.latest = False
         else:
             self.state = ZodbObjectState(self.obj)
@@ -101,7 +102,7 @@ class ZodbInfoView(BrowserView):
 
     def getRequestedTidNice(self):
         if 'tid' in self.request:
-            return self._tidToTimestamp(p64(int(self.request['tid'])))
+            return self._tidToTimestamp(p64(int(self.request['tid'], 0)))
         else:
             return None
 

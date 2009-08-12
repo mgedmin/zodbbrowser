@@ -180,3 +180,13 @@ looking at an old snapshot instead of the current state
       (last change before or at YYYY-MM-DD HH:MM:SS.SSSSSS)
     </div>
 
+
+Hex OIDs
+--------
+
+It's possible to enter hex OIDs without conversion in the URL:
+
+    >>> browser.open('/@@zodbbrowser?oid=0x01')
+
+    >>> 'error' in browser.contents
+    False
