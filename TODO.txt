@@ -13,6 +13,7 @@ Features:
     a third 8 gb data.fs with 922737 transactions took 85 seconds (this is a
     newer, faster server: disk I/O at 100 megs/s instead of 8 megs/s of the
     old one)
+    [adamg: use paging???]
 - Help page in a javascripty-popup (lightbox-style)
 
 Refactorings:
