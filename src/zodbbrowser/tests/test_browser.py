@@ -2,7 +2,7 @@ import unittest
 import transaction
 import sys
 
-from ZODB.utils import u64, p64
+from ZODB.utils import u64, p64, tid_repr, oid_repr
 from zope.app.container.btree import BTreeContainer
 from zope.app.container.interfaces import IContained
 from zope.app.testing import setup
@@ -99,11 +99,13 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         self.assertEquals(view(), '')
         self.assertEquals(view.latest, True)
 
-        request = TestRequest(form={'tid': u64(ZodbObjectState(self.root).tid)})
+        tid = ZodbObjectState(self.root).tid
+        request = TestRequest(form={'tid': tid_repr(tid)})
         view = self._zodbInfoView(self.root, request)
         self.assertEquals(view.latest, False)
 
-        request = TestRequest(form={'oid': u64(self.root._p_oid)})
+        oid = self.root._p_oid
+        request = TestRequest(form={'oid': oid_repr(oid)})
         request.annotations['ZODB.interfaces.IConnection'] = self.root._p_jar
         view = self._zodbInfoView(None, request)
 
