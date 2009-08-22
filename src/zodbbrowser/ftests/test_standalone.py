@@ -239,7 +239,7 @@ def test_suite():
     this = sys.modules[__name__]
     suite = unittest.defaultTestLoader.loadTestsFromModule(this)
     checker = RENormalizing([
-        (re.compile(r'object at 0x[0-9a-f]+'), 'object at 0xXXXXXXX'),
+        (re.compile(r'object at 0x[0-9a-fA-F]+'), 'object at 0xXXXXXXX'),
         (re.compile(r'\btid[0-9]+'), 'tidXXXXXXXXXXXXXXXXXX'),
         (re.compile(r'\btid=[0-9]+'), 'tid=XXXXXXXXXXXXXXXXXX'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d[.]\d\d\d\d\d\d'),
@@ -258,4 +258,3 @@ def test_suite():
         test.layer = TestsWithServer
         suite.addTest(test)
     return suite
-

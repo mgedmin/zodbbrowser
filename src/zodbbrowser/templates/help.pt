@@ -32,8 +32,9 @@
   special paths (such as Zope's ++namespace++ syntax) are not supported.
   </p>
 
-  <p>If you know an object's OID (converted to a base-10 integer), you can
-  go directly to that object by going to <tt>@@zodbbrowser?oid=1234</tt>.
+  <p>If you know an object's OID (hex or converted to a base-10 integer), you
+  can go directly to that object by going to <tt>@@zodbbrowser?oid=1234</tt>
+  (or <tt>@@zodbbrowser?oid=0x01234</tt>).
   This is the only way to reach <a href="@@zodbbrowser?oid=0">object 0</a>,
   which is the persistent mapping at the ZODB root. </p>
 
@@ -68,4 +69,3 @@
 
 </metal:block>
 </metal:block>
-
