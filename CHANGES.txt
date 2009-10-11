@@ -1,10 +1,11 @@
 Changes
 -------
 
-0.4 (unreleased)
+0.4 (2009-10-11)
 ~~~~~~~~~~~~~~~~
 
 - @@zodbbrowser oid and tid parameters now accept values in hex format (0x0123)
+  Patch by Adam Groszer.
 
 
 0.3.1 (2009-07-17)
