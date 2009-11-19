@@ -46,12 +46,17 @@ class PersistentObject(Persistent):
     pass # we need a subclass so we get a __dict__
 
 
+class NamedSampleFolder(SampleFolder):
+    __name__ = 'sample_folder'
+
+
 class TestZodbObjectState(RealDatabaseTest):
 
     def setUp(self):
         RealDatabaseTest.setUp(self)
         provideAdapter(GenericState)
         self.obj = self.conn.root()['obj'] = SampleFolder()
+        self.named_obj = self.conn.root()['named_obj'] = NamedSampleFolder()
         transaction.commit()
 
     def testZodbObjectState(self):
@@ -61,6 +66,10 @@ class TestZodbObjectState(RealDatabaseTest):
         self.assertEquals(state.getParent(), None)
         self.assertEquals(state.getName(), '???')
         self.assertTrue('_SampleContainer__data' in state.asDict().keys())
+
+    def testNameFromClassAttribute(self):
+        state = ZodbObjectState(self.named_obj)
+        self.assertEquals(state.getName(), 'sample_folder')
 
 
 class TestLoadState(RealDatabaseTest):
@@ -111,7 +120,7 @@ class TestGenericState(unittest.TestCase):
         verifyObject(IStateInterpreter, GenericState(Frob(), {}, None))
 
     def test_getName_no_name(self):
-        self.assertEquals(GenericState(Frob(), {}, None).getName(), '???')
+        self.assertEquals(GenericState(Frob(), {}, None).getName(), None)
 
     def test_getName_with_name(self):
         state = GenericState(Frob(), {'__name__': 'xyzzy'}, None)
@@ -271,7 +280,7 @@ class TestOOBTreeState(unittest.TestCase):
         verifyObject(IStateInterpreter, self.state)
 
     def test_getName(self):
-        self.assertEquals(self.state.getName(), '???')
+        self.assertEquals(self.state.getName(), None)
 
     def test_getParent(self):
         self.assertEquals(self.state.getParent(), None)
@@ -322,7 +331,7 @@ class TestEmptyOOBTreeState(unittest.TestCase):
         verifyObject(IStateInterpreter, self.state)
 
     def test_getName(self):
-        self.assertEquals(self.state.getName(), '???')
+        self.assertEquals(self.state.getName(), None)
 
     def test_getParent(self):
         self.assertEquals(self.state.getParent(), None)
@@ -378,7 +387,7 @@ class TestFallbackState(unittest.TestCase):
         verifyObject(IStateInterpreter, self.state)
 
     def test_getName(self):
-        self.assertEquals(self.state.getName(), '???')
+        self.assertEquals(self.state.getName(), None)
 
     def test_getParent(self):
         self.assertEquals(self.state.getParent(), None)

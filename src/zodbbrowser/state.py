@@ -76,7 +76,14 @@ class ZodbObjectState(object):
         return self.state.getParent()
 
     def getName(self):
-        return self.state.getName()
+        name = self.state.getName()
+        if name is None:
+            # __name__ is not in the pickled state, but it may be defined
+            # via other means (e.g. class attributes, custom __getattr__ etc.)
+            name = getattr(self.obj, '__name__', None)
+        if not name:
+            name = '???'
+        return name
 
     def asDict(self):
         return self.state.asDict()
@@ -107,7 +114,7 @@ class GenericState(object):
         self.tid = tid
 
     def getName(self):
-        return self.state.get('__name__', '???')
+        return self.state.get('__name__')
 
     def getParent(self):
         parent = self.state.get('__parent__')
@@ -141,7 +148,7 @@ class OOBTreeState(object):
             bucket.__setstate__(state)
 
     def getName(self):
-        return '???'
+        return None
 
     def getParent(self):
         return None
@@ -245,7 +252,7 @@ class FallbackState(object):
         self.state = state
 
     def getName(self):
-        return '???'
+        return None
 
     def getParent(self):
         return None
