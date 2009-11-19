@@ -17,6 +17,19 @@ class Frob(object):
     pass
 
 
+class UnexpectedArbitraryError(Exception):
+    pass
+
+
+class ExplodingLen(object):
+
+    def __repr__(self):
+        return '<ExplodingLen>'
+
+    def __len__(self):
+        raise UnexpectedArbitraryError
+
+
 class PersistentFrob(Persistent):
     _p_oid = p64(23)
 
@@ -66,6 +79,11 @@ class TestGenericValue(unittest.TestCase):
     def test_conteinerish_things_and_truncation(self):
         self.assertEquals(GenericValue([1, 2, 3]).render(limit=3),
                           '[1,<span class="truncated">...</span> (3 items)')
+
+    def test_conteinerish_things_do_not_explode(self):
+        self.assertEquals(GenericValue(ExplodingLen()).render(),
+                          '&lt;ExplodingLen&gt;')
+
 
 
 class TestTupleValue(unittest.TestCase):

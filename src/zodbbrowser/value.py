@@ -29,7 +29,7 @@ class GenericValue(object):
         if not isinstance(self.context, basestring):
             try:
                 n = len(self.context)
-            except TypeError:
+            except Exception:
                 pass
             else:
                 if n == 1: # this is a crime against i18n, but oh well
