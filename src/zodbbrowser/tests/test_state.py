@@ -19,6 +19,7 @@ from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.state import (GenericState,
                                EmptyOOBTreeState,
                                FolderState,
+                               OOBTreeHistory,
                                OOBTreeState,
                                OrderedContainerState,
                                BTreeContainerState,
@@ -332,6 +333,27 @@ class TestLargeOOBTreeState(RealDatabaseTest):
     def test_historical_state(self):
         state = self.getState(self.tids[-1])
         self.assertEquals(sum(state.asDict().values()), -1000)
+
+
+class TestLargeOOBTreeHistory(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        provideAdapter(OOBTreeHistory)
+        self.tree = self.conn.root()['tree'] = OOBTree()
+        for i in range(0, 100):
+            self.tree[i] = i
+            transaction.commit()
+
+    def getState(self, tid):
+        state = _loadState(self.tree, tid).state
+        return OOBTreeState(self.tree, state, tid)
+
+    def test_full_history(self):
+        tids = [d['tid'] for d in IObjectHistory(self.tree)][::-1]
+        for i in range(0, 100):
+            state = self.getState(tids[i])
+            self.assertEquals(len(state.asDict()), i + 1)
 
 
 class TestEmptyOOBTreeState(unittest.TestCase):

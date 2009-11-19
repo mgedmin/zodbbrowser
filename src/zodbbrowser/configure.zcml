@@ -4,6 +4,7 @@
   <include file="browser.zcml" />
 
   <adapter factory=".history.ZodbObjectHistory" />
+  <adapter factory=".state.OOBTreeHistory" />
 
   <adapter factory=".value.GenericValue" />
   <adapter factory=".value.TupleValue" />

@@ -27,6 +27,7 @@ except ImportError:
     from zope.app.container.ordered import OrderedContainer # BBB
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+from zodbbrowser.history import ZodbObjectHistory
 
 
 class LoadedState(object):
@@ -38,11 +39,15 @@ class LoadedState(object):
 def _loadState(obj, tid=None):
     """Load (old) state of a Persistent object."""
     # sadly ZODB has no API for get revision at or before tid
-    history = IObjectHistory(obj)
+    history = ZodbObjectHistory(obj)
     for record in history:
         if tid is None or record['tid'] <= tid:
             result = LoadedState()
-            result.state = obj._p_jar.oldstate(obj, record['tid']);
+            try:
+                result.state = obj._p_jar.oldstate(obj, record['tid']);
+            except:
+                import pdb; pdb.set_trace()
+                raise
             result.tid = record['tid']
             return result
     raise Exception('%r did not exist in or before transaction %r' %
@@ -131,6 +136,35 @@ class GenericState(object):
         return self.state
 
 
+class OOBTreeHistory(ZodbObjectHistory):
+    adapts(OOBTree)
+    implements(IObjectHistory)
+
+    def _load(self):
+        # find all objects (tree and buckets) that have ever participated in
+        # this OOBTree
+        queue = [self.obj]
+        seen = set(self.obj._p_oid)
+        history_of = {}
+        while queue:
+            obj = queue.pop(0)
+            history = history_of[obj._p_oid] = ZodbObjectHistory(obj).history
+            for d in history:
+                state = obj._p_jar.oldstate(obj, d['tid'])
+                if state and len(state) > 1:
+                    bucket = state[1]
+                    if bucket._p_oid not in seen:
+                        queue.append(bucket)
+                        seen.add(bucket._p_oid)
+        # merge the histories of all objects
+        by_tid = {}
+        for h in history_of.values():
+            for d in h:
+                by_tid.setdefault(d['tid'], d)
+        self.history = by_tid.values()
+        self.history.sort(key=lambda d: d['tid'], reverse=True)
+
+
 class OOBTreeState(object):
     """Non-empty OOBTrees have a complicated tuple structure."""
     adapts(OOBTree, tuple, None)
@@ -139,8 +173,10 @@ class OOBTreeState(object):
     def __init__(self, type, state, tid):
         self.btree = OOBTree()
         self.btree.__setstate__(state)
+        self.state = state
         # Large btrees have more than one bucket; we have to load old states
-        # to all of them
+        # to all of them.  See BTreeTemplate.c and BucketTemplate.c for
+        # docs of the pickled state format.
         while state and len(state) > 1:
             bucket = state[1]
             state = _loadState(bucket, tid=tid).state
@@ -156,10 +192,15 @@ class OOBTreeState(object):
         return None
 
     def listItems(self):
-        return self.btree.items()
+        # make a copy, since we may be calling self.btree.__setstate__
+        # before caller looks at the list
+        return list(self.btree.items())
 
     def asDict(self):
-        return self.btree # it's dict-like enough
+        # make a copy, since we may be calling self.btree.__setstate__
+        # before caller looks into the dict! e.g. when comparing two
+        # state revisions
+        return dict(self.btree)
 
 
 class EmptyOOBTreeState(OOBTreeState):
