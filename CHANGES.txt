@@ -4,6 +4,9 @@ Changes
 0.5 (unreleased)
 ~~~~~~~~~~~~~~~~
 
+- Change background color of links on hover, to make it clear what
+  object you'll see when you click, especially when the __repr__ shown
+  contains reprs of subobjects.
 - Show size of containers next to their representation, e.g.
   "<persistent.dict.PersistentDict object at 0xad0b3ec> (0 items)".
 - Pay attention when __name__ is declared as a class attribute (LP#484899).
