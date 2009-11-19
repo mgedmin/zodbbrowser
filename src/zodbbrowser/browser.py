@@ -237,7 +237,7 @@ class ZodbInfoView(BrowserView):
         """List transactions that modified a persistent object."""
         results = []
 
-        for n, d in enumerate(self.history.history):
+        for n, d in enumerate(self.history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
                                        time.localtime(d['time']))) + " "
                      + d['user_name'] + " "
