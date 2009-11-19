@@ -1,6 +1,13 @@
 Changes
 -------
 
+0.5 (unreleased)
+~~~~~~~~~~~~~~~~
+
+- Show size of containers next to their representation, e.g.
+  "<persistent.dict.PersistentDict object at 0xad0b3ec> (0 items)".
+
+
 0.4 (2009-10-11)
 ~~~~~~~~~~~~~~~~
 

@@ -26,6 +26,16 @@ class GenericValue(object):
             text = escape(text[:limit]) + '<span class="truncated">...</span>'
         else:
             text = escape(text)
+        if not isinstance(self.context, basestring):
+            try:
+                n = len(self.context)
+            except TypeError:
+                pass
+            else:
+                if n == 1: # this is a crime against i18n, but oh well
+                    text += ' (%d item)' % n
+                else:
+                    text += ' (%d items)' % n
         return text
 
 
