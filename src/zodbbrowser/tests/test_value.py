@@ -55,6 +55,18 @@ class TestGenericValue(unittest.TestCase):
         self.assertEquals(GenericValue('a very long string').render(limit=10),
                           """'a very lo<span class="truncated">...</span>""")
 
+    def test_conteinerish_things(self):
+        self.assertEquals(GenericValue([1, 2, 3]).render(),
+                          "[1, 2, 3] (3 items)")
+        self.assertEquals(GenericValue([1]).render(),
+                          "[1] (1 item)")
+        self.assertEquals(GenericValue([]).render(),
+                          "[] (0 items)")
+
+    def test_conteinerish_things_and_truncation(self):
+        self.assertEquals(GenericValue([1, 2, 3]).render(limit=3),
+                          '[1,<span class="truncated">...</span> (3 items)')
+
 
 class TestTupleValue(unittest.TestCase):
 
