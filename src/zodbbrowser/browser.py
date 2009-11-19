@@ -14,9 +14,8 @@ from persistent.TimeStamp import TimeStamp
 import simplejson
 
 from zodbbrowser import __version__, __homepage__
-from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IObjectHistory, IValueRenderer
 from zodbbrowser.state import ZodbObjectState
-from zodbbrowser.value import IValueRenderer
 from zodbbrowser.diff import compareDictsHTML
 
 
@@ -75,7 +74,7 @@ class ZodbInfoView(BrowserView):
             jar = self.jar()
             self.obj = jar.get(oid)
 
-        self.history = ZodbObjectHistory(self.obj)
+        self.history = IObjectHistory(self.obj)
         self.latest = True
         if 'tid' in self.request:
             self.state = ZodbObjectState(self.obj,

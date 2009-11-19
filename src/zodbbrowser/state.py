@@ -26,8 +26,7 @@ try:
 except ImportError:
     from zope.app.container.ordered import OrderedContainer # BBB
 
-from zodbbrowser.interfaces import IStateInterpreter
-from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 
 
 class LoadedState(object):
@@ -39,7 +38,7 @@ class LoadedState(object):
 def _loadState(obj, tid=None):
     """Load (old) state of a Persistent object."""
     # sadly ZODB has no API for get revision at or before tid
-    history = ZodbObjectHistory(obj)
+    history = IObjectHistory(obj)
     for record in history:
         if tid is None or record['tid'] <= tid:
             result = LoadedState()

@@ -14,7 +14,7 @@ from zope.interface import implements
 from zope.traversing.interfaces import IContainmentRoot
 from zope.component import provideAdapter
 
-from zodbbrowser.interfaces import IStateInterpreter
+from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.state import (GenericState,
                                EmptyOOBTreeState,
@@ -55,6 +55,7 @@ class TestZodbObjectState(RealDatabaseTest):
     def setUp(self):
         RealDatabaseTest.setUp(self)
         provideAdapter(GenericState)
+        provideAdapter(ZodbObjectHistory)
         self.obj = self.conn.root()['obj'] = SampleFolder()
         self.named_obj = self.conn.root()['named_obj'] = NamedSampleFolder()
         transaction.commit()
@@ -76,6 +77,7 @@ class TestLoadState(RealDatabaseTest):
 
     def setUp(self):
         RealDatabaseTest.setUp(self)
+        provideAdapter(ZodbObjectHistory)
         root = self.conn.root()
         self.adam = root['adam'] = PersistentObject()
         transaction.commit()
@@ -95,17 +97,17 @@ class TestLoadState(RealDatabaseTest):
         self.assertEquals(state, dict(laptop='ThinkPad T61'))
 
     def test_exact_state(self):
-        tid = ZodbObjectHistory(self.adam)[1]['tid']
+        tid = IObjectHistory(self.adam)[1]['tid']
         state = _loadState(self.adam, tid).state
         self.assertEquals(state, dict(laptop='ThinkPad T42'))
 
     def test_earlier_state(self):
-        tid = ZodbObjectHistory(self.eve)[0]['tid']
+        tid = IObjectHistory(self.eve)[0]['tid']
         state = _loadState(self.adam, tid).state
         self.assertEquals(state, dict(laptop='ThinkPad T23'))
 
     def test_error_handling(self):
-        tid = ZodbObjectHistory(self.adam)[-1]['tid']
+        tid = IObjectHistory(self.adam)[-1]['tid']
         try:
             _loadState(self.eve, tid).state
         except Exception, e:
@@ -115,6 +117,9 @@ class TestLoadState(RealDatabaseTest):
 
 
 class TestGenericState(unittest.TestCase):
+
+    def setUp(self):
+        provideAdapter(ZodbObjectHistory)
 
     def test_interface_compliance(self):
         verifyObject(IStateInterpreter, GenericState(Frob(), {}, None))
@@ -158,6 +163,7 @@ class TestGenericStateWithHistory(RealDatabaseTest):
         transaction.commit()
         self.foo.__name__ = 'new'
         transaction.commit()
+        provideAdapter(ZodbObjectHistory)
 
     def test_getParent_no_tid(self):
         state = GenericState(self.bar, {'__parent__': self.foo}, None)
@@ -180,6 +186,7 @@ class TestOrderedContainerState(RealDatabaseTest):
         transaction.commit()
         self.state = OrderedContainerState(None, self.container.__getstate__(),
                                            None)
+        provideAdapter(ZodbObjectHistory)
 
     def test_listItems(self):
         self.assertEquals(list(self.state.listItems()),
@@ -192,6 +199,7 @@ class TestFolderState(RealDatabaseTest):
         setup.placelessSetUp()
         RealDatabaseTest.setUp(self)
         provideAdapter(OOBTreeState)
+        provideAdapter(ZodbObjectHistory)
         self.folder = self.conn.root()['folder'] = Folder()
         self.folder['foo'] = 1
         self.folder['bar'] = 2
@@ -218,6 +226,7 @@ class TestSampleContainerState(RealDatabaseTest):
         setup.placelessSetUp()
         RealDatabaseTest.setUp(self)
         provideAdapter(OOBTreeState)
+        provideAdapter(ZodbObjectHistory)
         self.container = self.conn.root()['container'] = BTreeContainer()
         self.container['foo'] = 1
         self.container['bar'] = 2
@@ -245,6 +254,7 @@ class TestBTreeContainerState(RealDatabaseTest):
         setup.placelessSetUp()
         RealDatabaseTest.setUp(self)
         provideAdapter(OOBTreeState)
+        provideAdapter(ZodbObjectHistory)
         self.container = self.conn.root()['container'] = BTreeContainer()
         self.container['foo'] = 1
         self.container['bar'] = 2
@@ -275,6 +285,7 @@ class TestOOBTreeState(unittest.TestCase):
         tree[3] = 17
         state = tree.__getstate__()
         self.state = EmptyOOBTreeState(None, state, None)
+        provideAdapter(ZodbObjectHistory)
 
     def test_interface_compliance(self):
         verifyObject(IStateInterpreter, self.state)
@@ -307,7 +318,8 @@ class TestLargeOOBTreeState(RealDatabaseTest):
         for i in range(0, 1000, 2):
             self.tree[i] = 1
         transaction.commit()
-        self.tids = [d['tid'] for d in ZodbObjectHistory(self.tree)]
+        provideAdapter(ZodbObjectHistory)
+        self.tids = [d['tid'] for d in IObjectHistory(self.tree)]
 
     def getState(self, tid):
         state = _loadState(self.tree, tid).state

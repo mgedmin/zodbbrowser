@@ -3,6 +3,8 @@
 
   <include file="browser.zcml" />
 
+  <adapter factory=".history.ZodbObjectHistory" />
+
   <adapter factory=".value.GenericValue" />
   <adapter factory=".value.TupleValue" />
   <adapter factory=".value.ListValue" />

@@ -1,6 +1,30 @@
 from zope.interface import Interface
 
 
+class IObjectHistory(Interface):
+    """History of persistent object state.
+
+    Adapt a persistent object to IObjectHistory.
+    """
+
+    def __len__(self):
+        """Return the number of history records."""
+
+    def __getitem__(self, n):
+        """Return n-th history record.
+
+        Records are ordered by age, from latest (index 0) to oldest.
+
+        Each record is a dictonary with at least the following items:
+
+            tid -- transaction ID (a byte string, usually 8 bytes)
+            time -- transaction timestamp (Unix time_t value)
+            user_name -- name of the user responsible for the change
+            description -- short description (often a URL)
+
+        """
+
+
 class IValueRenderer(Interface):
     """Renderer of attribute values."""
 

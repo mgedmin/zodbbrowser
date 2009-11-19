@@ -13,6 +13,7 @@ from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
+from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 
 from realdb import RealDatabaseTest
@@ -92,6 +93,7 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         self.root['root']['item'] = PersistentStub()
         transaction.commit()
         provideAdapter(GenericState)
+        provideAdapter(ZodbObjectHistory)
 
     def testCall(self):
         request = TestRequest()

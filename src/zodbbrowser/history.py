@@ -1,9 +1,17 @@
 import inspect
 
+from persistent import Persistent
 from zope.proxy import removeAllProxies
+from zope.interface import implements
+from zope.component import adapts
+
+from zodbbrowser.interfaces import IObjectHistory
 
 
 class ZodbObjectHistory(object):
+
+    adapts(Persistent)
+    implements(IObjectHistory)
 
     def __init__(self, obj):
         self.obj = removeAllProxies(obj)
