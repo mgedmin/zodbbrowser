@@ -12,14 +12,16 @@
   <adapter factory=".value.PersistentValue" />
 
   <adapter factory=".state.GenericState" />
-  <adapter factory=".state.OOBTreeState" />
-  <adapter factory=".state.EmptyOOBTreeState" />
   <adapter factory=".state.PersistentDictState" />
   <adapter factory=".state.PersistentMappingState" />
-  <adapter factory=".state.FolderState" />
   <adapter factory=".state.SampleContainerState" />
-  <adapter factory=".state.BTreeContainerState" />
   <adapter factory=".state.OrderedContainerState" />
   <adapter factory=".state.FallbackState" />
+
+  <adapter factory=".btreesupport.OOBTreeHistory" />
+  <adapter factory=".btreesupport.OOBTreeState" />
+  <adapter factory=".btreesupport.EmptyOOBTreeState" />
+  <adapter factory=".btreesupport.FolderState" />
+  <adapter factory=".btreesupport.BTreeContainerState" />
 
 </configure>

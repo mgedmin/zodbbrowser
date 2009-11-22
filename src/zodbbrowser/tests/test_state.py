@@ -2,31 +2,25 @@ import unittest
 import sys
 
 import transaction
-from BTrees.OOBTree import OOBTree
 from persistent import Persistent
-from zope.app.folder import Folder
-from zope.app.container.sample import SampleContainer
-from zope.app.container.btree import BTreeContainer
+from persistent.dict import PersistentDict
 from zope.app.container.ordered import OrderedContainer
-from zope.app.testing import setup
+from zope.app.container.sample import SampleContainer
 from zope.interface.verify import verifyObject
 from zope.interface import implements
 from zope.traversing.interfaces import IContainmentRoot
 from zope.component import provideAdapter
+from zope.app.testing import setup
 
-from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.history import ZodbObjectHistory
-from zodbbrowser.state import (GenericState,
-                               EmptyOOBTreeState,
-                               FolderState,
-                               OOBTreeState,
-                               OrderedContainerState,
-                               BTreeContainerState,
+from zodbbrowser.state import (ZodbObjectState,
+                               GenericState,
                                PersistentDictState,
                                PersistentMappingState,
                                SampleContainerState,
-                               FallbackState,
-                               ZodbObjectState, _loadState)
+                               OrderedContainerState,
+                               FallbackState)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 
@@ -39,7 +33,9 @@ class Root(Persistent, SampleContainer):
 
 
 class SampleFolder(Persistent, SampleContainer):
-    pass
+
+    def _newContainerData(self):
+        return PersistentDict()
 
 
 class PersistentObject(Persistent):
@@ -53,12 +49,17 @@ class NamedSampleFolder(SampleFolder):
 class TestZodbObjectState(RealDatabaseTest):
 
     def setUp(self):
-        RealDatabaseTest.setUp(self)
+        setup.placelessSetUp()
         provideAdapter(GenericState)
         provideAdapter(ZodbObjectHistory)
+        RealDatabaseTest.setUp(self)
         self.obj = self.conn.root()['obj'] = SampleFolder()
         self.named_obj = self.conn.root()['named_obj'] = NamedSampleFolder()
         transaction.commit()
+
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
 
     def testZodbObjectState(self):
         state = ZodbObjectState(self.obj)
@@ -73,53 +74,14 @@ class TestZodbObjectState(RealDatabaseTest):
         self.assertEquals(state.getName(), 'sample_folder')
 
 
-class TestLoadState(RealDatabaseTest):
-
-    def setUp(self):
-        RealDatabaseTest.setUp(self)
-        provideAdapter(ZodbObjectHistory)
-        root = self.conn.root()
-        self.adam = root['adam'] = PersistentObject()
-        transaction.commit()
-        self.eve = root['eve'] = PersistentObject()
-        transaction.commit()
-        self.adam.laptop = 'ThinkPad T23'
-        transaction.commit()
-        self.eve.laptop = 'MacBook'
-        transaction.commit()
-        self.adam.laptop = 'ThinkPad T42'
-        transaction.commit()
-        self.adam.laptop = 'ThinkPad T61'
-        transaction.commit()
-
-    def test_latest_state(self):
-        state = _loadState(self.adam).state
-        self.assertEquals(state, dict(laptop='ThinkPad T61'))
-
-    def test_exact_state(self):
-        tid = IObjectHistory(self.adam)[1]['tid']
-        state = _loadState(self.adam, tid).state
-        self.assertEquals(state, dict(laptop='ThinkPad T42'))
-
-    def test_earlier_state(self):
-        tid = IObjectHistory(self.eve)[0]['tid']
-        state = _loadState(self.adam, tid).state
-        self.assertEquals(state, dict(laptop='ThinkPad T23'))
-
-    def test_error_handling(self):
-        tid = IObjectHistory(self.adam)[-1]['tid']
-        try:
-            _loadState(self.eve, tid).state
-        except Exception, e:
-            self.assertTrue("did not exist in or before" in str(e))
-        else:
-            self.fail("did not raise")
-
-
 class TestGenericState(unittest.TestCase):
 
     def setUp(self):
+        setup.placelessSetUp()
         provideAdapter(ZodbObjectHistory)
+
+    def tearDown(self):
+        setup.placelessTearDown()
 
     def test_interface_compliance(self):
         verifyObject(IStateInterpreter, GenericState(Frob(), {}, None))
@@ -156,6 +118,8 @@ class TestGenericState(unittest.TestCase):
 class TestGenericStateWithHistory(RealDatabaseTest):
 
     def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(ZodbObjectHistory)
         RealDatabaseTest.setUp(self)
         self.root = self.conn.root()['root'] = Root()
         self.foo = self.root['foo'] = SampleFolder()
@@ -163,7 +127,10 @@ class TestGenericStateWithHistory(RealDatabaseTest):
         transaction.commit()
         self.foo.__name__ = 'new'
         transaction.commit()
-        provideAdapter(ZodbObjectHistory)
+
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
 
     def test_getParent_no_tid(self):
         state = GenericState(self.bar, {'__parent__': self.foo}, None)
@@ -174,188 +141,6 @@ class TestGenericStateWithHistory(RealDatabaseTest):
         tid = self.bar._p_serial
         state = GenericState(self.bar, {'__parent__': self.foo}, tid)
         self.assertEquals(state.getParent().__name__, 'foo')
-
-
-class TestOrderedContainerState(RealDatabaseTest):
-
-    def setUp(self):
-        RealDatabaseTest.setUp(self)
-        self.container = self.conn.root()['container'] = OrderedContainer()
-        self.container['foo'] = 1
-        self.container['bar'] = 2
-        transaction.commit()
-        self.state = OrderedContainerState(None, self.container.__getstate__(),
-                                           None)
-        provideAdapter(ZodbObjectHistory)
-
-    def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()),
-                          [('foo', 1), ('bar', 2)])
-
-
-class TestFolderState(RealDatabaseTest):
-
-    def setUp(self):
-        setup.placelessSetUp()
-        RealDatabaseTest.setUp(self)
-        provideAdapter(OOBTreeState)
-        provideAdapter(ZodbObjectHistory)
-        self.folder = self.conn.root()['folder'] = Folder()
-        self.folder['foo'] = 1
-        self.folder['bar'] = 2
-        transaction.commit()
-        self.state = FolderState(None, self.folder.__getstate__(),
-                                 None)
-
-    def tearDown(self):
-        RealDatabaseTest.tearDown(self)
-        setup.placelessTearDown()
-
-    def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()),
-                          [('bar', 2), ('foo', 1)])
-
-    def test_listItems_no_data(self):
-        state = FolderState(None, Folder().__getstate__(), None)
-        self.assertEquals(list(state.listItems()), []);
-
-
-class TestSampleContainerState(RealDatabaseTest):
-
-    def setUp(self):
-        setup.placelessSetUp()
-        RealDatabaseTest.setUp(self)
-        provideAdapter(OOBTreeState)
-        provideAdapter(ZodbObjectHistory)
-        self.container = self.conn.root()['container'] = BTreeContainer()
-        self.container['foo'] = 1
-        self.container['bar'] = 2
-        transaction.commit()
-        self.state = SampleContainerState(None, self.container.__getstate__(),
-                                          None)
-
-    def tearDown(self):
-        RealDatabaseTest.tearDown(self)
-        setup.placelessTearDown()
-
-    def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()),
-                          [('bar', 2), ('foo', 1)])
-
-    def test_listItems_no_data(self):
-        state = SampleContainerState(None, BTreeContainer().__getstate__(),
-                                     None)
-        self.assertEquals(list(state.listItems()), []);
-
-
-class TestBTreeContainerState(RealDatabaseTest):
-
-    def setUp(self):
-        setup.placelessSetUp()
-        RealDatabaseTest.setUp(self)
-        provideAdapter(OOBTreeState)
-        provideAdapter(ZodbObjectHistory)
-        self.container = self.conn.root()['container'] = BTreeContainer()
-        self.container['foo'] = 1
-        self.container['bar'] = 2
-        transaction.commit()
-        self.state = BTreeContainerState(None, self.container.__getstate__(),
-                                         None)
-
-    def tearDown(self):
-        RealDatabaseTest.tearDown(self)
-        setup.placelessTearDown()
-
-    def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()),
-                          [('bar', 2), ('foo', 1)])
-
-    def test_listItems_no_data(self):
-        state = BTreeContainerState(None, BTreeContainer().__getstate__(),
-                                    None)
-        self.assertEquals(list(state.listItems()), []);
-
-
-class TestOOBTreeState(unittest.TestCase):
-
-    def setUp(self):
-        tree = OOBTree()
-        tree[1] = 42
-        tree[2] = 23
-        tree[3] = 17
-        state = tree.__getstate__()
-        self.state = EmptyOOBTreeState(None, state, None)
-        provideAdapter(ZodbObjectHistory)
-
-    def test_interface_compliance(self):
-        verifyObject(IStateInterpreter, self.state)
-
-    def test_getName(self):
-        self.assertEquals(self.state.getName(), None)
-
-    def test_getParent(self):
-        self.assertEquals(self.state.getParent(), None)
-
-    def test_listAttributes(self):
-        self.assertEquals(self.state.listAttributes(), None)
-
-    def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()),
-                          [(1, 42), (2, 23), (3, 17)])
-
-    def test_asDict(self):
-        self.assertEquals(dict(self.state.asDict()), {1: 42, 2: 23, 3: 17})
-
-
-class TestLargeOOBTreeState(RealDatabaseTest):
-
-    def setUp(self):
-        RealDatabaseTest.setUp(self)
-        self.tree = self.conn.root()['tree'] = OOBTree()
-        for i in range(0, 1000):
-            self.tree[i] = -1
-        transaction.commit()
-        for i in range(0, 1000, 2):
-            self.tree[i] = 1
-        transaction.commit()
-        provideAdapter(ZodbObjectHistory)
-        self.tids = [d['tid'] for d in IObjectHistory(self.tree)]
-
-    def getState(self, tid):
-        state = _loadState(self.tree, tid).state
-        return OOBTreeState(self.tree, state, tid)
-
-    def test_current_state(self):
-        state = self.getState(None)
-        self.assertEquals(sum(state.asDict().values()), 0)
-
-    def test_historical_state(self):
-        state = self.getState(self.tids[-1])
-        self.assertEquals(sum(state.asDict().values()), -1000)
-
-
-class TestEmptyOOBTreeState(unittest.TestCase):
-
-    def setUp(self):
-        self.state = EmptyOOBTreeState(None, None, None)
-
-    def test_interface_compliance(self):
-        verifyObject(IStateInterpreter, self.state)
-
-    def test_getName(self):
-        self.assertEquals(self.state.getName(), None)
-
-    def test_getParent(self):
-        self.assertEquals(self.state.getParent(), None)
-
-    def test_listAttributes(self):
-        self.assertEquals(self.state.listAttributes(), None)
-
-    def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()), [])
-
-    def test_asDict(self):
-        self.assertEquals(dict(self.state.asDict()), {})
 
 
 class TestPersistentDictSate(unittest.TestCase):
@@ -388,6 +173,56 @@ class TestPersistentMappingSate(unittest.TestCase):
         # of crashing
         state = PersistentMappingState(Frob(), {}, None)
         self.assertEquals(state.listItems(), [])
+
+
+class TestSampleContainerState(RealDatabaseTest):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(ZodbObjectHistory)
+        provideAdapter(PersistentDictState)
+        RealDatabaseTest.setUp(self)
+        self.container = self.conn.root()['container'] = SampleFolder()
+        self.container['foo'] = 1
+        self.container['bar'] = 2
+        transaction.commit()
+        self.state = SampleContainerState(None, self.container.__getstate__(),
+                                          None)
+
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()),
+                          [('bar', 2), ('foo', 1)])
+
+    def test_listItems_no_data(self):
+        state = SampleContainerState(None, SampleFolder().__getstate__(),
+                                     None)
+        self.assertEquals(list(state.listItems()), [])
+
+
+class TestOrderedContainerState(RealDatabaseTest):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(ZodbObjectHistory)
+        RealDatabaseTest.setUp(self)
+        self.container = self.conn.root()['container'] = OrderedContainer()
+        self.container['foo'] = 1
+        self.container['bar'] = 2
+        transaction.commit()
+        self.state = OrderedContainerState(None, self.container.__getstate__(),
+                                           None)
+
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()),
+                          [('foo', 1), ('bar', 2)])
 
 
 class TestFallbackState(unittest.TestCase):

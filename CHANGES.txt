@@ -4,6 +4,7 @@ Changes
 0.5 (unreleased)
 ~~~~~~~~~~~~~~~~
 
+- Show full history of OOBTree objects and subobjects (LP#474334).
 - Change background color of links on hover, to make it clear what
   object you'll see when you click, especially when the __repr__ shown
   contains reprs of subobjects.

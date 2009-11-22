@@ -7,10 +7,10 @@ class IObjectHistory(Interface):
     Adapt a persistent object to IObjectHistory.
     """
 
-    def __len__(self):
+    def __len__():
         """Return the number of history records."""
 
-    def __getitem__(self, n):
+    def __getitem__(n):
         """Return n-th history record.
 
         Records are ordered by age, from latest (index 0) to oldest.
@@ -22,6 +22,22 @@ class IObjectHistory(Interface):
             user_name -- name of the user responsible for the change
             description -- short description (often a URL)
 
+        """
+
+    def lastChange(tid=None):
+        """Return the last transaction at or before tid.
+
+        If tid is not specified, returns the very last transaction that
+        modified this object.
+
+        Will raise KeyError if object did not exist before the given
+        transaction.
+        """
+
+    def loadState(tid=None):
+        """Load and return the object's historical state at or before tid.
+
+        Returns the unpicked state, not an actual persistent object.
         """
 
 
