@@ -128,8 +128,8 @@ div.object .truncated {
   -moz-border-radius: 1px;
 }
 
-div.object a:hover,
-div.object a:active {
+a.objlink:hover,
+a.objlink:active {
   background: #aaf;
   color: white;
   text-decoration: none;
