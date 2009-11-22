@@ -1,4 +1,3 @@
-from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.mapping import PersistentMapping
@@ -10,23 +9,15 @@ from ZODB.utils import tid_repr, u64
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
-    from zope.container.folder import Folder
-except ImportError:
-    from zope.app.folder import Folder # BBB
-try:
     from zope.container.sample import SampleContainer
 except ImportError:
     from zope.app.container.sample import SampleContainer # BBB
-try:
-    from zope.container.btree import BTreeContainer
-except ImportError:
-    from zope.app.container.btree import BTreeContainer # BBB
 try:
     from zope.container.ordered import OrderedContainer
 except ImportError:
     from zope.app.container.ordered import OrderedContainer # BBB
 
-from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.history import ZodbObjectHistory
 
 
@@ -136,79 +127,6 @@ class GenericState(object):
         return self.state
 
 
-class OOBTreeHistory(ZodbObjectHistory):
-    adapts(OOBTree)
-    implements(IObjectHistory)
-
-    def _load(self):
-        # find all objects (tree and buckets) that have ever participated in
-        # this OOBTree
-        queue = [self.obj]
-        seen = set(self.obj._p_oid)
-        history_of = {}
-        while queue:
-            obj = queue.pop(0)
-            history = history_of[obj._p_oid] = ZodbObjectHistory(obj).history
-            for d in history:
-                state = obj._p_jar.oldstate(obj, d['tid'])
-                if state and len(state) > 1:
-                    bucket = state[1]
-                    if bucket._p_oid not in seen:
-                        queue.append(bucket)
-                        seen.add(bucket._p_oid)
-        # merge the histories of all objects
-        by_tid = {}
-        for h in history_of.values():
-            for d in h:
-                by_tid.setdefault(d['tid'], d)
-        self.history = by_tid.values()
-        self.history.sort(key=lambda d: d['tid'], reverse=True)
-
-
-class OOBTreeState(object):
-    """Non-empty OOBTrees have a complicated tuple structure."""
-    adapts(OOBTree, tuple, None)
-    implements(IStateInterpreter)
-
-    def __init__(self, type, state, tid):
-        self.btree = OOBTree()
-        self.btree.__setstate__(state)
-        self.state = state
-        # Large btrees have more than one bucket; we have to load old states
-        # to all of them.  See BTreeTemplate.c and BucketTemplate.c for
-        # docs of the pickled state format.
-        while state and len(state) > 1:
-            bucket = state[1]
-            state = _loadState(bucket, tid=tid).state
-            bucket.__setstate__(state)
-
-    def getName(self):
-        return None
-
-    def getParent(self):
-        return None
-
-    def listAttributes(self):
-        return None
-
-    def listItems(self):
-        # make a copy, since we may be calling self.btree.__setstate__
-        # before caller looks at the list
-        return list(self.btree.items())
-
-    def asDict(self):
-        # make a copy, since we may be calling self.btree.__setstate__
-        # before caller looks into the dict! e.g. when comparing two
-        # state revisions
-        return dict(self.btree)
-
-
-class EmptyOOBTreeState(OOBTreeState):
-    """Empty OOBTrees pickle to None."""
-    adapts(OOBTree, type(None), None)
-    implements(IStateInterpreter)
-
-
 class PersistentDictState(GenericState):
     """Convenient access to a persistent dict's items."""
     adapts(PersistentDict, dict, None)
@@ -225,20 +143,6 @@ class PersistentMappingState(GenericState):
         return sorted(self.state.get('data', {}).items())
 
 
-class FolderState(GenericState):
-    """Convenient access to a Folder's items"""
-    adapts(Folder, dict, None)
-
-    def listItems(self):
-        data = self.state.get('data')
-        if not data:
-            return []
-        # data will be an OOBTree
-        loadedstate = _loadState(data, tid=self.tid).state
-        return getMultiAdapter((data, loadedstate, self.tid),
-                               IStateInterpreter).listItems()
-
-
 class SampleContainerState(GenericState):
     """Convenient access to a SampleContainer's items"""
     adapts(SampleContainer, dict, None)
@@ -247,23 +151,10 @@ class SampleContainerState(GenericState):
         data = self.state.get('_SampleContainer__data')
         if not data:
             return []
-        # data will be a PersistentDict
-        loadedstate = _loadState(data, tid=self.tid).state
-        return getMultiAdapter((data, loadedstate, self.tid),
-                               IStateInterpreter).listItems()
-
-
-class BTreeContainerState(GenericState):
-    """Convenient access to a BTreeContainer's items"""
-    adapts(BTreeContainer, dict, None)
-
-    def listItems(self):
-        # This is not a typo; BTreeContainer really uses
-        # _SampleContainer__data, for BBB
-        data = self.state.get('_SampleContainer__data')
-        if not data:
-            return []
-        # data will be an OOBTree
+        # data will be something persistent, maybe a PersistentDict, maybe a
+        # OOBTree -- SampleContainer itself uses a plain Python dict, but
+        # subclasses are supposed to overwrite the _newContainerData() method
+        # and use something persistent.
         loadedstate = _loadState(data, tid=self.tid).state
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
@@ -276,8 +167,10 @@ class OrderedContainerState(GenericState):
     def listItems(self):
         container = OrderedContainer()
         container.__setstate__(self.state)
+        # _data will be a PersistentDict
         container._data.__setstate__(_loadState(container._data,
                                                tid=self.tid).state)
+        # _order will be a PersistentList
         container._order.__setstate__(_loadState(container._order,
                                                 tid=self.tid).state)
         return container.items()
@@ -305,3 +198,4 @@ class FallbackState(object):
 
     def asDict(self):
         return dict(self.listAttributes())
+
