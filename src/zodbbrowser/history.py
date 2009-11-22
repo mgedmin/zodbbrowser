@@ -1,5 +1,6 @@
 import inspect
 
+from ZODB.utils import tid_repr
 from persistent import Persistent
 from zope.proxy import removeAllProxies
 from zope.interface import implements
@@ -14,14 +15,16 @@ class ZodbObjectHistory(object):
     implements(IObjectHistory)
 
     def __init__(self, obj):
-        self.obj = removeAllProxies(obj)
-        self.storage = self.obj._p_jar._storage
-        self.oid = self.obj._p_oid
-        self.history = None
+        self._obj = removeAllProxies(obj)
+        self._connection = self._obj._p_jar
+        self._storage = self._connection._storage
+        self._oid = self._obj._p_oid
+        self._history = None
+        self._by_tid = {}
         self._load()
 
     def __len__(self):
-        return len(self.history)
+        return len(self._history)
 
     def _load(self):
         """Load history of changes made to a Persistent object.
@@ -38,12 +41,34 @@ class ZodbObjectHistory(object):
         """
         all_of_it = 999999999999 # ought to be sufficient
         # XXX OMG ouch the APIs are different
-        if 'length' in inspect.getargspec(self.storage.history)[0]: # ZEO
-            self.history = self.storage.history(self.oid,
-                                                version='', length=all_of_it)
+        if 'length' in inspect.getargspec(self._storage.history)[0]: # ZEO
+            self._history = self._storage.history(self._oid,
+                                                  version='', length=all_of_it)
         else: # FileStorage
-            self.history = self.storage.history(self.oid, size=all_of_it)
+            self._history = self._storage.history(self._oid, size=all_of_it)
+        self._index_by_tid()
+
+    def _index_by_tid(self):
+        for record in self._history:
+            self._by_tid[record['tid']] = record
 
     def __getitem__(self, item):
-        return self.history[item]
+        return self._history[item]
+
+    def lastChange(self, tid=None):
+        if tid in self._by_tid:
+            # optimization
+            return tid
+        # sadly ZODB has no API for get revision at or before tid, so
+        # we have to find the exact tid
+        for record in self._history:
+            # we assume records are ordered by tid, newest to oldest
+            if tid is None or record['tid'] <= tid:
+                return record['tid']
+        raise KeyError(
+                '%r did not exist in or before transaction %r' %
+                (self._obj, tid_repr(tid)))
+
+    def loadState(self, tid=None):
+        return self._connection.oldstate(self._obj, self.lastChange(tid))
 

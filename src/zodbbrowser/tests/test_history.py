@@ -3,8 +3,11 @@ import sys
 
 import transaction
 from persistent import Persistent
+from zope.interface.verify import verifyObject
+
 from zodbbrowser.tests.realdb import RealDatabaseTest
 from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IObjectHistory
 
 
 class PersistentObject(Persistent):
@@ -16,6 +19,7 @@ class TestFileStorage(RealDatabaseTest):
     def test_no_history(self):
         obj = self.conn.root()
         history = ZodbObjectHistory(obj)
+        verifyObject(IObjectHistory, history)
         self.assertEquals(len(history), 1)
         self.assertTrue('tid' in history[0])
         self.assertTrue('time' in history[0])

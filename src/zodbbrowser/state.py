@@ -5,7 +5,7 @@ from zope.component import adapts, getMultiAdapter
 from zope.interface import implements, Interface
 from zope.proxy import removeAllProxies
 from zope.traversing.interfaces import IContainmentRoot
-from ZODB.utils import tid_repr, u64
+from ZODB.utils import u64
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
@@ -29,20 +29,11 @@ class LoadedState(object):
 
 def _loadState(obj, tid=None):
     """Load (old) state of a Persistent object."""
-    # sadly ZODB has no API for get revision at or before tid
     history = ZodbObjectHistory(obj)
-    for record in history:
-        if tid is None or record['tid'] <= tid:
-            result = LoadedState()
-            try:
-                result.state = obj._p_jar.oldstate(obj, record['tid']);
-            except:
-                import pdb; pdb.set_trace()
-                raise
-            result.tid = record['tid']
-            return result
-    raise Exception('%r did not exist in or before transaction %r' %
-                    (obj, tid_repr(tid)))
+    result = LoadedState()
+    result.tid = history.lastChange(tid)
+    result.state = history.loadState(result.tid)
+    return result
 
 
 class ZodbObjectState(object):

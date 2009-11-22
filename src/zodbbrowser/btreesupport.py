@@ -37,12 +37,12 @@ class OOBTreeHistory(ZodbObjectHistory):
     def _load(self):
         # find all objects (tree and buckets) that have ever participated in
         # this OOBTree
-        queue = [self.obj]
-        seen = set(self.obj._p_oid)
+        queue = [self._obj]
+        seen = set(self._oid)
         history_of = {}
         while queue:
             obj = queue.pop(0)
-            history = history_of[obj._p_oid] = ZodbObjectHistory(obj).history
+            history = history_of[obj._p_oid] = ZodbObjectHistory(obj)._history
             for d in history:
                 state = obj._p_jar.oldstate(obj, d['tid'])
                 if state and len(state) > 1:
@@ -55,8 +55,9 @@ class OOBTreeHistory(ZodbObjectHistory):
         for h in history_of.values():
             for d in h:
                 by_tid.setdefault(d['tid'], d)
-        self.history = by_tid.values()
-        self.history.sort(key=lambda d: d['tid'], reverse=True)
+        self._history = by_tid.values()
+        self._history.sort(key=lambda d: d['tid'], reverse=True)
+        self._index_by_tid()
 
 
 class OOBTreeState(object):
