@@ -10,7 +10,6 @@ from zope.app.testing import setup
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 from zodbbrowser.history import ZodbObjectHistory
-from zodbbrowser.state import _loadState
 from zodbbrowser.btreesupport import (
         OOBTreeHistory,
         OOBTreeState,
@@ -76,7 +75,7 @@ class TestLargeOOBTreeState(RealDatabaseTest):
         setup.placelessTearDown()
 
     def getState(self, tid):
-        state = _loadState(self.tree, tid).state
+        state = IObjectHistory(self.tree).loadState(tid)
         return OOBTreeState(self.tree, state, tid)
 
     def test_current_state(self):
@@ -92,6 +91,7 @@ class TestLargeOOBTreeHistory(RealDatabaseTest):
 
     def setUp(self):
         setup.placelessSetUp()
+        provideAdapter(ZodbObjectHistory)
         provideAdapter(OOBTreeHistory)
         RealDatabaseTest.setUp(self)
         self.tree = self.conn.root()['tree'] = OOBTree()
@@ -104,7 +104,7 @@ class TestLargeOOBTreeHistory(RealDatabaseTest):
         setup.placelessTearDown()
 
     def getState(self, tid):
-        state = _loadState(self.tree, tid).state
+        state = IObjectHistory(self.tree).loadState(tid)
         return OOBTreeState(self.tree, state, tid)
 
     def test_full_history(self):

@@ -20,8 +20,7 @@ from zodbbrowser.state import (ZodbObjectState,
                                PersistentMappingState,
                                SampleContainerState,
                                OrderedContainerState,
-                               FallbackState,
-                               _loadState)
+                               FallbackState)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 

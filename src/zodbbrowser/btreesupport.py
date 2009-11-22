@@ -26,7 +26,6 @@ except ImportError:
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 from zodbbrowser.history import ZodbObjectHistory
-from zodbbrowser.state import _loadState # XXX ugly
 from zodbbrowser.state import GenericState
 
 
@@ -59,6 +58,15 @@ class OOBTreeHistory(ZodbObjectHistory):
         self._history.sort(key=lambda d: d['tid'], reverse=True)
         self._index_by_tid()
 
+    def _lastRealChange(self, tid=None):
+        return ZodbObjectHistory(self._obj).lastChange(tid)
+
+    def loadState(self, tid=None):
+        # lastChange would return the tid that modified self._obj or any
+        # of its subobjects, thanks to the history merging done by _load.
+        # We need the real last change value.
+        return self._connection.oldstate(self._obj, self._lastRealChange(tid))
+
 
 class OOBTreeState(object):
     """Non-empty OOBTrees have a complicated tuple structure."""
@@ -74,7 +82,7 @@ class OOBTreeState(object):
         # docs of the pickled state format.
         while state and len(state) > 1:
             bucket = state[1]
-            state = _loadState(bucket, tid=tid).state
+            state = IObjectHistory(bucket).loadState(tid)
             bucket.__setstate__(state)
 
     def getName(self):
@@ -113,7 +121,7 @@ class FolderState(GenericState):
         if not data:
             return []
         # data will be an OOBTree
-        loadedstate = _loadState(data, tid=self.tid).state
+        loadedstate = IObjectHistory(data).loadState(self.tid)
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
 
@@ -129,7 +137,7 @@ class BTreeContainerState(GenericState):
         if not data:
             return []
         # data will be an OOBTree
-        loadedstate = _loadState(data, tid=self.tid).state
+        loadedstate = IObjectHistory(data).loadState(self.tid)
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
 

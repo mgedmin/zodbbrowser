@@ -17,23 +17,7 @@ try:
 except ImportError:
     from zope.app.container.ordered import OrderedContainer # BBB
 
-from zodbbrowser.interfaces import IStateInterpreter
-from zodbbrowser.history import ZodbObjectHistory
-
-
-class LoadedState(object):
-
-    state = None
-    tid = None
-
-
-def _loadState(obj, tid=None):
-    """Load (old) state of a Persistent object."""
-    history = ZodbObjectHistory(obj)
-    result = LoadedState()
-    result.tid = history.lastChange(tid)
-    result.state = history.loadState(result.tid)
-    return result
+from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 
 
 class ZodbObjectState(object):
@@ -46,9 +30,10 @@ class ZodbObjectState(object):
         self._load()
 
     def _load(self):
-        loadedState = _loadState(self.obj, self.requestedTid)
-        self.tid = loadedState.tid
-        self.state = getMultiAdapter((self.obj, loadedState.state,
+        self.history = IObjectHistory(self.obj)
+        self.tid = self.history.lastChange(self.requestedTid)
+        loadedState = self.history.loadState(self.tid)
+        self.state = getMultiAdapter((self.obj, loadedState,
                                       self.requestedTid),
                                      IStateInterpreter)
 
@@ -105,7 +90,7 @@ class GenericState(object):
     def getParent(self):
         parent = self.state.get('__parent__')
         if self.tid and isinstance(parent, Persistent):
-            parent.__setstate__(_loadState(parent, self.tid).state)
+            parent.__setstate__(IObjectHistory(parent).loadState(self.tid))
         return parent
 
     def listAttributes(self):
@@ -146,7 +131,7 @@ class SampleContainerState(GenericState):
         # OOBTree -- SampleContainer itself uses a plain Python dict, but
         # subclasses are supposed to overwrite the _newContainerData() method
         # and use something persistent.
-        loadedstate = _loadState(data, tid=self.tid).state
+        loadedstate = IObjectHistory(data).loadState(self.tid)
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
 
@@ -159,11 +144,11 @@ class OrderedContainerState(GenericState):
         container = OrderedContainer()
         container.__setstate__(self.state)
         # _data will be a PersistentDict
-        container._data.__setstate__(_loadState(container._data,
-                                               tid=self.tid).state)
+        container._data.__setstate__(
+            IObjectHistory(container._data).loadState(self.tid))
         # _order will be a PersistentList
-        container._order.__setstate__(_loadState(container._order,
-                                                tid=self.tid).state)
+        container._order.__setstate__(
+            IObjectHistory(container._order).loadState(self.tid))
         return container.items()
 
 
