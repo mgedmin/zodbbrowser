@@ -128,6 +128,13 @@ div.object .truncated {
   -moz-border-radius: 1px;
 }
 
+a.objlink:hover,
+a.objlink:active {
+  background: #aaf;
+  color: white;
+  text-decoration: none;
+}
+
 .tid-info {
   color: #141;
   margin-left: 2em;

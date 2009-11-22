@@ -105,5 +105,5 @@ class PersistentValue(object):
         if tid is not None:
             url += "&tid=%d" % u64(tid)
         value = GenericValue(self.context).render(tid)
-        return '<a href="%s">%s</a>' % (escape(url), value)
+        return '<a class="objlink" href="%s">%s</a>' % (escape(url), value)
 

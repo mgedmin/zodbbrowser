@@ -56,7 +56,7 @@ references, we show hyperlinks
     ...     '//span[@class="attr" and ./strong[text()="__annotations__"]]')
     <span class="attr">
       <strong>__annotations__</strong>:
-      <a href="@@zodbbrowser?oid=2">
+      <a class="objlink" href="@@zodbbrowser?oid=2">
         &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (1 item)
       </a>
     </span>
@@ -81,7 +81,7 @@ this particular case, all the items are stored in the 'data' attribute
     ...     '//span[@class="attr" and ./strong[text()="data"]]')
     <span class="attr">
       <strong>data</strong>:
-      <a href="@@zodbbrowser?oid=3">
+      <a class="objlink" href="@@zodbbrowser?oid=3">
         &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
       </a>
     </span>
@@ -123,7 +123,7 @@ Each transaction shows which attributes have changed
     <div class="diff">
       <div class="diffitem added">
         <strong>__annotations__</strong>: added
-        <a href="@@zodbbrowser?oid=2&amp;tid=XXXXXXXXXXXXXXXXXX">
+        <a class="objlink" href="@@zodbbrowser?oid=2&amp;tid=XXXXXXXXXXXXXXXXXX">
           &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (1 item)
         </a>
       </div>
@@ -132,13 +132,13 @@ Each transaction shows which attributes have changed
       </div>
       <div class="diffitem added">
         <strong>_sm</strong>: added
-        <a href="@@zodbbrowser?oid=4&amp;tid=XXXXXXXXXXXXXXXXXX">
+        <a class="objlink" href="@@zodbbrowser?oid=4&amp;tid=XXXXXXXXXXXXXXXXXX">
           &lt;LocalSiteManager ++etc++site&gt; (1 item)
         </a>
       </div>
       <div class="diffitem added">
         <strong>data</strong>: added
-        <a href="@@zodbbrowser?oid=3&amp;tid=XXXXXXXXXXXXXXXXXX">
+        <a class="objlink" href="@@zodbbrowser?oid=3&amp;tid=XXXXXXXXXXXXXXXXXX">
           &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
         </a>
       </div>

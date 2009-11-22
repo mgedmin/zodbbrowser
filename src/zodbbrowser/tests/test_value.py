@@ -189,12 +189,13 @@ class TestPersistentValue(unittest.TestCase):
 
     def test_rendering(self):
         self.assertEquals(PersistentValue(PersistentFrob()).render(),
-                  '<a href="@@zodbbrowser?oid=23">&lt;PersistentFrob&gt;</a>')
+                  '<a class="objlink" href="@@zodbbrowser?oid=23">'
+                          '&lt;PersistentFrob&gt;</a>')
 
     def test_tid_is_preserved(self):
         renderer = PersistentValue(PersistentFrob())
         self.assertEquals(renderer.render(tid=p64(42)),
-                  '<a href="@@zodbbrowser?oid=23&amp;tid=42">'
+                  '<a class="objlink" href="@@zodbbrowser?oid=23&amp;tid=42">'
                           '&lt;PersistentFrob&gt;</a>')
 
 
