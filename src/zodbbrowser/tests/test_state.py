@@ -12,7 +12,7 @@ from zope.traversing.interfaces import IContainmentRoot
 from zope.component import provideAdapter
 from zope.app.testing import setup
 
-from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.state import (ZodbObjectState,
                                GenericState,
@@ -73,54 +73,6 @@ class TestZodbObjectState(RealDatabaseTest):
     def testNameFromClassAttribute(self):
         state = ZodbObjectState(self.named_obj)
         self.assertEquals(state.getName(), 'sample_folder')
-
-
-class TestLoadState(RealDatabaseTest):
-
-    def setUp(self):
-        setup.placelessTearDown()
-        provideAdapter(ZodbObjectHistory)
-        RealDatabaseTest.setUp(self)
-        root = self.conn.root()
-        self.adam = root['adam'] = PersistentObject()
-        transaction.commit()
-        self.eve = root['eve'] = PersistentObject()
-        transaction.commit()
-        self.adam.laptop = 'ThinkPad T23'
-        transaction.commit()
-        self.eve.laptop = 'MacBook'
-        transaction.commit()
-        self.adam.laptop = 'ThinkPad T42'
-        transaction.commit()
-        self.adam.laptop = 'ThinkPad T61'
-        transaction.commit()
-
-    def tearDown(self):
-        RealDatabaseTest.tearDown(self)
-        setup.placelessTearDown()
-
-    def test_latest_state(self):
-        state = _loadState(self.adam).state
-        self.assertEquals(state, dict(laptop='ThinkPad T61'))
-
-    def test_exact_state(self):
-        tid = IObjectHistory(self.adam)[1]['tid']
-        state = _loadState(self.adam, tid).state
-        self.assertEquals(state, dict(laptop='ThinkPad T42'))
-
-    def test_earlier_state(self):
-        tid = IObjectHistory(self.eve)[0]['tid']
-        state = _loadState(self.adam, tid).state
-        self.assertEquals(state, dict(laptop='ThinkPad T23'))
-
-    def test_error_handling(self):
-        tid = IObjectHistory(self.adam)[-1]['tid']
-        try:
-            _loadState(self.eve, tid).state
-        except Exception, e:
-            self.assertTrue("did not exist in or before" in str(e))
-        else:
-            self.fail("did not raise")
 
 
 class TestGenericState(unittest.TestCase):

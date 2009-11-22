@@ -35,6 +35,49 @@ class TestFileStorage(RealDatabaseTest):
         self.assertEquals(len(history), 11)
 
 
+class TestLoadState(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        root = self.conn.root()
+        self.adam = root['adam'] = PersistentObject()
+        transaction.commit()
+        self.eve = root['eve'] = PersistentObject()
+        transaction.commit()
+        self.adam.laptop = 'ThinkPad T23'
+        transaction.commit()
+        self.eve.laptop = 'MacBook'
+        transaction.commit()
+        self.adam.laptop = 'ThinkPad T42'
+        transaction.commit()
+        self.adam.laptop = 'ThinkPad T61'
+        transaction.commit()
+
+    def test_latest_state(self):
+        state = ZodbObjectHistory(self.adam).loadState()
+        self.assertEquals(state, dict(laptop='ThinkPad T61'))
+
+    def test_exact_state(self):
+        tid = ZodbObjectHistory(self.adam)[1]['tid']
+        state = ZodbObjectHistory(self.adam).loadState(tid)
+        self.assertEquals(state, dict(laptop='ThinkPad T42'))
+
+    def test_earlier_state(self):
+        tid = ZodbObjectHistory(self.eve)[0]['tid']
+        state = ZodbObjectHistory(self.adam).loadState(tid)
+        self.assertEquals(state, dict(laptop='ThinkPad T23'))
+
+    def test_error_handling(self):
+        tid = ZodbObjectHistory(self.adam)[-1]['tid']
+        history = ZodbObjectHistory(self.eve)
+        try:
+            history.loadState(tid)
+        except KeyError, e:
+            self.assertTrue("did not exist in or before" in str(e))
+        else:
+            self.fail("did not raise")
+
+
 def test_suite():
     this = sys.modules[__name__]
     return unittest.defaultTestLoader.loadTestsFromModule(this)
