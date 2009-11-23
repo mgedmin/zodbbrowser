@@ -146,6 +146,7 @@ a.objlink:active {
   border-right: 1px solid #fe0;
 }
 
+div.error,
 div.diff {
   padding: 4px;
   margin-left: 2em;

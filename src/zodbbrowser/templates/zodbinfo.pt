@@ -95,6 +95,10 @@
             <span tal:content="history/short" />
           </a>
         </h4>
+        <div class="error" tal:condition="history/error">
+          Could not load historical state:
+          <span tal:replace="history/error" />
+        </div>
         <div class="diff" tal:replace="structure history/diff">
         </div>
       </div>

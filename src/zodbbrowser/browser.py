@@ -234,30 +234,42 @@ class ZodbInfoView(BrowserView):
         return [ZodbObjectAttribute(name, value, self.state.requestedTid)
                 for name, value in items]
 
+    def _loadHistoricalState(self):
+        results = []
+        for d in self.history:
+            try:
+                state = ZodbObjectState(self.obj, d['tid'],
+                                        _history=self.history).asDict()
+                error = None
+            except Exception, e:
+                state = {}
+                error = '%s: %s' % (e.__class__.__name__, e)
+            results.append(dict(state=state, error=error))
+        results.append(dict(state={}, error=None))
+        return results
+
     def listHistory(self):
         """List transactions that modified a persistent object."""
+        state = self._loadHistoricalState()
         results = []
-
         for n, d in enumerate(self.history):
             short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
                                        time.localtime(d['time']))) + " "
                      + d['user_name'] + " "
                      + d['description'])
             url = self.getUrl(tid=u64(d['tid']))
-            current = d['tid'] == self.state.tid and \
-                                  self.state.requestedTid is not None
-            curState = ZodbObjectState(self.obj, d['tid'],
-                                       _history=self.history).asDict()
-            if n < len(self.history) - 1:
-                oldState = ZodbObjectState(self.obj, self.history[n + 1]['tid'],
-                                           _history=self.history).asDict()
-            else:
-                oldState = {}
+            current = (d['tid'] == self.state.tid and
+                       self.state.requestedTid is not None)
+            curState = state[n]['state']
+            oldState = state[n + 1]['state']
             diff = compareDictsHTML(curState, oldState, d['tid'])
 
             results.append(dict(short=short, utid=u64(d['tid']),
-                                href=url, current=current, diff=diff, **d))
+                                href=url, current=current,
+                                error=state[n]['error'],
+                                diff=diff, **d))
 
+        # number in reverse order
         for i in range(len(results)):
             results[i]['index'] = len(results) - i
 
