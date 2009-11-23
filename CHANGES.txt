@@ -1,8 +1,11 @@
 Changes
 -------
 
-0.5.1 (unreleased)
+0.5.1 (2009-11-23)
 ~~~~~~~~~~~~~~~~~~
+
+- IMPORTANT BUGFIX: don't leave old object states lying around in ZODB object
+  cache, which could lead to DATA LOSS (LP#487243).
 
 
 0.5 (2009-11-23)

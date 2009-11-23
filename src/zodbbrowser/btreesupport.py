@@ -83,6 +83,18 @@ class OOBTreeState(object):
         while state and len(state) > 1:
             bucket = state[1]
             state = IObjectHistory(bucket).loadState(tid)
+            # XXX this is dangerous!
+            bucket.__setstate__(state)
+
+        self._items = list(self.btree.items())
+        self._dict = dict(self.btree)
+
+        # now UNDO to avoid dangerous side effects,
+        # see https://bugs.launchpad.net/zodbbrowser/+bug/487243
+        state = self.state
+        while state and len(state) > 1:
+            bucket = state[1]
+            state = IObjectHistory(bucket).loadState()
             bucket.__setstate__(state)
 
     def getName(self):
@@ -95,15 +107,10 @@ class OOBTreeState(object):
         return None
 
     def listItems(self):
-        # make a copy, since we may be calling self.btree.__setstate__
-        # before caller looks at the list
-        return list(self.btree.items())
+        return self._items
 
     def asDict(self):
-        # make a copy, since we may be calling self.btree.__setstate__
-        # before caller looks into the dict! e.g. when comparing two
-        # state revisions
-        return dict(self.btree)
+        return self._dict
 
 
 class EmptyOOBTreeState(OOBTreeState):

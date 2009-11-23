@@ -140,7 +140,11 @@ class TestGenericStateWithHistory(RealDatabaseTest):
         self.bar._p_activate()
         tid = self.bar._p_serial
         state = GenericState(self.bar, {'__parent__': self.foo}, tid)
-        self.assertEquals(state.getParent().__name__, 'foo')
+        # previously we mistakenly thought we ought to rewind the parent
+        # object to the old state, but that's (a) unnecessary --
+        # ZodbObjectState.getParentState() takes care of that -- and (b)
+        # very very dangerous: https://launchpad.net/zodbbrowser/+bug/487243
+        self.assertEquals(state.getParent().__name__, 'new')
 
 
 class TestPersistentDictSate(unittest.TestCase):

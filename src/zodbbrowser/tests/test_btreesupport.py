@@ -86,6 +86,11 @@ class TestLargeOOBTreeState(RealDatabaseTest):
         state = self.getState(self.tids[-1])
         self.assertEquals(sum(state.asDict().values()), -1000)
 
+    def test_historical_state_does_not_leave_modified_caches(self):
+        state = self.getState(self.tids[-1])
+        self.assertEquals(sum(state.asDict().values()), -1000)
+        self.assertEquals(sum(self.tree.values()), 0)
+
 
 class TestLargeOOBTreeHistory(RealDatabaseTest):
 

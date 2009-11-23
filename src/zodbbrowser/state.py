@@ -92,10 +92,7 @@ class GenericState(object):
         return self.state.get('__name__')
 
     def getParent(self):
-        parent = self.state.get('__parent__')
-        if self.tid and isinstance(parent, Persistent):
-            parent.__setstate__(IObjectHistory(parent).loadState(self.tid))
-        return parent
+        return self.state.get('__parent__')
 
     def listAttributes(self):
         return self.state.items()
