@@ -66,7 +66,7 @@ Where the values are non-persistent, we show their representation
     >>> printXPath(browser,
     ...     '//strong[text()="__provides__"]/parent::span[@class="attr"]')
     <span class="attr">
-      <strong>__provides__</strong>: &lt;zope.interface.Provides object at 0xXXXXXXX&gt;
+      <strong>__provides__</strong>: &lt;Provides: zope.location.interfaces.ISite, zope.app.folder.interfaces.IRootFolder&gt;
     </span>
 
 
@@ -128,7 +128,7 @@ Each transaction shows which attributes have changed
         </a>
       </div>
       <div class="diffitem added">
-        <strong>__provides__</strong>: added &lt;zope.interface.Provides object at 0xa88e7ec&gt;
+        <strong>__provides__</strong>: added &lt;Provides: zope.location.interfaces.ISite, zope.app.folder.interfaces.IRootFolder&gt;
       </div>
       <div class="diffitem added">
         <strong>_sm</strong>: added

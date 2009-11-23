@@ -3,6 +3,7 @@ from cgi import escape
 from ZODB.utils import u64
 from persistent import Persistent
 from zope.component import adapts
+from zope.interface.declarations import ProvidesClass
 from zope.interface import implements, Interface
 from zope.security.proxy import removeSecurityProxy
 
@@ -20,8 +21,12 @@ class GenericValue(object):
     def __init__(self, context):
         self.context = context
 
+    def _repr(self):
+        # hook for subclasses
+        return repr(self.context)
+
     def render(self, tid=None, limit=200):
-        text = repr(self.context)
+        text = self._repr()
         if len(text) > limit:
             text = escape(text[:limit]) + '<span class="truncated">...</span>'
         else:
@@ -106,4 +111,17 @@ class PersistentValue(object):
             url += "&tid=%d" % u64(tid)
         value = GenericValue(self.context).render(tid)
         return '<a class="objlink" href="%s">%s</a>' % (escape(url), value)
+
+
+class ProvidesValue(GenericValue):
+    """zope.interface.Provides object renderer.
+
+    The __repr__ of zope.interface.Provides is decidedly unhelpful.
+    """
+    adapts(ProvidesClass)
+    implements(IValueRenderer)
+
+    def _repr(self):
+        return '<Provides: %s>' % ', '.join(i.__identifier__
+                                            for i in self.context._Provides__args[1:])
 

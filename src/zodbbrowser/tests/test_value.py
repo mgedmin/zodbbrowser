@@ -5,12 +5,12 @@ from ZODB.utils import p64
 from persistent import Persistent
 from zope.app.testing import setup
 from zope.interface.verify import verifyObject
-from zope.interface import implements
+from zope.interface import implements, alsoProvides, Interface
 from zope.component import adapts, provideAdapter
 
 from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue,
-                               PersistentValue)
+                               PersistentValue, ProvidesValue)
 
 
 class Frob(object):
@@ -18,6 +18,14 @@ class Frob(object):
 
 
 class UnexpectedArbitraryError(Exception):
+    pass
+
+
+class ISomeInterface(Interface):
+    pass
+
+
+class ISomeOther(Interface):
     pass
 
 
@@ -197,6 +205,35 @@ class TestPersistentValue(unittest.TestCase):
         self.assertEquals(renderer.render(tid=p64(42)),
                   '<a class="objlink" href="@@zodbbrowser?oid=23&amp;tid=42">'
                           '&lt;PersistentFrob&gt;</a>')
+
+
+class TestProvidesValue(unittest.TestCase):
+
+    def test_interface_compliance(self):
+        verifyObject(IValueRenderer, ProvidesValue(None))
+
+    def test_rendering(self):
+        frob = Frob()
+        alsoProvides(frob, ISomeInterface)
+        renderer = ProvidesValue(frob.__provides__)
+        self.assertEquals(renderer.render(),
+            '&lt;Provides: zodbbrowser.tests.test_value.ISomeInterface&gt;')
+
+    def test_rendering_multiple(self):
+        frob = Frob()
+        alsoProvides(frob, ISomeInterface, ISomeOther)
+        renderer = ProvidesValue(frob.__provides__)
+        self.assertEquals(renderer.render(),
+            '&lt;Provides: zodbbrowser.tests.test_value.ISomeInterface,'
+            ' zodbbrowser.tests.test_value.ISomeOther&gt;')
+
+    def test_rendering_shortening(self):
+        frob = Frob()
+        alsoProvides(frob, ISomeInterface, ISomeOther)
+        renderer = ProvidesValue(frob.__provides__)
+        self.assertEquals(renderer.render(limit=42),
+            '&lt;Provides: zodbbrowser.tests.test_value.IS'
+            '<span class="truncated">...</span>')
 
 
 def test_suite():

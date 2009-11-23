@@ -14,6 +14,8 @@ Changes
 - Show size of containers next to their representation, e.g.
   "<persistent.dict.PersistentDict object at 0xad0b3ec> (0 items)".
 - Pay attention when __name__ is declared as a class attribute (LP#484899).
+- Show names of directly provided interfaces on objects (i.e. show a better
+  representation of pickled zope.interface.Provides objects).
 
 
 0.4 (2009-10-11)

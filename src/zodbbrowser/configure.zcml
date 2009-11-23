@@ -10,6 +10,7 @@
   <adapter factory=".value.ListValue" />
   <adapter factory=".value.DictValue" />
   <adapter factory=".value.PersistentValue" />
+  <adapter factory=".value.ProvidesValue" />
 
   <adapter factory=".state.GenericState" />
   <adapter factory=".state.PersistentDictState" />
