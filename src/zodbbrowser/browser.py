@@ -78,10 +78,11 @@ class ZodbInfoView(BrowserView):
         self.latest = True
         if 'tid' in self.request:
             self.state = ZodbObjectState(self.obj,
-                                         p64(int(self.request['tid'], 0)))
+                                         p64(int(self.request['tid'], 0)),
+                                         _history=self.history)
             self.latest = False
         else:
-            self.state = ZodbObjectState(self.obj)
+            self.state = ZodbObjectState(self.obj, _history=self.history)
         return self.template()
 
     def findClosestPersistent(self):
@@ -245,9 +246,11 @@ class ZodbInfoView(BrowserView):
             url = self.getUrl(tid=u64(d['tid']))
             current = d['tid'] == self.state.tid and \
                                   self.state.requestedTid is not None
-            curState = ZodbObjectState(self.obj, d['tid']).asDict()
+            curState = ZodbObjectState(self.obj, d['tid'],
+                                       _history=self.history).asDict()
             if n < len(self.history) - 1:
-                oldState = ZodbObjectState(self.obj, self.history[n + 1]['tid']).asDict()
+                oldState = ZodbObjectState(self.obj, self.history[n + 1]['tid'],
+                                           _history=self.history).asDict()
             else:
                 oldState = {}
             diff = compareDictsHTML(curState, oldState, d['tid'])

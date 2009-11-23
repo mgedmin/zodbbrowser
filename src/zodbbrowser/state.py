@@ -23,14 +23,18 @@ from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 class ZodbObjectState(object):
     implements(IStateInterpreter)
 
-    def __init__(self, obj, tid=None):
+    def __init__(self, obj, tid=None, _history=None):
         self.obj = removeAllProxies(obj)
+        if _history is None:
+            _history = IObjectHistory(self.obj)
+        else:
+            assert _history._obj is self.obj
+        self.history = _history
         self.tid = None
         self.requestedTid = tid
         self._load()
 
     def _load(self):
-        self.history = IObjectHistory(self.obj)
         self.tid = self.history.lastChange(self.requestedTid)
         loadedState = self.history.loadState(self.tid)
         self.state = getMultiAdapter((self.obj, loadedState,
