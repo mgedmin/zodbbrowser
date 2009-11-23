@@ -1,10 +1,17 @@
 TODO
 ====
 
-Features:
+More of a wishlist, really.
+
+Planned features:
 
 - Compatibility with Zope 3.2
+    Because we still have one instance running Zope 3.2 in production.
+    It's possible we'll upgrade it to Zope 3.4 sooner than we fix
+    zodbbrowser to support Zope 3.2.
 - Command-line option to specify a htpasswd file name for protection
+    or maybe a randomly-generated password printed to stdout, so only the
+    person running bin/zodbbrowser can access it
 - Show persistent object attributes when hovering on a link
 - Figure out if it's possible to show a list of transactions
     speed test: 66428 transactions in a 2 gb data.fs take ~12 seconds to
@@ -15,6 +22,20 @@ Features:
     old one)
     [adamg: use paging???]
 - Help page in a javascripty-popup (lightbox-style)
+- Finding backreferences
+    could be very very expensive
+- Breadcrumbs in browser session
+    Consider: you're at /foo/bar/baz, you click on qux, but qux has no
+    __parent__, now you're at /.../??? with no way of going back short of using
+    the browser's back button.  So, maybe, store links (baz -> qux) in the
+    browser session, and when the object has no path, show "you came here from:
+    baz".
+
+Optimization:
+
+- Cache and reuse IObjectHistory adapters within request/transaction boundaries,
+  this could give us a 2X speedup, according to
+  https://bugs.launchpad.net/zodbbrowser/+bug/474334/comments/2
 
 Refactorings:
 
@@ -30,9 +51,13 @@ Tests:
     - tests for test infrastructure (things like html pretty-printing)
     - tests for javascript
 - Buildbots for various python and zope versions
-- Figure out how to stop zserver worker threads that our tests leave behind
+- Figure out how to shut up thread warnings in tests
+    we don't actually leave any tests, zserver uses old thread api and
+    threading gets confused; switching to something sane and WSGI instead
+    of zserver would fix this.
 - Implement ServerController.findUnusedPort
 - Perhaps subclass testbrowser's Browser and add printXPath/printCSSPath
   methods to it directly.  I'm angling to make the ugly URL transformation
   in it somewhat less ugly, since the browser knows the URL and wouldn't need
   to hardcode a reference to TestsWithServer layer
+
