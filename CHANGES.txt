@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.5 (unreleased)
+0.5 (2009-11-23)
 ~~~~~~~~~~~~~~~~
 
 - Be a bit more tolerant to unpickling errors (show which revision could not
