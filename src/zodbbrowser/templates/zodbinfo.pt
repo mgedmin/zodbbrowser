@@ -58,7 +58,7 @@
        tal:condition="python:items is not None">
     <h3 class="expander">
       <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
-           alt="collapse" />&nbsp;Items
+           alt="collapse" />&nbsp;Items (<span tal:replace="python: len(items)"></span>)
     </h3>
     <div class="collapsible">
       <tal:block tal:condition="not:items">

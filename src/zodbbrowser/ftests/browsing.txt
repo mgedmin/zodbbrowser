@@ -30,7 +30,7 @@ After that we have three sections: Attributes, Items and History
     </h3>
     <h3 class="expander">
       <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
-      Items
+      Items (0)
     </h3>
     <h3 class="expander">
       <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
