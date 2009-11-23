@@ -21,9 +21,10 @@ class ZodbObjectHistory(object):
         self._oid = self._obj._p_oid
         self._history = None
         self._by_tid = {}
-        self._load()
 
     def __len__(self):
+        if self._history is None:
+            self._load()
         return len(self._history)
 
     def _load(self):
@@ -53,9 +54,13 @@ class ZodbObjectHistory(object):
             self._by_tid[record['tid']] = record
 
     def __getitem__(self, item):
+        if self._history is None:
+            self._load()
         return self._history[item]
 
     def lastChange(self, tid=None):
+        if self._history is None:
+            self._load()
         if tid in self._by_tid:
             # optimization
             return tid

@@ -41,9 +41,9 @@ class OOBTreeHistory(ZodbObjectHistory):
         history_of = {}
         while queue:
             obj = queue.pop(0)
-            history = history_of[obj._p_oid] = ZodbObjectHistory(obj)._history
+            history = history_of[obj._p_oid] = ZodbObjectHistory(obj)
             for d in history:
-                state = obj._p_jar.oldstate(obj, d['tid'])
+                state = history.loadState(d['tid'])
                 if state and len(state) > 1:
                     bucket = state[1]
                     if bucket._p_oid not in seen:
