@@ -84,12 +84,27 @@ class DictValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self, tid=None):
+    def render(self, tid=None, threshold=50):
         html = []
         for key, value in sorted(self.context.items()):
             html.append(IValueRenderer(key).render(tid) + ': ' +
                         IValueRenderer(value).render(tid))
-        return '{%s}' % ', '.join(html)
+        if sum(map(len, html)) < threshold:
+            return '{%s}' % ', '.join(html)
+        else:
+            prefix = '{<span class="dict">'
+            suffix = '</span>'
+            for n, item in enumerate(html):
+                if n == len(html) - 1:
+                    trailer = '}'
+                else:
+                    trailer = ','
+                if item.endswith(suffix):
+                    item = item[:-len(suffix)] + trailer + suffix
+                else:
+                    item += trailer
+                html[n] = item
+            return prefix + '<br />'.join(html) + suffix
 
 
 class PersistentValue(object):

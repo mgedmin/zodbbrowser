@@ -154,10 +154,15 @@ class TestListValue(unittest.TestCase):
 
 class TestDictValue(unittest.TestCase):
 
+    def assertEquals(self, first, second):
+        if first != second:
+            self.fail('\n%r !=\n%r' % (first, second))
+
     def setUp(self):
         setup.placelessSetUp()
         provideAdapter(GenericValue)
         provideAdapter(FrobRenderer)
+        provideAdapter(DictValue)
 
     def tearDown(self):
         setup.placelessTearDown()
@@ -177,6 +182,25 @@ class TestDictValue(unittest.TestCase):
                           '{1: <Frob>, 2: 3}')
         self.assertEquals(DictValue({1: Frob(), 2: Frob(), 3: 4}).render(),
                           '{1: <Frob>, 2: <Frob>, 3: 4}')
+
+    def test_truly_long_dicts(self):
+        self.assertEquals(DictValue(
+            {'some long key name': 'some long value',
+             'some other long key name': 'some other long value'}).render(),
+           "{<span class=\"dict\">'some long key name': 'some long value',"
+           "<br />'some other long key name': 'some other long value'}</span>")
+
+    def test_nested_dicts(self):
+        self.assertEquals(DictValue(
+            {'A': {'some long key name': 'some long value',
+                       'some other long key name': 'some other long value'},
+             'B': ['something else entirely']}).render(),
+           "{<span class=\"dict\">'A':"
+                " {<span class=\"dict\">'some long key name':"
+                " 'some long value',"
+                "<br />'some other long key name':"
+                " 'some other long value'},</span>"
+           "<br />'B': ['something else entirely'] (1 item)}</span>")
 
     def test_tid_is_preserved(self):
         self.assertEquals(DictValue({Frob(): Frob()}).render(tid=42),

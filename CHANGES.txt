@@ -16,6 +16,7 @@ Changes
 - Pay attention when __name__ is declared as a class attribute (LP#484899).
 - Show names of directly provided interfaces on objects (i.e. show a better
   representation of pickled zope.interface.Provides objects).
+- Pretty-printing of dictionaries (including nested ones).
 
 
 0.4 (2009-10-11)
