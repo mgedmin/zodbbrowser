@@ -118,6 +118,34 @@ class TestLargeOOBTreeHistory(RealDatabaseTest):
             state = self.getState(tids[i])
             self.assertEquals(len(state.asDict()), i + 1)
 
+    def test_rollback_to_last_state_does_nothing(self):
+        history = IObjectHistory(self.tree)
+        history.rollback(history.lastChange())
+        self.assertEquals(len(self.tree), 100)
+        # BTrees play funky games with cached lenghts, make sure the content
+        # matches that
+        self.assertEquals(len(list(self.tree)), 100)
+        self.assertFalse(self.tree._p_changed)
+
+    def test_rollback_changes_buckets(self):
+        history = OOBTreeHistory(self.tree)
+        history.rollback(history._lastRealChange())
+        # therefore the state of the tree itself stays constant, but
+        # one or more of its buckets change
+        self.assertNotEquals(len(self.tree), 100)
+        self.assertNotEquals(len(list(self.tree)), 100)
+        self.assertFalse(self.tree._p_changed)
+
+    def test_rollback(self):
+        history = OOBTreeHistory(self.tree)
+        tid = history[len(history) / 2]['tid']
+        history.rollback(tid)
+        self.assertEquals(len(self.tree), 50)
+        # BTrees play funky games with cached lenghts, make sure the content
+        # matches that
+        self.assertEquals(len(list(self.tree)), 50)
+        self.assertTrue(self.tree._p_changed)
+
 
 class TestEmptyOOBTreeState(unittest.TestCase):
 

@@ -1,0 +1,46 @@
+<metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
+<metal:block fill-slot="content">
+
+<div class="object">
+
+  <div class="heading">
+    <h1>
+      <span class="breadcrumbs" tal:content="structure view/getBreadcrumbsHTML" />
+    </h1>
+    <h2 class="type" tal:content="view/getObjectType" />
+  </div>
+
+  <div>
+    <h3>Revert to old state as of <tal:x replace="view/requestedState"
+      />?</h3>
+
+    <form action="" method="post">
+
+      <p class="message">
+        This is a dangerous operation that may break data integrity.
+        Are you really sure you want to do this?
+      </p>
+
+      <input type="hidden" name="oid" tal:attributes="value view/getObjectId" />
+      <input type="hidden" name="tid" tal:attributes="value view/getRequestedTid" />
+      <input type="hidden" name="rtid" tal:attributes="value request/rtid" />
+      <input type="hidden" name="confirmed" value="1" />
+
+      <input type="SUBMIT" name="ROLLBACK"
+             value="Really revert to this state" />
+      <input type="SUBMIT" name="CANCEL" value="Cancel" />
+
+    </form>
+
+  </div>
+
+<div class="footer">
+  <a tal:attributes="href view/homepage">zodb browser</a>
+  v<span tal:replace="view/version" />
+  | <a id="help" href="@@zodbbrowser_help">help</a>
+</div>
+
+</div>
+
+</metal:block>
+</metal:block>

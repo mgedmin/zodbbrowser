@@ -40,6 +40,9 @@ class IObjectHistory(Interface):
         Returns the unpicked state, not an actual persistent object.
         """
 
+    def rollback(tid):
+        """Roll back object state to what it was at or before tid."""
+
 
 class IValueRenderer(Interface):
     """Renderer of attribute values."""

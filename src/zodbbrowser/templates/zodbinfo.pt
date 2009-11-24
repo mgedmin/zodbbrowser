@@ -95,6 +95,16 @@
             <span tal:content="history/short" />
           </a>
         </h4>
+        <div class="toolbox" tal:condition="python: not repeat['history'].start() and not view.readonly">
+          <form action="" class="rollback" method="post">
+            <input type="hidden" name="oid" tal:attributes="value view/getObjectId" />
+            <input type="hidden" name="tid" tal:attributes="value view/getRequestedTid" />
+            <input type="hidden" name="rtid" tal:attributes="value history/utid" />
+            <input type="hidden" name="confirmed" value="0" />
+            <input type="hidden" name="ROLLBACK" value="" />
+            <input type="submit" class="rollbackbtn" value="Revert to this state" />
+          </form>
+        </div>
         <div class="error" tal:condition="history/error">
           Could not load historical state:
           <span tal:replace="history/error" />

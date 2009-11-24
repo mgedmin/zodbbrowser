@@ -1,0 +1,87 @@
+Reverting to older versions
+---------------------------
+
+You can start by looking at the root folder
+
+    >>> browser = Browser(url)
+    >>> browser.open('/rollbacking/@@zodbbrowser')
+
+The 'History' section shows all the transactions that modified this object.
+
+    >>> printCSSPath(browser, 'div.history h4.transaction')
+    <h4 class="transaction">
+      <a href="@@zodbbrowser?oid=XX">Latest</a>
+    </h4>
+    <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        #2:
+        <span>YYYY-MM-DD HH:MM:SS</span>
+      </a>
+    </h4>
+    <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        #1:
+        <span>YYYY-MM-DD HH:MM:SS</span>
+      </a>
+    </h4>
+
+The latest version (i.e. the one we're looking at) has a strange attribute
+
+    >>> printCSSPath(browser, 'div.attributes strong')
+    <strong>__name__</strong>
+    <strong>__parent__</strong>
+    <strong>data</strong>
+    <strong>random_attribute</strong>
+
+Let's revert to the older version without it.
+
+    >>> browser.getControl('Revert to this state').click()
+
+We get a confirmation prompt, since this is a potentially dangerous operation
+
+    >>> printCSSPath(browser, 'h3')
+    <h3>
+      Revert to old state as of YYYY-MM-DD HH:MM:SS.SSSSSS?
+    </h3>
+
+    >>> printCSSPath(browser, '.message')
+    <p class="message">
+      This is a dangerous operation that may break data integrity. Are you really sure you want to do this?
+    </p>
+
+sure, why not?
+
+    >>> browser.getControl('Really revert to this state').click()
+
+and here we are:
+
+    >>> printCSSPath(browser, 'div.attributes strong')
+    <strong>__name__</strong>
+    <strong>__parent__</strong>
+    <strong>data</strong>
+
+    >>> printCSSPath(browser, 'div.history h4.transaction')
+    <h4 class="transaction">
+      <a href="@@zodbbrowser?oid=XX">Latest</a>
+    </h4>
+    <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        #3:
+        <span>
+          YYYY-MM-DD HH:MM:SS / zope.anybody Rollback to old state YYYY-MM-DD HH:MM:SS.SSSSSS
+        </span>
+      </a>
+    </h4>
+    <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        #2:
+        <span>YYYY-MM-DD HH:MM:SS</span>
+      </a>
+    </h4>
+    <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        #1:
+        <span>YYYY-MM-DD HH:MM:SS</span>
+      </a>
+    </h4>
+

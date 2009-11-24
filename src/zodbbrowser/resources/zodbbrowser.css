@@ -120,6 +120,19 @@ h4.transaction a:active {
   background: #ffa;
 }
 
+div.transaction div.toolbox {
+    float: right;
+    padding: 4px;
+}
+
+div.transaction div.toolbox {
+    display: none;
+}
+
+div.transaction:hover div.toolbox {
+    display: block;
+}
+
 div.object .truncated {
   background: #f44;
   color: white;
@@ -195,6 +208,19 @@ div.latest {
   background: #ffa;
   border-top: 1px solid #fe0;
   margin-bottom: 0;
+}
+div.focus {
+  background: #fca;
+  border-bottom: 1px solid #f80;
+  border-top: 1px solid #f80;
+}
+div#confirmation {
+  margin-left: 2em;
+  margin-top: 1em;
+  font-weight: bold;
+}
+div#confirmation div.message {
+  margin-bottom: 1ex;
 }
 
 div.footer {

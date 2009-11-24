@@ -48,6 +48,8 @@ function filterHistory(showAll) {
 }
 
 function collapseOrExpand() {
+    // this is <div class="extender">
+    // the following element is <div class="collapsible">
     var content = $(this).next();
     var icon = $(this).children('img');
     if (content.is(':hidden')) {
@@ -57,6 +59,20 @@ function collapseOrExpand() {
         $(icon).attr('src', $('#expandImg').attr('src'));
         content.slideUp();
     }
+}
+
+function hideItemsIfTooMany() {
+    $('.items').each(function(){
+        var expander = $(this).children('.expander')[0];
+        var content = $(this).children('.collapsible')[0];
+        // items are formatted using <br /> so the heuristic is very
+        // approximate.
+        if (content.childNodes.length > 100 && !$(content).is(':hidden')) {
+            var icon = $(expander).children('img');
+            $(icon).attr('src', $('#expandImg').attr('src'));
+            $(content).hide();
+        }
+    });
 }
 
 function showGoTo() {
@@ -119,18 +135,50 @@ function activateGoTo() {
             error: ajaxErrorHandler});
 }
 
+function cancelRollback(e) {
+    $('#confirmation').remove();
+    $('div.transaction').removeClass('focus');
+    $('input.rollbackbtn').show();
+}
+
+function pressRollback(e) {
+    e.preventDefault();
+    cancelRollback();
+    $(e.target).hide();
+    var transaction_div = $(e.target).closest('div.transaction');
+    transaction_div.addClass('focus');
+    $('<div id="confirmation">' +
+        '<form action="" method="post">' +
+          '<div class="message">' +
+            'This is a dangerous operation that may break data integrity.'+
+            ' Are you really sure you want to do this?' +
+          '</div>' +
+          '<input type="BUTTON" value="Really revert to this state" onclick="doRollback()">' +
+          '<input type="BUTTON" value="Cancel" onclick="cancelRollback()">' +
+        '</form>' +
+      '</div>').appendTo(transaction_div);
+}
+
+function doRollback() {
+    var transaction_div = $('#confirmation').closest('div.transaction');
+    var rollback_form = transaction_div.find('form.rollback');
+    rollback_form.find('input[name="confirmed"]').val('1');
+    rollback_form.submit();
+}
+
 $(document).ready(function() {
     $('.expander').click(collapseOrExpand);
+    hideItemsIfTooMany();
     $('#path a').click(function(event){event.stopPropagation();});
     $('#path').click(showGoTo);
     $('#gotoInput').blur(hideGoTo);
     $('#gotoInput').keypress(function(event){
-        if (event.which == 13) {
+        if (event.which == 13) { // enter
             activateGoTo();
         }
     });
     $('#gotoInput').keydown(function(event){
-        if (event.keyCode == 27) {
+        if (event.keyCode == 27) { // escape
             hideGoTo();
         }
     });
@@ -142,4 +190,5 @@ $(document).ready(function() {
             }
         }
     });
+    $('input.rollbackbtn').click(pressRollback);
 });

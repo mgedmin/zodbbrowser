@@ -77,6 +77,18 @@ class TestLoadState(RealDatabaseTest):
         else:
             self.fail("did not raise")
 
+    def test_rollback_does_nothing(self):
+        history = ZodbObjectHistory(self.adam)
+        history.rollback(history.lastChange())
+        self.assertEquals(self.adam.laptop, 'ThinkPad T61')
+        self.assertFalse(self.adam._p_changed)
+
+    def test_rollback(self):
+        history = ZodbObjectHistory(self.adam)
+        history.rollback(history[-2]['tid'])
+        self.assertEquals(self.adam.laptop, 'ThinkPad T23')
+        self.assertTrue(self.adam._p_changed)
+
 
 def test_suite():
     this = sys.modules[__name__]

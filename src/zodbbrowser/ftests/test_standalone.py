@@ -7,13 +7,20 @@ import unittest
 import threading
 from cgi import escape
 
+import transaction
 from lxml.html import fromstring, tostring
 from ZODB.POSException import ReadOnlyError
+from ZODB.FileStorage.FileStorage import FileStorage
+from ZODB.DB import DB
 from zope.testing import doctest
 from zope.testing.renormalizing import RENormalizing
 from zope.testbrowser.browser import Browser
 from zope.testbrowser.interfaces import IBrowser
 from zope.app.testing import setup
+from zope.app.publication.zopepublication import ZopePublication
+from zope.app.folder.folder import Folder
+from zope.app.appsetup.interfaces import DatabaseOpened
+from zope.app.appsetup.bootstrap import bootStrapSubscriber
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
 
@@ -79,7 +86,7 @@ class TestsWithServer(object):
         cls.server = ServerController()
         cls.tempdir = tempfile.mkdtemp('zodbbrowser')
         cls.data_fs = os.path.join(cls.tempdir, 'data.fs')
-        # TODO: copy some predefined test data perhaps
+        cls.createTestData()
         cls.server.run(cls.data_fs, '--rw')
         cls.url = cls.server.url
 
@@ -88,6 +95,45 @@ class TestsWithServer(object):
         cls.server.stop()
         shutil.rmtree(cls.tempdir)
         setup.placelessTearDown()
+
+    @classmethod
+    def createTestData(cls):
+        storage = FileStorage(cls.data_fs)
+        db = DB(storage)
+        # Create root folder and all that jazz
+        bootStrapSubscriber(DatabaseOpened(db))
+        connection = db.open()
+        root = connection.root()
+        root_folder = root[ZopePublication.root_name]
+        # This is not a great way to set up test fixtures, but it'll do
+        # for now
+        cls.createTestDataForBrowsing(root_folder)
+        cls.createTestDataForRollbacking(root_folder)
+        cls.createTestDataForRollbackCanBeCancelled(root_folder)
+        connection.close()
+        db.close()
+
+    @classmethod
+    def createTestDataForBrowsing(cls, root_folder):
+        # set up data that browsing.txt expects
+        root_folder['browsing'] = Folder()
+        transaction.commit()
+
+    @classmethod
+    def createTestDataForRollbacking(cls, root_folder):
+        # set up data that rollbacking.txt expects
+        root_folder['rollbacking'] = Folder()
+        transaction.commit()
+        root_folder['rollbacking'].random_attribute = 'hey'
+        transaction.commit()
+
+    @classmethod
+    def createTestDataForRollbackCanBeCancelled(cls, root_folder):
+        # set up data that rollback-can-be-cancelled.txt expects
+        root_folder['rbcbc'] = Folder()
+        transaction.commit()
+        root_folder['rbcbc'].random_attribute = 'hey'
+        transaction.commit()
 
 
 class TestCanCreateEmptyDataFs(unittest.TestCase):
@@ -242,6 +288,7 @@ def test_suite():
         (re.compile(r'object at 0x[0-9a-fA-F]+'), 'object at 0xXXXXXXX'),
         (re.compile(r'\btid[0-9]+'), 'tidXXXXXXXXXXXXXXXXXX'),
         (re.compile(r'\btid=[0-9]+'), 'tid=XXXXXXXXXXXXXXXXXX'),
+        (re.compile(r'\boid=[0-9]+'), 'oid=XX'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d[.]\d\d\d\d\d\d'),
             'YYYY-MM-DD HH:MM:SS.SSSSSS'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),

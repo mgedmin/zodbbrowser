@@ -11,6 +11,7 @@ from zope.security.proxy import removeSecurityProxy
 from ZODB.utils import p64, u64, tid_repr
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
+import transaction
 import simplejson
 
 from zodbbrowser import __version__, __homepage__
@@ -59,9 +60,15 @@ class ZodbInfoView(BrowserView):
     adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
+    confirmation_template = ViewPageTemplateFile('templates/confirm_rollback.pt')
 
     version = __version__
     homepage = __homepage__
+
+    @property
+    def readonly(self):
+        jar = self.jar()
+        return jar.isReadOnly()
 
     def __call__(self):
         self.obj = None
@@ -76,14 +83,34 @@ class ZodbInfoView(BrowserView):
 
         self.history = IObjectHistory(self.obj)
         self.latest = True
-        if 'tid' in self.request:
+        if self.request.get('tid'):
             self.state = ZodbObjectState(self.obj,
                                          p64(int(self.request['tid'], 0)),
                                          _history=self.history)
             self.latest = False
         else:
             self.state = ZodbObjectState(self.obj, _history=self.history)
+
+        if 'CANCEL' in self.request:
+            self._redirectToSelf()
+            return ''
+
+        if 'ROLLBACK' in self.request:
+            rtid = p64(int(self.request['rtid'], 0))
+            self.requestedState = self._tidToTimestamp(rtid)
+            if self.request.get('confirmed') == '1':
+                self.history.rollback(rtid)
+                transaction.get().note('Rollback to old state %s'
+                                        % self.requestedState)
+                self._redirectToSelf()
+                return ''
+            # will show confirmation prompt
+            return self.confirmation_template()
+
         return self.template()
+
+    def _redirectToSelf(self):
+        self.request.response.redirect(self.getUrl())
 
     def findClosestPersistent(self):
         obj = removeSecurityProxy(self.context)

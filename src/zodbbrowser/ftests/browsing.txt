@@ -10,7 +10,7 @@ We see the object's path (which is '/' for the root folder) at the top
     >>> printCSSPath(browser, 'h1#path')
     <h1 id="path">
       <span class="breadcrumbs">
-        <a href="@@zodbbrowser?oid=1">/</a>
+        <a href="@@zodbbrowser?oid=XX">/</a>
       </span>
     </h1>
 
@@ -20,6 +20,20 @@ We see the class name right underneath that
     <h2 class="type">
       &lt;class 'zope.app.folder.folder.Folder'&gt;
     </h2>
+
+If you click on the path, it turns into a navigation bar where you can
+type object paths to navigate to them.  This requires JavaScript, which is
+not available for our functional tests.  But you can also use the browser
+navbar to look at objects, if Zope can traverse to them:
+
+    >>> browser.open('/browsing/@@zodbbrowser')
+    >>> printCSSPath(browser, 'h1#path')
+    <h1 id="path">
+      <span class="breadcrumbs">
+        <a href="@@zodbbrowser?oid=XX">/</a>
+        <a href="@@zodbbrowser?oid=XX">browsing</a>
+      </span>
+    </h1>
 
 After that we have three sections: Attributes, Items and History
 
@@ -44,29 +58,28 @@ Attributes
 Attributes lists all the attributes stored in the database
 
     >>> printCSSPath(browser, 'div.attributes span.attr > strong')
-    <strong>__annotations__</strong>
-    <strong>__provides__</strong>
-    <strong>_sm</strong>
+    <strong>__name__</strong>
+    <strong>__parent__</strong>
     <strong>data</strong>
 
 and their values, of course.  Where the values are persistent object
 references, we show hyperlinks
 
     >>> printXPath(browser,
-    ...     '//span[@class="attr" and ./strong[text()="__annotations__"]]')
+    ...     '//span[@class="attr" and ./strong[text()="data"]]')
     <span class="attr">
-      <strong>__annotations__</strong>:
+      <strong>data</strong>:
       <a class="objlink" href="@@zodbbrowser?oid=2">
-        &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (1 item)
+        &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
       </a>
     </span>
 
 Where the values are non-persistent, we show their representation
 
     >>> printXPath(browser,
-    ...     '//strong[text()="__provides__"]/parent::span[@class="attr"]')
+    ...     '//strong[text()="__name__"]/parent::span[@class="attr"]')
     <span class="attr">
-      <strong>__provides__</strong>: &lt;Provides: zope.location.interfaces.ISite, zope.app.folder.interfaces.IRootFolder&gt;
+      <strong>__name__</strong>: u'browsing'
     </span>
 
 
@@ -81,7 +94,7 @@ this particular case, all the items are stored in the 'data' attribute
     ...     '//span[@class="attr" and ./strong[text()="data"]]')
     <span class="attr">
       <strong>data</strong>:
-      <a class="objlink" href="@@zodbbrowser?oid=3">
+      <a class="objlink" href="@@zodbbrowser?oid=XX">
         &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
       </a>
     </span>
@@ -108,10 +121,10 @@ This is a fresh database, so it has only one transaction:
 
     >>> printCSSPath(browser, 'div.history h4')
     <h4 class="transaction">
-      <a href="@@zodbbrowser?oid=1">Latest</a>
+      <a href="@@zodbbrowser?oid=XX">Latest</a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
-      <a href="@@zodbbrowser?oid=1&amp;tid=XXXXXXXXXXXXXXXXXX">
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
         #1:
         <span>YYYY-MM-DD HH:MM:SS</span>
       </a>
@@ -122,23 +135,17 @@ Each transaction shows which attributes have changed
     >>> printCSSPath(browser, 'div.transaction > div.diff')
     <div class="diff">
       <div class="diffitem added">
-        <strong>__annotations__</strong>: added
-        <a class="objlink" href="@@zodbbrowser?oid=2&amp;tid=XXXXXXXXXXXXXXXXXX">
-          &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (1 item)
-        </a>
+        <strong>__name__</strong>: added u'browsing'
       </div>
       <div class="diffitem added">
-        <strong>__provides__</strong>: added &lt;Provides: zope.location.interfaces.ISite, zope.app.folder.interfaces.IRootFolder&gt;
-      </div>
-      <div class="diffitem added">
-        <strong>_sm</strong>: added
-        <a class="objlink" href="@@zodbbrowser?oid=4&amp;tid=XXXXXXXXXXXXXXXXXX">
-          &lt;LocalSiteManager ++etc++site&gt; (1 item)
+        <strong>__parent__</strong>: added
+        <a class="objlink" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+          &lt;zope.app.folder.folder.Folder object at 0xXXXXXXX&gt; (3 items)
         </a>
       </div>
       <div class="diffitem added">
         <strong>data</strong>: added
-        <a class="objlink" href="@@zodbbrowser?oid=3&amp;tid=XXXXXXXXXXXXXXXXXX">
+        <a class="objlink" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
           &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
         </a>
       </div>
@@ -152,24 +159,7 @@ Hyperlinks inside transactions point to specific object versions (this
 matters when there's more than one).  Click on any to see how the
 world looked at the time when that particular transaction was committed
 
-    >>> browser.getLink(url='oid=3&tid=').click()
-    >>> printCSSPath(browser, 'h2.type')
-    <h2 class="type">&lt;type 'BTrees.OOBTree.OOBTree'&gt;</h2>
-
-Incidentally, you can see how the breadcrumbs look when the object you're
-looking at has no ``__parent__`` attribute to hint at its location:
-
-    >>> printCSSPath(browser, 'h1#path')
-    <h1 id="path">
-      <span class="breadcrumbs">
-        <a href="@@zodbbrowser?oid=1&amp;tid=XXXXXXXXXXXXXXXXXX">
-          /
-        </a>.../
-        <a href="@@zodbbrowser?oid=3&amp;tid=XXXXXXXXXXXXXXXXXX">
-          ???
-        </a>
-      </span>
-    </h1>
+    >>> browser.getLink(url='&tid=').click()
 
 There's a new yellow bar in the title area reminding you that you're
 looking at an old snapshot instead of the current state
@@ -180,13 +170,53 @@ looking at an old snapshot instead of the current state
       (last change before or at YYYY-MM-DD HH:MM:SS.SSSSSS)
     </div>
 
+You can click around and follow links to other objects, to see how they
+looked at that time too.
 
-Hex OIDs
---------
+    >>> browser.getLink(url='oid=1&tid=').click()
 
-It's possible to enter hex OIDs without conversion in the URL:
+    >>> printCSSPath(browser, 'h1#path')
+    <h1 id="path">
+      <span class="breadcrumbs">
+        <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+          /
+        </a>
+      </span>
+    </h1>
 
-    >>> browser.open('/@@zodbbrowser?oid=0x01')
+    >>> printCSSPath(browser, 'div.tid-info')
+    <div class="tid-info"> at
+      <a href="#tidXXXXXXXXXXXXXXXXXX">YYYY-MM-DD HH:MM:SS.SSSSSS</a>
+      (last change before or at YYYY-MM-DD HH:MM:SS.SSSSSS)
+    </div>
 
+To go back to seeing the latest version of all objects, click on 'Latest'
+
+    >>> browser.getLink('Latest').click()
+
+    >>> printCSSPath(browser, 'h1#path')
+    <h1 id="path">
+      <span class="breadcrumbs">
+        <a href="@@zodbbrowser?oid=XX">/</a>
+      </span>
+    </h1>
+
+    >>> printCSSPath(browser, 'div.tid-info')
+    Not found: div.tid-info
+
+
+Navigation by OID
+-----------------
+
+If you know an object's OID, you can navigate directly to it:
+
+    >>> browser.open('/@@zodbbrowser?oid=1')
     >>> 'error' in browser.contents
     False
+
+you can use hex OIDs too:
+
+    >>> browser.open('/@@zodbbrowser?oid=0x01')
+    >>> 'error' in browser.contents
+    False
+
