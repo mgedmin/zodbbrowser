@@ -1,5 +1,3 @@
-import inspect
-
 from ZODB.utils import tid_repr
 from persistent import Persistent
 from zope.proxy import removeAllProxies
@@ -38,15 +36,14 @@ class ZodbObjectHistory(object):
             user_name -- name of the user responsible for the change
             description -- short description (often a URL)
 
-        Probably only works with FileStorage and ZEO ClientStorage.
+        See the 'history' method of ZODB.interfaces.IStorage.
         """
-        all_of_it = 999999999999 # ought to be sufficient
-        # XXX OMG ouch the APIs are different
-        if 'length' in inspect.getargspec(self._storage.history)[0]: # ZEO
-            self._history = self._storage.history(self._oid,
-                                                  version='', length=all_of_it)
-        else: # FileStorage
-            self._history = self._storage.history(self._oid, size=all_of_it)
+        version = None
+        size = 999999999999 # "all of it"; ought to be sufficient
+        # NB: ClientStorage violates the interface by calling the last
+        # argument 'length' instead of 'size'.  To avoid problems we must
+        # use positional argument syntax here.
+        self._history = self._storage.history(self._oid, version, size)
         self._index_by_tid()
 
     def _index_by_tid(self):
