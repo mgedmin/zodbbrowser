@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.6 (unreleased)
+0.6 (2009-12-07)
 ~~~~~~~~~~~~~~~~
 
 - Ability to revert object state to an older version.  Requires a read-write
