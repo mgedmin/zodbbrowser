@@ -62,7 +62,7 @@ release:
 	    grep -q "^$$ver_and_date$$" CHANGES.txt || { \
 	        echo "CHANGES.txt has no entry for $$ver_and_date"; exit 1; }
 	make distcheck
-	test -z "`bzr status`" || { echo; echo "Your working tree is not clean" 1>&2; bzr status; exit 1; }
+	test -z "`bzr status 2>&1`" || { echo; echo "Your working tree is not clean" 1>&2; bzr status; exit 1; }
 	# I'm chicken so I won't actually do these things yet
 	@echo Please run $(PYTHON) setup.py sdist register upload
 	@echo Please run bzr tag `$(PYTHON) setup.py --version`
