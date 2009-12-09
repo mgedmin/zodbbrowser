@@ -185,6 +185,7 @@ class TestSampleContainerState(RealDatabaseTest):
         setup.placelessSetUp()
         provideAdapter(ZodbObjectHistory)
         provideAdapter(PersistentDictState)
+        provideAdapter(PersistentMappingState)
         RealDatabaseTest.setUp(self)
         self.container = self.conn.root()['container'] = SampleFolder()
         self.container['foo'] = 1

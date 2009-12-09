@@ -74,7 +74,8 @@ def configure(options):
     from zope.error.error import globalErrorReportingUtility
     globalErrorReportingUtility.copy_to_zlog = True
 
-    from zope.security.management import newInteraction
+    from zope.security.management import newInteraction, endInteraction
+    endInteraction()
     newInteraction(SystemConfigurationParticipation())
     zope.app.component.hooks.setHooks()
 
@@ -85,7 +86,6 @@ def configure(options):
         context.provideFeature(feature)
     context = xmlconfig.string(options.site_definition, context=context)
 
-    from zope.security.management import endInteraction
     endInteraction()
 
 

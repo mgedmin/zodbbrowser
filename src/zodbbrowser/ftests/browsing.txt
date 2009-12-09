@@ -18,7 +18,7 @@ We see the class name right underneath that
 
     >>> printCSSPath(browser, 'h2.type')
     <h2 class="type">
-      &lt;class 'zope.app.folder.folder.Folder'&gt;
+      &lt;class 'zope.site.folder.Folder'&gt;
     </h2>
 
 If you click on the path, it turns into a navigation bar where you can

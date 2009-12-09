@@ -104,20 +104,32 @@ class GenericState(object):
         return self.state
 
 
-class PersistentDictState(GenericState):
-    """Convenient access to a persistent dict's items."""
-    adapts(PersistentDict, dict, None)
-
-    def listItems(self):
-        return sorted(self.state.get('data', {}).items())
-
-
 class PersistentMappingState(GenericState):
     """Convenient access to a persistent mapping's items."""
     adapts(PersistentMapping, dict, None)
 
     def listItems(self):
         return sorted(self.state.get('data', {}).items())
+
+
+if PersistentMapping is PersistentDict:
+    # ZODB 3.9 deprecated PersistentDict and made it an alias for
+    # PersistentMapping.  I don't know a clean way to conditionally disable the
+    # <adapter> directive in ZCML to avoid conflicting configuration actions,
+    # therefore I'll register a decoy adapter registered for a decoy class.
+    # This adapter will never get used.
+
+    class DecoyPersistentDict(PersistentMapping):
+        """Decoy to avoid ZCML errors while supporting both ZODB 3.8 and 3.9."""
+
+    class PersistentDictState(PersistentMappingState):
+        """Decoy to avoid ZCML errors while supporting both ZODB 3.8 and 3.9."""
+        adapts(DecoyPersistentDict, dict, None)
+
+else:
+    class PersistentDictState(PersistentMappingState):
+        """Convenient access to a persistent dict's items."""
+        adapts(PersistentDict, dict, None)
 
 
 class SampleContainerState(GenericState):

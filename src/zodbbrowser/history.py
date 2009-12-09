@@ -1,3 +1,5 @@
+import inspect
+
 from ZODB.utils import tid_repr
 from persistent import Persistent
 from zope.proxy import removeAllProxies
@@ -38,12 +40,19 @@ class ZodbObjectHistory(object):
 
         See the 'history' method of ZODB.interfaces.IStorage.
         """
-        version = None
         size = 999999999999 # "all of it"; ought to be sufficient
         # NB: ClientStorage violates the interface by calling the last
         # argument 'length' instead of 'size'.  To avoid problems we must
         # use positional argument syntax here.
-        self._history = self._storage.history(self._oid, version, size)
+        # NB: FileStorage in ZODB 3.8 has a mandatory second argument 'version'
+        # FileStorage in ZODB 3.9 doesn't accept a 'version' argument at all.
+        # This check is ugly, but I see no other options if I want to support
+        # both ZODB versions :(
+        if 'version' in inspect.getargspec(self._storage.history)[0]:
+            version = None
+            self._history = self._storage.history(self._oid, version, size)
+        else:
+            self._history = self._storage.history(self._oid, size=size)
         self._index_by_tid()
 
     def _index_by_tid(self):

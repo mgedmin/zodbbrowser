@@ -3,6 +3,7 @@ import sys
 
 import transaction
 from persistent import Persistent
+from persistent.dict import PersistentDict
 from zope.interface.verify import verifyObject
 
 from zodbbrowser.tests.realdb import RealDatabaseTest
@@ -16,8 +17,13 @@ class PersistentObject(Persistent):
 
 class TestFileStorage(RealDatabaseTest):
 
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.obj = self.conn.root()['obj'] = PersistentDict()
+        transaction.commit()
+
     def test_no_history(self):
-        obj = self.conn.root()
+        obj = self.obj
         history = ZodbObjectHistory(obj)
         verifyObject(IObjectHistory, history)
         self.assertEquals(len(history), 1)
@@ -27,7 +33,7 @@ class TestFileStorage(RealDatabaseTest):
         self.assertTrue('description' in history[0])
 
     def test_some_history(self):
-        obj = self.conn.root()
+        obj = self.obj
         for n in range(10):
             obj[n] = n
             transaction.commit()

@@ -154,7 +154,8 @@ class TestCanCreateEmptyDataFs(unittest.TestCase):
         self.server.run(self.empty_fs, '--rw')
         browser = Browser(self.server.url)
         self.assertTrue('zodbbrowser' in browser.contents)
-        self.assertTrue('zope.app.folder.folder.Folder' in browser.contents)
+        self.assertTrue('zope.app.folder.folder.Folder' in browser.contents
+                        or 'zope.site.folder.Folder' in browser.contents)
 
     def test_cannot_start_in_read_only_mode(self):
         self.assertRaises(ReadOnlyError, self.server.run, self.empty_fs)
@@ -235,7 +236,7 @@ def stripify(s):
     return s
 
 
-def fixupWhitespace(element, indent=0, step=2):
+def fixupWhitespace(element, indent=0, step=2, split_if_longer=38):
     """Normalize whitespace on lxml elements."""
     # Input:
     #   <tag ...>[text]<children ...></tag>[tail]
@@ -250,8 +251,8 @@ def fixupWhitespace(element, indent=0, step=2):
 
     element.text = stripify(element.text)
     # heuristic for splitting long elements
-    should_split = (len(str(element.attrib)) > 40 or
-                    len(escape(element.text)) > 40)
+    should_split = (len(str(element.attrib)) > split_if_longer or
+                    len(escape(element.text)) > split_if_longer)
     if should_split and element.text:
         element.text = ('\n' + ' ' * (indent + step) + element.text.lstrip())
     if children:
@@ -293,6 +294,8 @@ def test_suite():
             'YYYY-MM-DD HH:MM:SS.SSSSSS'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),
             'YYYY-MM-DD HH:MM:SS'),
+        (re.compile(r'zope\.app\.folder\.folder\.Folder'),
+            'zope.site.folder.Folder'),
     ])
     here = os.path.dirname(__file__)
     for filename in os.listdir(here):
@@ -305,3 +308,4 @@ def test_suite():
         test.layer = TestsWithServer
         suite.addTest(test)
     return suite
+
