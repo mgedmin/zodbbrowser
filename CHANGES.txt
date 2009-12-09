@@ -1,8 +1,10 @@
 Changes
 -------
 
-0.6.1 (unreleased)
+0.6.1 (2009-12-09)
 ~~~~~~~~~~~~~~~~~~
+
+- Compatibility with latest Zope packages, including ZODB 3.9.x.
 
 
 0.6 (2009-12-07)

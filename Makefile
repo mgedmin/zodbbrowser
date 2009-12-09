@@ -27,11 +27,23 @@ tags:
 	bin/ctags
 
 .PHONY: dist
-dist: check
+dist:
 	$(PYTHON) setup.py sdist
 
+.PHONY: checklatestzope
+checklatestzope: dist
+	version=`$(PYTHON) setup.py --version` && \
+	rm -rf tmp && \
+	mkdir tmp && \
+	cd tmp && \
+	tar xvzf ../dist/zodbbrowser-$$version.tar.gz && \
+	cd zodbbrowser-$$version && \
+	$(PYTHON) bootstrap.py && \
+	bin/buildout -c bleeding-edge.cfg && \
+	bin/test
+
 .PHONY: distcheck
-distcheck: check dist
+distcheck: check checklatestzope dist
 	version=`$(PYTHON) setup.py --version` && \
 	rm -rf tmp && \
 	mkdir tmp && \

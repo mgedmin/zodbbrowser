@@ -1,4 +1,4 @@
-include buildout.cfg
+include *.cfg
 include bootstrap.py
 include Makefile
 include *.txt
