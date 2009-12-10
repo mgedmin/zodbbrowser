@@ -1,4 +1,3 @@
-from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.mapping import PersistentMapping
 from zope.component import adapts, getMultiAdapter
