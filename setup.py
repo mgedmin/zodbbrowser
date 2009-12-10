@@ -71,25 +71,27 @@ setup(
         "zope.security",
         "zope.traversing",
         "simplejson",
+        # dependencies just for the test suite
+        "zope.app.container",
+        "zope.app.testing",
+        "zope.testbrowser",
+        "lxml",
+        # dependencies just for the standalone app
+        "zope.app.authentication",
+        "zope.app.component",
+        "zope.app.securitypolicy",
+        "zope.app.server",
+        "zope.app.session", # purely BBB for old Data.fs'es
+        "zope.app.zcmlfiles",
+        "zope.server",
+        "zope.error",
+        "zope.session",
         ],
+    # extras for backwards compatibility only, not to break
+    # people's setups if they depend on zodbbrowser[app]
     extras_require=dict(
-        test=[
-            "zope.app.container",
-            "zope.app.testing",
-            "zope.testbrowser",
-            "lxml",
-            ],
-        app=[
-            "zope.app.authentication",
-            "zope.app.component",
-            "zope.app.securitypolicy",
-            "zope.app.server",
-            "zope.app.session", # purely BBB for old Data.fs'es
-            "zope.app.zcmlfiles",
-            "zope.server",
-            "zope.error",
-            "zope.session",
-            ],
+        test=[],
+        app=[],
     ),
     entry_points=dict(
         console_scripts=['zodbbrowser = zodbbrowser.standalone:main'],

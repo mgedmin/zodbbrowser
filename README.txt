@@ -33,7 +33,7 @@ on the current state of all the dependencies (buildout.cfg hardcodes
 dependency version to a known-working-together state, called the "Zope 3.4
 Known Good Set", so buildout-based installs are safer) ::
 
-  easy_install zodbbrowser[app]
+  easy_install zodbbrowser
   zodbbrowser /path/to/Data.fs
 
 

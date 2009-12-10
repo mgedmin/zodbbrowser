@@ -1,8 +1,11 @@
 Changes
 -------
 
-0.6.2 (unreleased)
-~~~~~~~~~~~~~~~~~~
+0.7 (unreleased)
+~~~~~~~~~~~~~~~~
+
+- Stopped using setuptools extras; now easy_install zodbbrowser is sufficient
+  to run the standalone app.
 
 
 0.6.1 (2009-12-09)
