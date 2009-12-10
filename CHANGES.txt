@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.7 (unreleased)
+0.7 (2009-12-10)
 ~~~~~~~~~~~~~~~~
 
 - Stopped using setuptools extras; now easy_install zodbbrowser is sufficient
