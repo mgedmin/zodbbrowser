@@ -84,6 +84,11 @@ implements the same idea (but without history browsing) as a GUI desktop
 application written using wxPython.  It doesn't have a website and was never
 released to the Python Package Index.
 
+There's also `dm.historical`_ which provides access to object history from
+an interactive Python shell.
+
+.. _ http://pypi.python.org/pypi/dm.historical
+
 
 Authors
 -------
