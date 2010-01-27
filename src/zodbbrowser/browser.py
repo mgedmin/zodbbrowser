@@ -1,4 +1,5 @@
 import time
+import logging
 from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
@@ -8,7 +9,8 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.component import adapts
 from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
-from ZODB.utils import p64, u64, tid_repr
+from ZODB.utils import p64, u64, tid_repr, oid_repr
+from ZODB.Connection import Connection
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
 import transaction
@@ -18,6 +20,9 @@ from zodbbrowser import __version__, __homepage__
 from zodbbrowser.interfaces import IObjectHistory, IValueRenderer
 from zodbbrowser.state import ZodbObjectState
 from zodbbrowser.diff import compareDictsHTML
+
+
+log = logging.getLogger("zodbbrowser")
 
 
 class ZodbHelpView(BrowserView):
@@ -75,6 +80,16 @@ class ZodbInfoView(BrowserView):
             return self.render()
         finally:
             if self.readonly:
+                resources = transaction.get()._resources
+                if resources:
+                    msg = ["Aborting changes made to:"]
+                    for r in resources:
+                        if isinstance(r, Connection):
+                            for o in r._registered_objects:
+                                msg.append("  oid=%s %s" % (oid_repr(o._p_oid), repr(o)))
+                        else:
+                            msg.append("  %s" % repr(r))
+                    log.warning("\n".join(msg))
                 transaction.abort()
 
     def render(self):
