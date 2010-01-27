@@ -71,6 +71,13 @@ class ZodbInfoView(BrowserView):
         return jar.isReadOnly()
 
     def __call__(self):
+        try:
+            return self.render()
+        finally:
+            if self.readonly:
+                transaction.abort()
+
+    def render(self):
         self.obj = None
 
         if 'oid' not in self.request:
