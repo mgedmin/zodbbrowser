@@ -15,11 +15,11 @@ all: bin/buildout
 
 .PHONY: check test
 check test: bin/test
-	bin/test
+	bin/test -s zodbbrowser
 
 .PHONY: coverage
 coverage:
-	bin/test -u --coverage=coverage
+	bin/test -s zodbbrowser -u --coverage=coverage
 	bin/coverage parts/test/coverage
 
 .PHONY: tags
@@ -40,7 +40,7 @@ checklatestzope: dist
 	cd zodbbrowser-$$version && \
 	$(PYTHON) bootstrap.py && \
 	bin/buildout -c bleeding-edge.cfg && \
-	bin/test
+	bin/test -s zodbbrowser
 
 .PHONY: distcheck
 distcheck: check checklatestzope dist
