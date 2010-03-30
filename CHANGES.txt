@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.7.1 (unreleased)
+0.7.1 (2010-03-30)
 ~~~~~~~~~~~~~~~~~~
 
 - IMPORTANT BUGFIX: don't leave old object states lying around in ZODB object
@@ -12,6 +12,10 @@ Changes
   dead.
 
 - Try to discard data modifications when the DB is opened read-only.
+
+- Avoid deprecated zope.testing.doctest.
+
+- Avoid zope.app.securitypolicy; use zope.securitypolicy.
 
 
 0.7 (2009-12-10)
