@@ -69,7 +69,8 @@ distcheck: check checklatestzope dist
 release:
 	@$(PYTHON) setup.py --version | grep -qv dev || { \
 	    echo "Please remove the 'dev' suffix from the version number in src/zodbbrowser/__init__.py"; exit 1; }
-	@$(PYTHON) setup.py --long-description | rst2html --exit-status=2 > /dev/null
+	@$(PYTHON) setup.py --long-description | rst2html --exit-status=2 > /dev/null || { \
+	    echo "There's a restructured text error in the package description"; exit 1; }
 	@ver_and_date="`$(PYTHON) setup.py --version` (`date +%Y-%m-%d`)" && \
 	    grep -q "^$$ver_and_date$$" CHANGES.txt || { \
 	        echo "CHANGES.txt has no entry for $$ver_and_date"; exit 1; }
