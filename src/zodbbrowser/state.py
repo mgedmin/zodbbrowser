@@ -1,4 +1,5 @@
 from persistent.dict import PersistentDict
+from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from zope.component import adapts, getMultiAdapter
 from zope.interface import implements, Interface
@@ -153,14 +154,18 @@ class OrderedContainerState(GenericState):
     adapts(OrderedContainer, dict, None)
 
     def listItems(self):
+        # Now this is tricky: we want to construct a small object graph using
+        # old state pickles without ever calling __setstate__ on a real
+        # Persistent object, as _that_ would poison ZODB in-memory caches
+        # in a nasty way (LP #487243).
         container = OrderedContainer()
         container.__setstate__(self.state)
-        # _data will be a PersistentDict
-        container._data.__setstate__(
-            IObjectHistory(container._data).loadState(self.tid))
-        # _order will be a PersistentList
-        container._order.__setstate__(
-            IObjectHistory(container._order).loadState(self.tid))
+        old_data_state = IObjectHistory(container._data).loadState(self.tid)
+        old_order_state = IObjectHistory(container._order).loadState(self.tid)
+        container._data = PersistentDict()
+        container._data.__setstate__(old_data_state)
+        container._order = PersistentList()
+        container._order.__setstate__(old_order_state)
         return container.items()
 
 

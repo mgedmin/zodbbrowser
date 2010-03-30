@@ -218,8 +218,10 @@ class TestOrderedContainerState(RealDatabaseTest):
         self.container['foo'] = 1
         self.container['bar'] = 2
         transaction.commit()
-        self.state = OrderedContainerState(None, self.container.__getstate__(),
-                                           None)
+        self.tid = self.container._p_serial
+        self.state = OrderedContainerState(self.container,
+                                           self.container.__getstate__(),
+                                           self.tid)
 
     def tearDown(self):
         RealDatabaseTest.tearDown(self)
@@ -228,6 +230,16 @@ class TestOrderedContainerState(RealDatabaseTest):
     def test_listItems(self):
         self.assertEquals(list(self.state.listItems()),
                           [('foo', 1), ('bar', 2)])
+
+    def test_listItems_does_not_change_persistent_objects(self):
+        self.container['baz'] = 3
+        transaction.commit()
+        # State still shows old history
+        self.assertEquals(list(self.state.listItems()),
+                          [('foo', 1), ('bar', 2)])
+        # This doesn't affect any real objects:
+        self.assertEquals(list(self.container.items()),
+                          [('foo', 1), ('bar', 2), ('baz', 3)])
 
 
 class TestFallbackState(unittest.TestCase):
