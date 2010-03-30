@@ -4,6 +4,13 @@ Changes
 0.7.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~
 
+- IMPORTANT BUGFIX: don't leave old object states lying around in ZODB object
+  cache, which could lead to DATA LOSS (LP#487243 strikes again, this time
+  for OrderedContainers).
+
+  I've audited the code and am fairly confident this bug is now dead dead
+  dead.
+
 - Try to discard data modifications when the DB is opened read-only.
 
 
@@ -33,7 +40,8 @@ Changes
 ~~~~~~~~~~~~~~~~~~
 
 - IMPORTANT BUGFIX: don't leave old object states lying around in ZODB object
-  cache, which could lead to DATA LOSS (LP#487243).
+  cache, which could lead to DATA LOSS (LP#487243).  This affected OOBTree
+  objects.
 
 
 0.5 (2009-11-23)
