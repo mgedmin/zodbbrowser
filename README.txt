@@ -89,6 +89,10 @@ an interactive Python shell.
 
 __ http://pypi.python.org/pypi/dm.historical
 
+If you're not interested in history or objects that cannot be reached
+through URL traversal, you can use the built-in object inspector that
+comes with Zope 3 / Grok.
+
 
 Authors
 -------
