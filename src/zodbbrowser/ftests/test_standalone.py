@@ -3,6 +3,7 @@ import re
 import sys
 import tempfile
 import shutil
+import doctest
 import unittest
 import threading
 from cgi import escape
@@ -12,7 +13,6 @@ from lxml.html import fromstring, tostring
 from ZODB.POSException import ReadOnlyError
 from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.DB import DB
-from zope.testing import doctest
 from zope.testing.renormalizing import RENormalizing
 from zope.testbrowser.browser import Browser
 from zope.testbrowser.interfaces import IBrowser
