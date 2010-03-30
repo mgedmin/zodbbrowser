@@ -31,7 +31,7 @@ class Options(object):
     site_definition = """
         <configure xmlns="http://namespaces.zope.org/zope"
                    i18n_domain="zodbbrowser">
-          <include package="zope.app.securitypolicy" file="meta.zcml" />
+          <include package="zope.securitypolicy" file="meta.zcml" />
           <include package="zope.app.zcmlfiles" file="meta.zcml" />
 
           <include package="zope.app.zcmlfiles" />
