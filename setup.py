@@ -79,7 +79,7 @@ setup(
         # dependencies just for the standalone app
         "zope.app.authentication",
         "zope.app.component",
-        "zope.app.securitypolicy",
+        "zope.securitypolicy",
         "zope.app.server",
         "zope.app.session", # purely BBB for old Data.fs'es
         "zope.app.zcmlfiles",
