@@ -182,9 +182,9 @@ class ZodbInfoView(BrowserView):
         try:
             return self.request.annotations['ZODB.interfaces.IConnection']
         except KeyError:
-            obj = removeSecurityProxy(self.context)
-            while not isinstance(obj, Persistent):
-                obj = removeSecurityProxy(obj.__parent__)
+            obj = self.findClosestPersistent()
+            if obj is None:
+                raise Exception("ZODB connection not available for this request")
             return obj._p_jar
 
     def locate(self, path):
