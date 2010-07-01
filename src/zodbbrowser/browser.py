@@ -127,15 +127,14 @@ class ZodbInfoView(BrowserView):
 
     def selectObjectToView(self):
         obj = None
-
         if 'oid' not in self.request:
             obj = self.findClosestPersistent()
-
         if obj is None:
-            oid = p64(int(self.request.get('oid', str(self.getRootOid())), 0))
-            jar = self.jar()
-            obj = jar.get(oid)
-
+            if 'oid' in self.request:
+                oid = int(self.request['oid'], 0)
+            else:
+                oid = self.getRootOid()
+            obj = self.jar().get(p64(oid))
         return obj
 
     def findClosestPersistent(self):
