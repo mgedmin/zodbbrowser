@@ -117,6 +117,35 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
         self.assertEquals(view.jar(), self.root._p_jar)
 
+    def testSelectObjectToView_use_context(self):
+        view = ZodbInfoView(self.root, TestRequest())
+        self.assertEquals(view.selectObjectToView(), self.root)
+        view = ZodbInfoView(self.root['root']['item'], TestRequest())
+        self.assertEquals(view.selectObjectToView(), self.root['root']['item'])
+
+    def testSelectObjectToView_find_parent(self):
+        view = ZodbInfoView(self.root['stub']['member'], TestRequest())
+        self.assertEquals(view.selectObjectToView(), self.root['stub'])
+
+    def testSelectObjectToView_find_parent_fail(self):
+        view = ZodbInfoView(self.root['stub']['member']['notpersistent'], TestRequest())
+        self.assertRaises(Exception, view.selectObjectToView)
+
+    def testSelectObjectToView_find_parent_fail_fall_back_to_root(self):
+        view = ZodbInfoView(self.root['stub']['member']['notpersistent'], TestRequest())
+        view.jar = lambda: self.root._p_jar
+        self.assertEquals(view.selectObjectToView(), self.root)
+
+    def testSelectObjectToView_by_oid(self):
+        oid = u64(self.root['stub']._p_oid)
+        view = ZodbInfoView(self.root, TestRequest(form={'oid': str(oid)}))
+        self.assertEquals(view.selectObjectToView(), self.root['stub'])
+
+    def testSelectObjectToView_by_oid_in_hex(self):
+        oid = u64(self.root['stub']._p_oid)
+        view = ZodbInfoView(self.root, TestRequest(form={'oid': hex(oid)}))
+        self.assertEquals(view.selectObjectToView(), self.root['stub'])
+
     def testFindClosestPersistent(self):
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
         self.assertEquals(view.findClosestPersistent(), self.root['stub'])
