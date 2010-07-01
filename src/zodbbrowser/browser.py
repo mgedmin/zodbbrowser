@@ -132,7 +132,7 @@ class ZodbInfoView(BrowserView):
             obj = self.findClosestPersistent()
 
         if obj is None:
-            oid = p64(int(self.request.get('oid', self.getRootOid()), 0))
+            oid = p64(int(self.request.get('oid', str(self.getRootOid())), 0))
             jar = self.jar()
             obj = jar.get(oid)
 

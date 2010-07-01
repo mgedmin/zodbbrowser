@@ -4,7 +4,9 @@ Changes
 0.7.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~
 
-- No changes yet.
+- Fixed TypeError: int() can't convert non-string with explicit base
+  that could occur if no persistent objects were accessible from the request,
+  and no explicit oid was passed.
 
 
 0.7.1 (2010-03-30)
