@@ -93,16 +93,7 @@ class ZodbInfoView(BrowserView):
                 transaction.abort()
 
     def render(self):
-        self.obj = None
-
-        if 'oid' not in self.request:
-            self.obj = self.findClosestPersistent()
-
-        if self.obj is None:
-            oid = p64(int(self.request.get('oid', self.getRootOid()), 0))
-            jar = self.jar()
-            self.obj = jar.get(oid)
-
+        self.obj = self.selectObjectToView()
         self.history = IObjectHistory(self.obj)
         self.latest = True
         if self.request.get('tid'):
@@ -133,6 +124,19 @@ class ZodbInfoView(BrowserView):
 
     def _redirectToSelf(self):
         self.request.response.redirect(self.getUrl())
+
+    def selectObjectToView(self):
+        obj = None
+
+        if 'oid' not in self.request:
+            obj = self.findClosestPersistent()
+
+        if obj is None:
+            oid = p64(int(self.request.get('oid', self.getRootOid()), 0))
+            jar = self.jar()
+            obj = jar.get(oid)
+
+        return obj
 
     def findClosestPersistent(self):
         obj = removeSecurityProxy(self.context)
