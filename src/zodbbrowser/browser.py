@@ -162,7 +162,11 @@ class ZodbInfoView(BrowserView):
         return self.state.getObjectId()
 
     def getObjectType(self):
-        return str(getattr(self.obj, '__class__', None))
+        cls = getattr(self.obj, '__class__', None)
+        if type(self.obj) is not cls:
+            return '%s - %s' % (cls, type(self.obj))
+        else:
+            return str(cls)
 
     def getStateTid(self):
         return u64(self.state.tid)
