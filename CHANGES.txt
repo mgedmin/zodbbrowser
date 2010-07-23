@@ -8,6 +8,8 @@ Changes
   that could occur if no persistent objects were accessible from the request,
   and no explicit oid was passed.
 
+- Handle proxies better: when type(obj) != obj.__class__, show both.
+
 
 0.7.1 (2010-03-30)
 ~~~~~~~~~~~~~~~~~~
