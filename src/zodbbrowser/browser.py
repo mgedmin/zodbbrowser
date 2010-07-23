@@ -164,7 +164,7 @@ class ZodbInfoView(BrowserView):
     def getObjectType(self):
         cls = getattr(self.obj, '__class__', None)
         if type(self.obj) is not cls:
-            return '%s - %s' % (cls, type(self.obj))
+            return '%s - %s' % (type(self.obj), cls)
         else:
             return str(cls)
 
