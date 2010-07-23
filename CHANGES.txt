@@ -10,6 +10,8 @@ Changes
 
 - Handle proxies better: when type(obj) != obj.__class__, show both.
 
+- Handle ContainedProxy objects with their special persistence scheme.
+
 
 0.7.1 (2010-03-30)
 ~~~~~~~~~~~~~~~~~~

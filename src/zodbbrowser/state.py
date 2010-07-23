@@ -16,6 +16,10 @@ try:
     from zope.container.ordered import OrderedContainer
 except ImportError:
     from zope.app.container.ordered import OrderedContainer # BBB
+try:
+    from zope.container.contained import ContainedProxy
+except ImportError:
+    from zope.app.container.contained import ContainedProxy # BBB
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 
@@ -167,6 +171,31 @@ class OrderedContainerState(GenericState):
         container._order = PersistentList()
         container._order.__setstate__(old_order_state)
         return container.items()
+
+
+class ContainedProxyState(GenericState):
+    adapts(ContainedProxy, tuple, None)
+
+    def __init__(self, proxy, state, tid):
+        GenericState.__init__(self, proxy, state, tid)
+        self.proxy = proxy
+
+    def getName(self):
+        return self.state[1]
+
+    def getParent(self):
+        return self.state[0]
+
+    def listAttributes(self):
+        return [('__name__', self.getName()),
+                ('__parent__', self.getParent()),
+                ('proxied_object', self.proxy.__getnewargs__()[0])]
+
+    def listItems(self):
+        return []
+
+    def asDict(self):
+        return dict(self.listAttributes())
 
 
 class FallbackState(object):

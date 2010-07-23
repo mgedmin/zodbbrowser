@@ -17,6 +17,7 @@
   <adapter factory=".state.PersistentMappingState" />
   <adapter factory=".state.SampleContainerState" />
   <adapter factory=".state.OrderedContainerState" />
+  <adapter factory=".state.ContainedProxyState" />
   <adapter factory=".state.FallbackState" />
 
   <adapter factory=".btreesupport.OOBTreeHistory" />
