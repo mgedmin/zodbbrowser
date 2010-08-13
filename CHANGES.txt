@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.7.2 (unreleased)
+0.7.2 (2010-08-13)
 ~~~~~~~~~~~~~~~~~~
 
 - Fixed TypeError: int() can't convert non-string with explicit base
