@@ -60,8 +60,6 @@ class Options(object):
           <role id="zope.Member" title="Site Member" />
           <grant permission="zope.View"
                  role="zope.Anonymous" />
-          <grant permission="zope.app.dublincore.view"
-                 role="zope.Anonymous" />
           <grantAll role="zope.Manager" />
           <!-- INSECURE -->
           <grant permission="zope.ManageContent"
