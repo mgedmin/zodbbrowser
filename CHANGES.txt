@@ -4,6 +4,8 @@ Changes
 0.7.3 (unreleased)
 ~~~~~~~~~~~~~~~~~~
 
+- Remove dependency on zope.dublincore/zope.app.dublincore (LP#622180).
+
 
 0.7.2 (2010-08-13)
 ~~~~~~~~~~~~~~~~~~
