@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.8.0 (unreleased)
+0.8.0 (2010-11-16)
 ~~~~~~~~~~~~~~~~~~
 
 - Support all kinds of ZODB databases, not just those used by Zope 3/BlueBream
