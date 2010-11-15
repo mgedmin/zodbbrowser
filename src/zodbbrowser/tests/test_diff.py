@@ -4,6 +4,7 @@ from zope.app.testing import setup
 from zope.component import provideAdapter
 
 from zodbbrowser.diff import compareDicts, compareDictsHTML
+from zodbbrowser.diff import compareTuples, compareTuplesHTML
 from zodbbrowser.testing import SimpleValueRenderer
 
 
@@ -26,6 +27,156 @@ def doctest_compareDicts():
         {'b': ('changed to', 3, 2),
          'c': ('removed', None, 3),
          'e': ('added', 4, None)}
+
+    """
+
+
+def doctest_compareTuples():
+    """Tests for compareTuples
+
+        >>> old = (1, 2, 3)
+        >>> new = ()
+        >>> compareTuples(new, old)
+        ((), (1, 2, 3), (), ())
+
+        >>> old = (1, 2, 3)
+        >>> new = (1, 2, 3, 4)
+        >>> compareTuples(new, old)
+        ((1, 2, 3), (), (4,), ())
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (2, 3, 4, 5)
+        >>> compareTuples(new, old)
+        ((), (1, 2, 3), (2, 3, 4), (5,))
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (1, 3, 4, 5)
+        >>> compareTuples(new, old)
+        ((1,), (2, 3), (3, 4), (5,))
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (1, 3, 4, 6)
+        >>> compareTuples(new, old)
+        ((1,), (2, 3, 5), (3, 4, 6), ())
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (2, 3, 4, 6)
+        >>> compareTuples(new, old)
+        ((), (1, 2, 3, 5), (2, 3, 4, 6), ())
+
+    """
+
+
+def doctest_compareTuplesHTML():
+    """Tests for compareTuplesHTML
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (2, 3, 4, 5)
+        >>> print compareTuplesHTML(new, old)
+        <div class="diff">
+          <div class="diffitem removed">
+            removed 1
+          </div>
+          <div class="diffitem removed">
+            removed 2
+          </div>
+          <div class="diffitem removed">
+            removed 3
+          </div>
+          <div class="diffitem added">
+            added 2
+          </div>
+          <div class="diffitem added">
+            added 3
+          </div>
+          <div class="diffitem added">
+            added 4
+          </div>
+          <div class="diffitem same">
+            last item kept the same
+          </div>
+        </div>
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (1, 3, 4, 5)
+        >>> print compareTuplesHTML(new, old)
+        <div class="diff">
+          <div class="diffitem same">
+            first item kept the same
+          </div>
+          <div class="diffitem removed">
+            removed 2
+          </div>
+          <div class="diffitem removed">
+            removed 3
+          </div>
+          <div class="diffitem added">
+            added 3
+          </div>
+          <div class="diffitem added">
+            added 4
+          </div>
+          <div class="diffitem same">
+            last item kept the same
+          </div>
+        </div>
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (1, 3, 4, 6)
+        >>> print compareTuplesHTML(new, old)
+        <div class="diff">
+          <div class="diffitem same">
+            first item kept the same
+          </div>
+          <div class="diffitem removed">
+            removed 2
+          </div>
+          <div class="diffitem removed">
+            removed 3
+          </div>
+          <div class="diffitem removed">
+            removed 5
+          </div>
+          <div class="diffitem added">
+            added 3
+          </div>
+          <div class="diffitem added">
+            added 4
+          </div>
+          <div class="diffitem added">
+            added 6
+          </div>
+        </div>
+
+        >>> old = (1, 2, 3, 5)
+        >>> new = (2, 3, 4, 6)
+        >>> print compareTuplesHTML(new, old)
+        <div class="diff">
+          <div class="diffitem removed">
+            removed 1
+          </div>
+          <div class="diffitem removed">
+            removed 2
+          </div>
+          <div class="diffitem removed">
+            removed 3
+          </div>
+          <div class="diffitem removed">
+            removed 5
+          </div>
+          <div class="diffitem added">
+            added 2
+          </div>
+          <div class="diffitem added">
+            added 3
+          </div>
+          <div class="diffitem added">
+            added 4
+          </div>
+          <div class="diffitem added">
+            added 6
+          </div>
+        </div>
 
     """
 
