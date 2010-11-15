@@ -110,7 +110,7 @@ class DictValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self, tid=None, threshold=50):
+    def render(self, tid=None, threshold=100):
         html = []
         for key, value in sorted(self.context.items()):
             html.append(IValueRenderer(key).render(tid) + ': ' +

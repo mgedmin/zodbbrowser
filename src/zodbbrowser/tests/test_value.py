@@ -1,4 +1,4 @@
-import unittest
+import unittest2 as unittest
 import sys
 
 from ZODB.utils import p64
@@ -186,15 +186,15 @@ class TestListValue(unittest.TestCase):
 
 class TestDictValue(unittest.TestCase):
 
-    def assertEquals(self, first, second):
-        if first != second:
-            self.fail('\n%r !=\n%r' % (first, second))
+    maxDiff = None
 
     def setUp(self):
         setup.placelessSetUp()
         provideAdapter(GenericValue)
         provideAdapter(FrobRenderer)
+        provideAdapter(StructRenderer)
         provideAdapter(DictValue)
+        self.addTypeEqualityFunc(str, 'assertMultiLineEqual')
 
     def tearDown(self):
         setup.placelessTearDown()
@@ -218,20 +218,23 @@ class TestDictValue(unittest.TestCase):
     def test_truly_long_dicts(self):
         self.assertEquals(DictValue(
             {'some long key name': 'some long value',
-             'some other long key name': 'some other long value'}).render(),
+             'some other long key name': 'some other long value'}).render(threshold=50),
            "{<span class=\"struct\">'some long key name': 'some long value',"
            "<br />'some other long key name': 'some other long value'}</span>")
 
     def test_nested_dicts(self):
         self.assertEquals(DictValue(
             {'A': {'some long key name': 'some long value',
-                       'some other long key name': 'some other long value'},
-             'B': ['something else entirely']}).render(),
+                   'some other long key name': 'some other long value',
+                   'struct': Struct()},
+             'B': ['something else entirely']}).render().replace('<br />', '\n<br />'),
            "{<span class=\"struct\">'A':"
                 " {<span class=\"struct\">'some long key name':"
-                " 'some long value',"
+                " 'some long value',\n"
                 "<br />'some other long key name':"
-                " 'some other long value'},</span>"
+                " 'some other long value',\n"
+                "<br />'struct':"
+                " <span class=\"struct\">Struct}</span>,</span>\n"
            "<br />'B': ['something else entirely'] (1 item)}</span>")
 
     def test_tid_is_preserved(self):
