@@ -1,10 +1,12 @@
 Reverting to older versions
 ---------------------------
 
-You can start by looking at the root folder
+We look at a folder
 
+    >>> import simplejson
     >>> browser = Browser(url)
-    >>> browser.open('/rollbacking/@@zodbbrowser')
+    >>> browser.open('@@zodbbrowser_path_to_oid?path=/rollbacking')
+    >>> browser.open(simplejson.loads(browser.contents)['url'])
 
 The 'History' section shows all the transactions that modified this object.
 

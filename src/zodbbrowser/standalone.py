@@ -13,10 +13,12 @@ import logging
 
 from ZEO.ClientStorage import ClientStorage
 from ZODB.DB import DB
+from ZODB.MappingStorage import MappingStorage
 from ZODB.FileStorage.FileStorage import FileStorage
+from ZODB.interfaces import IDatabase
 from zope.app.server.servertype import IServerType
 from zope.app.appsetup.appsetup import SystemConfigurationParticipation
-from zope.component import getUtility
+from zope.component import getUtility, provideUtility
 from zope.server.taskthreads import ThreadedTaskDispatcher
 from zope.event import notify
 import zope.app.component.hooks
@@ -174,11 +176,15 @@ def main(args=None, start_serving=True):
     else:
         parser.error('please specify a database')
 
+    internal_db = DB(MappingStorage())
+
     configure(options)
 
-    notify(zope.app.appsetup.interfaces.DatabaseOpened(db))
+    provideUtility(db, IDatabase, name='<target>')
 
-    start_server(options, db)
+    notify(zope.app.appsetup.interfaces.DatabaseOpened(internal_db))
+
+    start_server(options, internal_db)
 
     notify(zope.app.appsetup.interfaces.ProcessStarting())
 
