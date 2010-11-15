@@ -7,6 +7,8 @@ Changes
 - Support all kinds of ZODB databases, not just those used by Zope 3/BlueBream
   apps (LP#494987).
 
+- Renders tuples and lists that contain large dicts better.
+
 - Remove dependency on zope.dublincore/zope.app.dublincore (LP#622180).
 
 

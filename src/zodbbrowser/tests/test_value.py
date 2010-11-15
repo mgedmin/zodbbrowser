@@ -45,6 +45,10 @@ class PersistentFrob(Persistent):
         return '<PersistentFrob>'
 
 
+class Struct(object):
+    pass
+
+
 class FrobRenderer(object):
     adapts(Frob)
     implements(IValueRenderer)
@@ -57,6 +61,17 @@ class FrobRenderer(object):
             return '<Frob [tid=%s]>' % tid
         else:
             return '<Frob>'
+
+
+class StructRenderer(object):
+    adapts(Struct)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self, tid=None):
+        return '<span class="struct">Struct</span>'
 
 
 class TestGenericValue(unittest.TestCase):
@@ -100,6 +115,7 @@ class TestTupleValue(unittest.TestCase):
         setup.placelessSetUp()
         provideAdapter(GenericValue)
         provideAdapter(FrobRenderer)
+        provideAdapter(StructRenderer)
 
     def tearDown(self):
         setup.placelessTearDown()
@@ -122,6 +138,13 @@ class TestTupleValue(unittest.TestCase):
         self.assertEquals(TupleValue((Frob(), )).render(tid=42),
                           '(<Frob [tid=42]>, )')
 
+    def test_nested_structs(self):
+        self.assertEquals(TupleValue((Struct(), )).render(),
+              '(<span class="struct"><span class="struct">Struct, )</span></span>')
+        self.assertEquals(TupleValue((Struct(), Struct())).render(),
+              '(<span class="struct"><span class="struct">Struct,</span>'
+              '<br /><span class="struct">Struct)</span></span>')
+
 
 class TestListValue(unittest.TestCase):
 
@@ -129,6 +152,7 @@ class TestListValue(unittest.TestCase):
         setup.placelessSetUp()
         provideAdapter(GenericValue)
         provideAdapter(FrobRenderer)
+        provideAdapter(StructRenderer)
 
     def tearDown(self):
         setup.placelessTearDown()
@@ -150,6 +174,14 @@ class TestListValue(unittest.TestCase):
     def test_tid_is_preserved(self):
         self.assertEquals(ListValue([Frob()]).render(tid=42),
                           '[<Frob [tid=42]>]')
+
+    def test_nested_structs(self):
+        self.assertEquals(ListValue((Struct(), )).render(),
+              '[<span class="struct"><span class="struct">Struct]</span></span>')
+        self.assertEquals(ListValue((Struct(), Struct())).render(),
+              '[<span class="struct"><span class="struct">Struct,</span>'
+              '<br /><span class="struct">Struct]</span></span>')
+
 
 
 class TestDictValue(unittest.TestCase):
@@ -187,7 +219,7 @@ class TestDictValue(unittest.TestCase):
         self.assertEquals(DictValue(
             {'some long key name': 'some long value',
              'some other long key name': 'some other long value'}).render(),
-           "{<span class=\"dict\">'some long key name': 'some long value',"
+           "{<span class=\"struct\">'some long key name': 'some long value',"
            "<br />'some other long key name': 'some other long value'}</span>")
 
     def test_nested_dicts(self):
@@ -195,8 +227,8 @@ class TestDictValue(unittest.TestCase):
             {'A': {'some long key name': 'some long value',
                        'some other long key name': 'some other long value'},
              'B': ['something else entirely']}).render(),
-           "{<span class=\"dict\">'A':"
-                " {<span class=\"dict\">'some long key name':"
+           "{<span class=\"struct\">'A':"
+                " {<span class=\"struct\">'some long key name':"
                 " 'some long value',"
                 "<br />'some other long key name':"
                 " 'some other long value'},</span>"
