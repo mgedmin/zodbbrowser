@@ -23,10 +23,12 @@ We see the class name right underneath that
 
 If you click on the path, it turns into a navigation bar where you can
 type object paths to navigate to them.  This requires JavaScript, which is
-not available for our functional tests.  But you can also use the browser
-navbar to look at objects, if Zope can traverse to them:
+not available for our functional tests, so we simulate that by performing
+the AJAX request directly.
 
-    >>> browser.open('/browsing/@@zodbbrowser')
+    >>> import simplejson
+    >>> browser.open('@@zodbbrowser_path_to_oid?path=/browsing')
+    >>> browser.open(simplejson.loads(browser.contents)['url'])
     >>> printCSSPath(browser, 'h1#path')
     <h1 id="path">
       <span class="breadcrumbs">

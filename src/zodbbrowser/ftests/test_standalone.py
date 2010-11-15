@@ -154,8 +154,7 @@ class TestCanCreateEmptyDataFs(unittest.TestCase):
         self.server.run(self.empty_fs, '--rw')
         browser = Browser(self.server.url)
         self.assertTrue('zodbbrowser' in browser.contents)
-        self.assertTrue('zope.app.folder.folder.Folder' in browser.contents
-                        or 'zope.site.folder.Folder' in browser.contents)
+        self.assertTrue('persistent.mapping.PersistentMapping' in browser.contents)
 
     def test_cannot_start_in_read_only_mode(self):
         self.assertRaises(ReadOnlyError, self.server.run, self.empty_fs)

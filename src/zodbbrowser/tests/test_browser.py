@@ -1,12 +1,14 @@
 import unittest
 import transaction
 import sys
+import gc
 
 from ZODB.utils import u64, p64, tid_repr, oid_repr
+from ZODB.interfaces import IDatabase
 from zope.app.container.btree import BTreeContainer
 from zope.app.container.interfaces import IContained
 from zope.app.testing import setup
-from zope.component import provideAdapter
+from zope.component import provideAdapter, getGlobalSiteManager
 from zope.interface import implements
 from zope.publisher.browser import TestRequest
 from zope.traversing.interfaces import IContainmentRoot
@@ -17,6 +19,24 @@ from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 
 from realdb import RealDatabaseTest
+
+
+class DatabaseStub(object):
+    implements(IDatabase)
+
+    opened = 0
+
+    def open(self):
+        self.opened += 1
+        return ConnectionStub(self)
+
+
+class ConnectionStub(object):
+    def __init__(self, db):
+        self.db = db
+
+    def close(self):
+        self.db.opened -= 1
 
 
 class RootFolderStub(BTreeContainer):
@@ -113,9 +133,9 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
 
     def testGetJar(self):
         view = ZodbInfoView(self.root, TestRequest())
-        self.assertEquals(view.jar(), self.root._p_jar)
+        self.assertEquals(view.jar, self.root._p_jar)
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
-        self.assertEquals(view.jar(), self.root._p_jar)
+        self.assertEquals(view.jar, self.root._p_jar)
 
     def testSelectObjectToView_use_context(self):
         view = ZodbInfoView(self.root, TestRequest())
@@ -133,7 +153,7 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
 
     def testSelectObjectToView_find_parent_fail_fall_back_to_root(self):
         view = ZodbInfoView(self.root['stub']['member']['notpersistent'], TestRequest())
-        view.jar = lambda: self.root._p_jar
+        view.jar = self.root._p_jar
         self.assertEquals(view.selectObjectToView(), self.root)
 
     def testSelectObjectToView_by_oid(self):
@@ -317,6 +337,28 @@ class TestZodbInfoView(unittest.TestCase):
     def assertEquals(self, first, second):
         if first != second:
             self.fail('\n%r !=\n%r' % (first, second))
+
+    def addCleanUp(self, fn, *args, **kw):
+        self.cleanups.append((fn, args, kw))
+
+    def setUp(self):
+        self.cleanups = []
+
+    def tearDown(self):
+        for fn, args, kw in reversed(self.cleanups):
+            fn(*args, **kw)
+
+    def testGetJar_uses_explicit_target_db(self):
+        stub_db = DatabaseStub()
+        registry = getGlobalSiteManager()
+        registry.registerUtility(stub_db, IDatabase, name='<target>')
+        self.addCleanUp(registry.unregisterUtility,
+                        stub_db, IDatabase, name='<target>')
+        view = ZodbInfoView(object(), TestRequest())
+        self.assertEquals(view.jar.db, stub_db)
+        del view
+        gc.collect()
+        self.assertEquals(stub_db.opened, 0)
 
     def test_getPath(self):
         view = ZodbInfoView(None, None)

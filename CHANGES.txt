@@ -1,8 +1,11 @@
 Changes
 -------
 
-0.7.3 (unreleased)
+0.8.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~
+
+- Support all kinds of ZODB databases, not just those used by Zope 3/BlueBream
+  apps (LP#494987).
 
 - Remove dependency on zope.dublincore/zope.app.dublincore (LP#622180).
 

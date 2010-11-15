@@ -3,14 +3,16 @@ import logging
 from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
-from zope.app.publication.zopepublication import ZopePublication
+from zope.app.publication.zopepublication import ZopePublication, Cleanup
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.component import adapts
+from zope.component import adapts, queryUtility
 from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
+from zope.cachedescriptors.property import Lazy
 from ZODB.utils import p64, u64, tid_repr, oid_repr
 from ZODB.Connection import Connection
+from ZODB.interfaces import IDatabase
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
 import transaction
@@ -72,7 +74,7 @@ class ZodbInfoView(BrowserView):
 
     @property
     def readonly(self):
-        jar = self.jar()
+        jar = self.jar
         return jar.isReadOnly()
 
     def __call__(self):
@@ -129,12 +131,17 @@ class ZodbInfoView(BrowserView):
         obj = None
         if 'oid' not in self.request:
             obj = self.findClosestPersistent()
+            # Sanity check: if we're running in standalone mode,
+            # self.context is a Folder in the just-created MappingStorage,
+            # which we're not interested in.
+            if obj is not None and obj._p_jar is not self.jar:
+                obj = None
         if obj is None:
             if 'oid' in self.request:
                 oid = int(self.request['oid'], 0)
             else:
                 oid = self.getRootOid()
-            obj = self.jar().get(p64(oid))
+            obj = self.jar.get(p64(oid))
         return obj
 
     def findClosestPersistent(self):
@@ -175,7 +182,7 @@ class ZodbInfoView(BrowserView):
         return self._tidToTimestamp(self.state.tid)
 
     def getRootOid(self):
-        root = self.jar().root()
+        root = self.jar.root()
         try:
             root = root[ZopePublication.root_name]
         except KeyError:
@@ -185,7 +192,13 @@ class ZodbInfoView(BrowserView):
     def locate_json(self, path):
         return simplejson.dumps(self.locate(path))
 
+    @Lazy
     def jar(self):
+        db = queryUtility(IDatabase, name='<target>')
+        if db is not None:
+            conn = db.open()
+            self.request.hold(Cleanup(conn.close))
+            return conn
         try:
             return self.request.annotations['ZODB.interfaces.IConnection']
         except KeyError:
@@ -195,7 +208,7 @@ class ZodbInfoView(BrowserView):
             return obj._p_jar
 
     def locate(self, path):
-        jar = self.jar()
+        jar = self.jar
         oid = self.getRootOid()
         partial = here = '/'
         obj = jar.get(p64(oid))
