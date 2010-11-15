@@ -142,7 +142,7 @@ div.object .truncated {
   -moz-border-radius: 2px;
 }
 
-span.dict {
+span.struct {
   display: inline-block;
   vertical-align: text-top;
 }

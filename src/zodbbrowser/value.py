@@ -44,6 +44,23 @@ class GenericValue(object):
         return text
 
 
+def join_with_commas(html, open, close):
+    """Helper to join multiple html snippets into a struct."""
+    prefix = open + '<span class="struct">'
+    suffix = '</span>'
+    for n, item in enumerate(html):
+        if n == len(html) - 1:
+            trailer = close
+        else:
+            trailer = ','
+        if item.endswith(suffix):
+            item = item[:-len(suffix)] + trailer + suffix
+        else:
+            item += trailer
+        html[n] = item
+    return prefix + '<br />'.join(html) + suffix
+
+
 class TupleValue(object):
     """Tuple renderer."""
     adapts(tuple)
@@ -52,13 +69,19 @@ class TupleValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self, tid=None):
+    def render(self, tid=None, threshold=100):
         html = []
         for item in self.context:
             html.append(IValueRenderer(item).render(tid))
         if len(html) == 1:
             html.append('') # (item) -> (item, )
-        return '(%s)' % ', '.join(html)
+        result = '(%s)' % ', '.join(html)
+        if  len(result) > threshold or '<span class="struct">' in result:
+            if len(html) == 2 and html[1] == '':
+                return join_with_commas(html[:1], '(', ', )')
+            else:
+                return join_with_commas(html, '(', ')')
+        return result
 
 
 class ListValue(object):
@@ -69,11 +92,14 @@ class ListValue(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self, tid=None):
+    def render(self, tid=None, threshold=100):
         html = []
         for item in self.context:
             html.append(IValueRenderer(item).render(tid))
-        return '[%s]' % ', '.join(html)
+        result = '[%s]' % ', '.join(html)
+        if  len(result) > threshold or '<span class="struct">' in result:
+            return join_with_commas(html, '[', ']')
+        return result
 
 
 class DictValue(object):
@@ -89,22 +115,11 @@ class DictValue(object):
         for key, value in sorted(self.context.items()):
             html.append(IValueRenderer(key).render(tid) + ': ' +
                         IValueRenderer(value).render(tid))
-        if sum(map(len, html)) < threshold:
+        if (sum(map(len, html)) < threshold and
+            '<span class="struct">' not in ''.join(html)):
             return '{%s}' % ', '.join(html)
         else:
-            prefix = '{<span class="dict">'
-            suffix = '</span>'
-            for n, item in enumerate(html):
-                if n == len(html) - 1:
-                    trailer = '}'
-                else:
-                    trailer = ','
-                if item.endswith(suffix):
-                    item = item[:-len(suffix)] + trailer + suffix
-                else:
-                    item += trailer
-                html[n] = item
-            return prefix + '<br />'.join(html) + suffix
+            return join_with_commas(html, '{', '}')
 
 
 class PersistentValue(object):
