@@ -4,6 +4,12 @@ Changes
 0.8.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~
 
+- Show tuple differences more clearly in the history.  (Uses a really dumb
+  diff algorithm that just looks for a common prefix/suffix.  Works really
+  well when you append to the end, or remove just a single item.  I cannot
+  use difflib.SequenceMapper because there's no guarantee tuple items are
+  hashable.)
+
 
 0.8.0 (2010-11-16)
 ~~~~~~~~~~~~~~~~~~

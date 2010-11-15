@@ -32,6 +32,59 @@ def isascii(s):
         return True
 
 
+def compareTuples(new, old):
+    """Compare two tuples.
+
+    Return (common_prefix, middle_of_old, middle_of_new, common_suffix)
+    """
+    first = 0
+    for oldval, newval in zip(old, new):
+        if oldval != newval:
+            break
+        first += 1
+    last = 0
+    for oldval, newval in zip(reversed(old[first:]), reversed(new[first:])):
+        if oldval != newval:
+            break
+        last += 1
+    return (old[:first],
+            old[first:len(old)-last],
+            new[first:len(new)-last],
+            old[len(old)-last:])
+
+
+def compareTuplesHTML(new, old, tid=None, indent=''):
+    """Compare two tuples, return HTML."""
+    html = [indent + '<div class="diff">\n']
+    prefix, removed, added, suffix = compareTuples(new, old)
+    if len(prefix) > 0:
+        html.append(indent + '  <div class="diffitem %s">\n' % 'same')
+        if len(prefix) == 1:
+            html.append(indent + '    first item kept the same\n')
+        else:
+            html.append(indent + '    first %d items kept the same\n' % len(prefix))
+        html.append(indent + '  </div>\n')
+    for oldval in removed:
+        html.append(indent + '  <div class="diffitem %s">\n' % REMOVED)
+        html.append(indent + '    %s %s\n' % (
+            REMOVED, IValueRenderer(oldval).render(tid)))
+        html.append(indent + '  </div>\n')
+    for newval in added:
+        html.append(indent + '  <div class="diffitem %s">\n' % ADDED)
+        html.append(indent + '    %s %s\n' % (
+            ADDED, IValueRenderer(newval).render(tid)))
+        html.append(indent + '  </div>\n')
+    if len(suffix) > 0:
+        html.append(indent + '  <div class="diffitem %s">\n' % 'same')
+        if len(suffix) == 1:
+            html.append(indent + '    last item kept the same\n')
+        else:
+            html.append(indent + '    last %d items kept the same\n' % len(suffix))
+        html.append(indent + '  </div>\n')
+    html.append(indent + '</div>\n')
+    return ''.join(html)
+
+
 def compareDictsHTML(new, old, tid=None, indent=''):
     """Compare two state dictionaries, return HTML."""
     html = [indent + '<div class="diff">\n']
@@ -50,6 +103,11 @@ def compareDictsHTML(new, old, tid=None, indent=''):
             html.append('dictionary changed:\n')
             html.append(compareDictsHTML(newvalue, oldvalue, tid,
                                          indent=indent + '    '))
+        elif (action == CHANGED and isinstance(oldvalue, tuple) and
+              isinstance(newvalue, tuple)):
+            html.append('tuple changed:\n')
+            html.append(compareTuplesHTML(newvalue, oldvalue, tid,
+                                          indent=indent + '    '))
         else:
             html.append(action)
             html.append(' ')
