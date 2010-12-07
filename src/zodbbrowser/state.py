@@ -60,8 +60,6 @@ class ZodbObjectState(object):
             # __name__ is not in the pickled state, but it may be defined
             # via other means (e.g. class attributes, custom __getattr__ etc.)
             name = getattr(self.obj, '__name__', None)
-        if not name:
-            name = '???'
         return name
 
     def asDict(self):
