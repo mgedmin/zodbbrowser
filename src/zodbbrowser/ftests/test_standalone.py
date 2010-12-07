@@ -286,9 +286,9 @@ def test_suite():
     suite = unittest.defaultTestLoader.loadTestsFromModule(this)
     checker = RENormalizing([
         (re.compile(r'object at 0x[0-9a-fA-F]+'), 'object at 0xXXXXXXX'),
-        (re.compile(r'\btid[0-9]+'), 'tidXXXXXXXXXXXXXXXXXX'),
-        (re.compile(r'\btid=[0-9]+'), 'tid=XXXXXXXXXXXXXXXXXX'),
-        (re.compile(r'\boid=[0-9]+'), 'oid=XX'),
+        (re.compile(r'\btid[0-9xA-Fa-f]+'), 'tidXXXXXXXXXXXXXXXXXX'),
+        (re.compile(r'\btid=[0-9xA-Fa-f]+'), 'tid=XXXXXXXXXXXXXXXXXX'),
+        (re.compile(r'\boid=[0-9xA-Fa-f]+'), 'oid=XX'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d[.]\d\d\d\d\d\d'),
             'YYYY-MM-DD HH:MM:SS.SSSSSS'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),

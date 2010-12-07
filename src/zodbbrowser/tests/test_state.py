@@ -66,7 +66,7 @@ class TestZodbObjectState(RealDatabaseTest):
         self.assertEquals(state.listItems(), None)
         self.assertTrue(state.listAttributes()[0][0], '_SampleContainer__data')
         self.assertEquals(state.getParent(), None)
-        self.assertEquals(state.getName(), '???')
+        self.assertEquals(state.getName(), None)
         self.assertTrue('_SampleContainer__data' in state.asDict().keys())
 
     def testNameFromClassAttribute(self):

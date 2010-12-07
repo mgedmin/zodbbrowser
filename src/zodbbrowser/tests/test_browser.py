@@ -196,14 +196,14 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
     def testLocate(self):
         view = self._zodbInfoView(self.root, TestRequest())
         jsonResult = view.locate_json('/')
-        self.assertTrue('"url": "@@zodbbrowser?oid=0"' in jsonResult)
+        self.assertTrue('"url": "@@zodbbrowser?oid=0x0"' in jsonResult)
         self.assertTrue('"oid": 0' in jsonResult)
         jsonResult = view.locate_json('/stub/member/notpersistent')
         self.assertTrue('"partial_url"' in jsonResult)
         self.assertTrue('"partial_oid"' in jsonResult)
         self.assertTrue('"error": "Not persistent: /stub/member/notpersistent"')
         jsonResult = view.locate_json('/stub/nonexistent')
-        self.assertTrue('"partial_url": "@@zodbbrowser?oid=1"' in jsonResult)
+        self.assertTrue('"partial_url": "@@zodbbrowser?oid=0x1"' in jsonResult)
         self.assertTrue('"partial_path": "/stub", ' in jsonResult)
         self.assertTrue('"error": "Not found: /stub/nonexistent"}' in jsonResult)
         self.assertTrue('"partial_oid": 1' in jsonResult)
@@ -211,13 +211,13 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
     def testLocateStartWithOID(self):
         view = self._zodbInfoView(self.root, TestRequest())
         jsonResult = view.locate_json('0')
-        self.assertTrue('"url": "@@zodbbrowser?oid=0"' in jsonResult)
+        self.assertTrue('"url": "@@zodbbrowser?oid=0x0"' in jsonResult)
         self.assertTrue('"oid": 0' in jsonResult)
         jsonResult = view.locate_json('0x0')
-        self.assertTrue('"url": "@@zodbbrowser?oid=0"' in jsonResult)
+        self.assertTrue('"url": "@@zodbbrowser?oid=0x0"' in jsonResult)
         self.assertTrue('"oid": 0' in jsonResult)
         jsonResult = view.locate_json('0x1/nonexistent')
-        self.assertTrue('"partial_url": "@@zodbbrowser?oid=1"' in jsonResult)
+        self.assertTrue('"partial_url": "@@zodbbrowser?oid=0x1"' in jsonResult)
         self.assertTrue('"partial_path": "0x1", ' in jsonResult)
         self.assertTrue('"error": "Not found: 0x1/nonexistent"}' in jsonResult)
         self.assertTrue('"partial_oid": 1' in jsonResult)
@@ -225,20 +225,19 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
     def testLocateStartWithOID_that_does_not_exist(self):
         view = self._zodbInfoView(self.root, TestRequest())
         jsonResult = view.locate_json('0x1234')
-        self.assertTrue('"partial_url": "@@zodbbrowser?oid=0"' in jsonResult)
+        self.assertTrue('"partial_url": "@@zodbbrowser?oid=0x0"' in jsonResult)
         self.assertTrue('"partial_path": "/", ' in jsonResult)
         self.assertTrue('"error": "Not found: 0x1234"}' in jsonResult)
         self.assertTrue('"partial_oid": 0' in jsonResult)
 
     def testGetUrl(self):
         view = self._zodbInfoView(self.root, TestRequest())
-        self.assertEquals(view.getUrl(), '@@zodbbrowser?oid=' +
-                          str(u64(self.root._p_oid)))
+        self.assertEquals(view.getUrl(), '@@zodbbrowser?oid=0x%x' %
+                          u64(self.root._p_oid))
         view = self._zodbInfoView(self.root, TestRequest())
-        self.assertEquals(view.getUrl(1, 2), '@@zodbbrowser?oid=1&tid=2')
+        self.assertEquals(view.getUrl(1, 2), '@@zodbbrowser?oid=0x1&tid=0x2')
         view = ZodbInfoView(self.root, TestRequest(form={'tid': '2'}))
-        self.assertEquals(view.getUrl(1), '@@zodbbrowser?oid=1&tid=2')
-
+        self.assertEquals(view.getUrl(1), '@@zodbbrowser?oid=0x1&tid=2')
 
 
 class ZodbObjectStateStub(object):
@@ -298,59 +297,53 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
     def test_root(self):
         view = self.createView(self.root)
         self.assertEquals(view.getBreadcrumbs(),
-                          [('/', '@@zodbbrowser?oid=1'),
+                          [('/', '@@zodbbrowser?oid=0x1'),
                           ])
 
     def test_non_root(self):
         view = self.createView(self.foo)
         self.assertEquals(view.getBreadcrumbs(),
-                          [('/', '@@zodbbrowser?oid=1'),
-                           ('foo','@@zodbbrowser?oid=27'),
+                          [('/', '@@zodbbrowser?oid=0x1'),
+                           ('foo','@@zodbbrowser?oid=0x1b'),
                           ])
 
     def test_more_levels(self):
         view = self.createView(self.foobar)
         self.assertEquals(view.getBreadcrumbs(),
-                          [('/', '@@zodbbrowser?oid=1'),
-                           ('foo','@@zodbbrowser?oid=27'),
+                          [('/', '@@zodbbrowser?oid=0x1'),
+                           ('foo','@@zodbbrowser?oid=0x1b'),
                            ('/', None),
-                           ('bar','@@zodbbrowser?oid=32'),
+                           ('bar','@@zodbbrowser?oid=0x20'),
                           ])
 
     def test_unknown(self):
         view = self.createView(self.unknown)
         self.assertEquals(view.getBreadcrumbs(),
-                          [('/', '@@zodbbrowser?oid=1'),
-                           ('...', None),
-                           ('/', None),
-                           ('???','@@zodbbrowser?oid=15'),
+                          [('0xf','@@zodbbrowser?oid=0xf'),
                           ])
 
     def test_unknown_child(self):
         view = self.createView(self.unknown_child)
         self.assertEquals(view.getBreadcrumbs(),
-                          [('/', '@@zodbbrowser?oid=1'),
-                           ('...', None),
+                          [('0xf','@@zodbbrowser?oid=0xf'),
                            ('/', None),
-                           ('???','@@zodbbrowser?oid=15'),
-                           ('/', None),
-                           ('child', '@@zodbbrowser?oid=17'),
+                           ('child', '@@zodbbrowser?oid=0x11'),
                           ])
 
     def test_unparented(self):
         view = self.createView(self.unparented)
         self.assertEquals(view.getBreadcrumbs(),
-                          [('/', '@@zodbbrowser?oid=1'),
+                          [('/', '@@zodbbrowser?oid=0x1'),
                            ('...', None),
                            ('/', None),
-                           ('wat', '@@zodbbrowser?oid=19'),
+                           ('wat', '@@zodbbrowser?oid=0x13'),
                           ])
 
     def test_unnamed_direct_child_of_root(self):
         view = self.createView(self.unnamed)
         self.assertEquals(view.getBreadcrumbs(),
-                          [('/', '@@zodbbrowser?oid=1'),
-                           ('???', '@@zodbbrowser?oid=55'),
+                          [('/', '@@zodbbrowser?oid=0x1'),
+                           ('???', '@@zodbbrowser?oid=0x37'),
                           ])
 
 

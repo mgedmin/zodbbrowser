@@ -267,16 +267,13 @@ class ZodbInfoView(BrowserView):
                     url=self.getUrl(oid))
 
     def getUrl(self, oid=None, tid=None):
-        url = "@@zodbbrowser?oid="
-        if oid is not None:
-            url += str(oid)
-        else:
-            url += str(self.getObjectId())
-
+        if oid is None:
+            oid = self.getObjectId()
+        url = "@@zodbbrowser?oid=0x%x" % oid
         if tid is None and 'tid' in self.request:
             url += "&tid=" + self.request['tid']
         elif tid is not None:
-            url += "&tid=" + str(tid)
+            url += "&tid=0x%x" % tid
         return url
 
     def getBreadcrumbs(self):
@@ -291,6 +288,11 @@ class ZodbInfoView(BrowserView):
             else:
                 if breadcrumbs:
                     breadcrumbs.append(('/', None))
+                if not state.getName() and state.getParentState() is None:
+                    # not using hex() because we don't want L suffixes for
+                    # 64-bit values
+                    breadcrumbs.append(('0x%x' % state.getObjectId(), url))
+                    break
                 breadcrumbs.append((state.getName() or '???', url))
             state = state.getParentState()
             if state is None:

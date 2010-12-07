@@ -15,7 +15,12 @@ all: bin/buildout
 
 .PHONY: check test
 check test: bin/test
-	bin/test -s zodbbrowser
+	bin/test -s zodbbrowser --auto-color
+
+# test with pager
+.PHONY: testp
+testp:
+	bin/test -s zodbbrowser -vc 2>&1 |less -RFX
 
 .PHONY: coverage
 coverage:
