@@ -208,15 +208,41 @@ class ZodbInfoView(BrowserView):
             return obj._p_jar
 
     def locate(self, path):
-        jar = self.jar
-        oid = self.getRootOid()
+        not_found = object() # marker
+
+        # our current position
+        #   partial -- path of the last _persistent_ object
+        #   here -- path of the last object traversed
+        #   oid -- oid of the last _persistent_ object
+        #   obj -- last object traversed
         partial = here = '/'
-        obj = jar.get(p64(oid))
-        not_found = object()
-        for step in path.split('/'):
+        oid = self.getRootOid()
+        obj = self.jar.get(p64(oid))
+
+        steps = path.split('/')
+
+        if steps and steps[0]:
+            # 0x1234/sub/path -> start traversal at oid 0x1234
+            try:
+                oid = int(steps[0], 0)
+            except ValueError:
+                pass
+            else:
+                partial = here = hex(oid)
+                try:
+                    obj = self.jar.get(p64(oid))
+                except KeyError:
+                    oid = self.getRootOid()
+                    return dict(error='Not found: %s' % steps[0],
+                                partial_oid=oid,
+                                partial_path='/',
+                                partial_url=self.getUrl(oid))
+                steps = steps[1:]
+
+        for step in steps:
             if not step:
                 continue
-            if here != '/':
+            if not here.endswith('/'):
                 here += '/'
             here += step.encode('utf-8')
             try:

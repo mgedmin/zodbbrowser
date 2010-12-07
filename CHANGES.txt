@@ -10,6 +10,11 @@ Changes
   use difflib.SequenceMapper because there's no guarantee tuple items are
   hashable.)
 
+- Make it possible to locate an object by OID: press g, then type the oid
+  (hex and both decimal supported; even octal, should you wish to use it).
+  You can also find subobjects starting from a given OID by entering paths
+  like '0x1234/sub/object'.
+
 
 0.8.0 (2010-11-16)
 ~~~~~~~~~~~~~~~~~~
