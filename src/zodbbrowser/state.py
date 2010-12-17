@@ -40,10 +40,14 @@ class ZodbObjectState(object):
 
     def _load(self):
         self.tid = self.history.lastChange(self.requestedTid)
-        loadedState = self.history.loadState(self.tid)
-        self.state = getMultiAdapter((self.obj, loadedState,
-                                      self.requestedTid),
-                                     IStateInterpreter)
+        try:
+            loadedState = self.history.loadState(self.tid)
+        except Exception, e:
+            self.state = LoadErrorState(e, self.requestedTid)
+        else:
+            self.state = getMultiAdapter((self.obj, loadedState,
+                                         self.requestedTid),
+                                         IStateInterpreter)
 
     def listAttributes(self):
         return self.state.listAttributes()
@@ -59,7 +63,11 @@ class ZodbObjectState(object):
         if name is None:
             # __name__ is not in the pickled state, but it may be defined
             # via other means (e.g. class attributes, custom __getattr__ etc.)
-            name = getattr(self.obj, '__name__', None)
+            try:
+                name = getattr(self.obj, '__name__', None)
+            except Exception, e:
+                # Ouch.  Oh well, we can't determine the name.
+                pass
         return name
 
     def asDict(self):
@@ -79,6 +87,30 @@ class ZodbObjectState(object):
             return None
         else:
             return ZodbObjectState(parent, self.requestedTid)
+
+
+class LoadErrorState(object):
+    """Placeholder for when an object's state could not be loaded"""
+    implements(IStateInterpreter)
+
+    def __init__(self, error, tid):
+        self.error = '%s: %s' % (error.__class__.__name__, error)
+        self.tid = tid
+
+    def getName(self):
+        return None
+
+    def getParent(self):
+        return None
+
+    def listAttributes(self):
+        return [('error during unpickling', self.error)]
+
+    def listItems(self):
+        return None
+
+    def asDict(self):
+        return {}
 
 
 class GenericState(object):
