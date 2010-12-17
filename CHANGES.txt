@@ -15,6 +15,8 @@ Changes
   You can also find subobjects starting from a given OID by entering paths
   like '0x1234/sub/object'.
 
+- Catch and display unpickling errors.
+
 
 0.8.0 (2010-11-16)
 ~~~~~~~~~~~~~~~~~~
