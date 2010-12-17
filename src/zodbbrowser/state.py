@@ -36,6 +36,7 @@ class ZodbObjectState(object):
         self.history = _history
         self.tid = None
         self.requestedTid = tid
+        self.loadError = None
         self._load()
 
     def _load(self):
@@ -43,11 +44,15 @@ class ZodbObjectState(object):
         try:
             loadedState = self.history.loadState(self.tid)
         except Exception, e:
-            self.state = LoadErrorState(e, self.requestedTid)
+            self.loadError = "%s: %s" % (e.__class__.__name__, e)
+            self.state = LoadErrorState(self.loadError, self.requestedTid)
         else:
             self.state = getMultiAdapter((self.obj, loadedState,
                                          self.requestedTid),
                                          IStateInterpreter)
+
+    def getError(self):
+        return self.loadError
 
     def listAttributes(self):
         return self.state.listAttributes()
@@ -94,8 +99,11 @@ class LoadErrorState(object):
     implements(IStateInterpreter)
 
     def __init__(self, error, tid):
-        self.error = '%s: %s' % (error.__class__.__name__, error)
+        self.error = error
         self.tid = tid
+
+    def getError(self):
+        return self.error
 
     def getName(self):
         return None
@@ -104,7 +112,7 @@ class LoadErrorState(object):
         return None
 
     def listAttributes(self):
-        return [('error during unpickling', self.error)]
+        return []
 
     def listItems(self):
         return None
@@ -121,6 +129,9 @@ class GenericState(object):
     def __init__(self, type, state, tid):
         self.state = state
         self.tid = tid
+
+    def getError(self):
+        return None
 
     def getName(self):
         return self.state.get('__name__')
@@ -235,6 +246,9 @@ class FallbackState(object):
 
     def __init__(self, type, state, tid):
         self.state = state
+
+    def getError(self):
+        return None
 
     def getName(self):
         return None

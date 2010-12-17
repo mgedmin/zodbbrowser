@@ -65,6 +65,9 @@ class IStateInterpreter(Interface):
     one.
     """
 
+    def getError():
+        """Return an error message, if there was an error loading this state."""
+
     def listAttributes():
         """Return the attributes of this object as tuples (name, value).
 
