@@ -23,6 +23,8 @@ from zope.server.taskthreads import ThreadedTaskDispatcher
 from zope.event import notify
 import zope.app.component.hooks
 
+from zodbbrowser.state import install_provides_hack
+
 
 class Options(object):
     listen_on = ('localhost', 8070)
@@ -187,6 +189,8 @@ def main(args=None, start_serving=True):
     start_server(options, internal_db)
 
     notify(zope.app.appsetup.interfaces.ProcessStarting())
+
+    install_provides_hack()
 
     if start_serving:
         serve_forever()

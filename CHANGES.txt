@@ -18,6 +18,12 @@ Changes
 - Catch and display unpickling errors of the current state, not just
   historical older states.
 
+- Handle missing interfaces that are directly provided by persistent objects.
+
+  This works for the standalone zodbbrowser application; the zope.interface
+  monkey-patch for this is too intrusive to install when using zodbbrowser
+  as a plugin.
+
 
 0.8.0 (2010-11-16)
 ~~~~~~~~~~~~~~~~~~
