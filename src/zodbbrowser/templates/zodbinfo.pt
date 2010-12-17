@@ -22,15 +22,22 @@
   </div>
 
   <div class="attributes"
-       tal:define="attributes view/listAttributes"
-       tal:condition="python:attributes is not None">
+       tal:define="attributes view/listAttributes;
+                   error view/state/getError"
+       tal:condition="python:attributes is not None or error">
     <h3 class="expander">
       <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
            alt="collapse" />&nbsp;Attributes
     </h3>
     <div class="collapsible">
+      <tal:block tal:condition="error">
+        <div class="error" tal:condition="error">
+          Could not load the object:
+          <span tal:replace="error" />
+        </div>
+      </tal:block>
       <tal:block tal:condition="not:attributes">
-        <span class="empty">There are none.</span>
+        <span tal:condition="not:error" class="empty">There are none.</span>
       </tal:block>
       <tal:block tal:condition="attributes">
         <tal:block tal:repeat="attr attributes">

@@ -335,9 +335,10 @@ class ZodbInfoView(BrowserView):
         results = []
         for d in self.history:
             try:
-                state = ZodbObjectState(self.obj, d['tid'],
-                                        _history=self.history).asDict()
-                error = None
+                interp = ZodbObjectState(self.obj, d['tid'],
+                                         _history=self.history)
+                state = interp.asDict()
+                error = interp.getError()
             except Exception, e:
                 state = {}
                 error = '%s: %s' % (e.__class__.__name__, e)
