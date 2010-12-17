@@ -1,11 +1,17 @@
+import logging
+
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from zope.component import adapts, getMultiAdapter
 from zope.interface import implements, Interface
+from zope.interface.interfaces import IInterface
+from zope.interface.interface import InterfaceClass
 from zope.proxy import removeAllProxies
 from zope.traversing.interfaces import IContainmentRoot
 from ZODB.utils import u64
+
+import zope.interface.declarations
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
@@ -22,6 +28,47 @@ except ImportError:
     from zope.app.container.contained import ContainedProxy # BBB
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+
+
+log = logging.getLogger(__name__)
+
+
+real_Provides = zope.interface.declarations.Provides
+
+
+def install_provides_hack():
+    """Monkey-patch zope.interface.Provides with a more lenient version.
+
+    A common result of missing modules in sys.path is that you cannot
+    unpickle objects that have been marked with directlyProvides() to
+    implement interfaces that aren't currently available.  Those interfaces
+    are replaced by persistent broken placeholders, which aren classes,
+    not interfaces, and aren't iterable, causing TypeErrors during unpickling.
+    """
+    zope.interface.declarations.Provides = Provides
+
+
+def flatten_interfaces(args):
+    result = []
+    for a in args:
+        if isinstance(a, (list, tuple)):
+            result.extend(flatten_interfaces(a))
+        elif IInterface.providedBy(a):
+            result.append(a)
+        else:
+            log.warning('  replacing %s with a placeholder', repr(a))
+            result.append(InterfaceClass(a.__name__,
+                            __module__='broken ' + a.__module__))
+    return result
+
+
+def Provides(cls, *interfaces):
+    try:
+        return real_Provides(cls, *interfaces)
+    except TypeError, e:
+        log.warning('Suppressing TypeError while unpickling Provides: %s', e)
+        args = flatten_interfaces(interfaces)
+        return real_Provides(cls, *args)
 
 
 class ZodbObjectState(object):
@@ -70,7 +117,7 @@ class ZodbObjectState(object):
             # via other means (e.g. class attributes, custom __getattr__ etc.)
             try:
                 name = getattr(self.obj, '__name__', None)
-            except Exception, e:
+            except Exception:
                 # Ouch.  Oh well, we can't determine the name.
                 pass
         return name
