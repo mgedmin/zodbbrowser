@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.8.1 (unreleased)
+0.8.1 (2010-12-18)
 ~~~~~~~~~~~~~~~~~~
 
 - Show tuple differences more clearly in the history.  (Uses a really dumb
