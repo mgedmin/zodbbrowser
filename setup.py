@@ -87,6 +87,10 @@ setup(
         "zope.server",
         "zope.error",
         "zope.session",
+        # dependencies that easy_install pulls in via setuptools extras
+        # but that are dropped when you do pip install, *sigh*
+        "zope.hookable",
+        "RestrictedPython",
         ],
     # extras for backwards compatibility only, not to break
     # people's setups if they depend on zodbbrowser[app]
