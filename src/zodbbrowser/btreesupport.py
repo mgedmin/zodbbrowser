@@ -111,6 +111,9 @@ class OOBTreeState(object):
             state = IObjectHistory(bucket).loadState()
             bucket.__setstate__(state)
 
+    def getError(self):
+        return None
+
     def getName(self):
         return None
 
