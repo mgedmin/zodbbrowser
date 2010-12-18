@@ -31,6 +31,11 @@ coverage:
 tags:
 	bin/ctags
 
+.PHONY: preview-pypi-description
+preview-pypi-description:
+	# pip install restview, if missing
+	restview -e "$(PYTHON) setup.py --long-description"
+
 .PHONY: dist
 dist:
 	$(PYTHON) setup.py sdist
