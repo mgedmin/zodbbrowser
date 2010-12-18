@@ -24,6 +24,13 @@ Changes
   monkey-patch for this is too intrusive to install when using zodbbrowser
   as a plugin.
 
+- Made ``pip install zodbbrowser`` work properly by adding explicit
+  dependencies that easy_install would've picked up from setuptools extras.
+
+  Note: if you get ``AttributeError: __file__``, make sure
+  zope.app.applicationcontrol is at least version 3.5.9.  Older versions will
+  not work with pip.
+
 
 0.8.0 (2010-11-16)
 ~~~~~~~~~~~~~~~~~~
