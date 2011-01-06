@@ -4,6 +4,9 @@ Changes
 0.8.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~
 
+- Make it possible to use zodbbrowser as a plugin for Zope 2.12.  Previously
+  you could only use the standalone zodbbrowser app with Zope 2.12 databases.
+
 
 0.8.1 (2010-12-18)
 ~~~~~~~~~~~~~~~~~~
