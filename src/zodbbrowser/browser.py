@@ -201,7 +201,7 @@ class ZodbInfoView(BrowserView):
             return conn
         try:
             return self.request.annotations['ZODB.interfaces.IConnection']
-        except KeyError:
+        except (KeyError, AttributeError):
             obj = self.findClosestPersistent()
             if obj is None:
                 raise Exception("ZODB connection not available for this request")
