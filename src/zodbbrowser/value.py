@@ -23,7 +23,13 @@ class GenericValue(object):
 
     def _repr(self):
         # hook for subclasses
-        return repr(self.context)
+        try:
+            return repr(self.context)
+        except Exception:
+            try:
+                return '<unrepresentable %s>' % self.context.__class__.__name__
+            except Exception:
+                return '<unrepresentable>'
 
     def render(self, tid=None, limit=200):
         text = self._repr()
