@@ -10,6 +10,10 @@ Changes
 - Be more robust against exceptions happening in repr(): show the value as
   "<unrepresentable Foo>" instead of erroring out.
 
+- Make 'python -m zodbbrowser' run the standalone app on Python 2.5 and 2.7.
+  Note that 'python -m zodbbrowser.standalone' already worked on Python 2.4
+  through 2.7.
+
 
 0.8.1 (2010-12-18)
 ~~~~~~~~~~~~~~~~~~

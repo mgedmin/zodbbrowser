@@ -126,6 +126,7 @@ def main(args=None, start_serving=True):
 
     parser = optparse.OptionParser(
         'usage: %prog [options] [FILENAME | --zeo ADDRESS]',
+        prog='zodbbrowser',
         description='Open a ZODB database and start a web-based browser app.')
     parser.add_option('--zeo', metavar='ADDRESS',
                       help='connect to ZEO server instead')
