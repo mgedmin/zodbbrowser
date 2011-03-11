@@ -20,3 +20,9 @@ ZODB Browser has the following submodules:
 
 __version__ = '0.9dev'
 __homepage__ = 'http://launchpad.net/zodbbrowser'
+
+
+if __name__ == '__main__':
+    # support python -m zodbbrowser on Python 2.5
+    from zodbbrowser.standalone import main
+    main()
