@@ -130,6 +130,8 @@ def main(args=None, start_serving=True):
         description='Open a ZODB database and start a web-based browser app.')
     parser.add_option('--zeo', metavar='ADDRESS',
                       help='connect to ZEO server instead')
+    parser.add_option('--storage',
+                      help='connect to given ZEO storage')
     parser.add_option('--listen', metavar='ADDRESS',
                       help='specify port (or host:port) to listen on',
                       default='localhost:8070')
@@ -167,15 +169,26 @@ def main(args=None, start_serving=True):
     if opts.db and opts.zeo:
         parser.error('you specified both ZEO and FileStorage; pick one')
 
+    if opts.storage and not opts.zeo:
+        parser.error('a ZEO storage was specified without ZEO connection')
+
     if opts.db:
         filename = opts.db
         db = DB(FileStorage(filename, read_only=opts.readonly))
     elif opts.zeo:
         if ':' in opts.zeo:
             zeo_address = opts.zeo.split(':', 1)
+            try:
+                zeo_address[1] = int(zeo_address[1])
+            except ValueError:
+                parser.error('specified ZEO port must be an integer')
         else:
-            zeo_address = opts.zeo
-        db = DB(ClientStorage(zeo_address, read_only=opts.readonly))
+            zeo_address = (opts.zeo, 8100)
+        if opts.storage:
+            zeo_storage = opts.storage
+        else:
+            zeo_storage = '1'
+        db = DB(ClientStorage(zeo_address, storage=zeo_storage, read_only=opts.readonly))
     else:
         parser.error('please specify a database')
 

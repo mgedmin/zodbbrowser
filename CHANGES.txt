@@ -14,6 +14,9 @@ Changes
   Note that 'python -m zodbbrowser.standalone' already worked on Python 2.4
   through 2.7.
 
+- Add an option to specify ZEO storage name (--storage NAME). Contributed by
+  Thierry Florac.
+
 
 0.8.1 (2010-12-18)
 ~~~~~~~~~~~~~~~~~~
