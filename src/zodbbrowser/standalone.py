@@ -129,8 +129,9 @@ def main(args=None, start_serving=True):
         prog='zodbbrowser',
         description='Open a ZODB database and start a web-based browser app.')
     parser.add_option('--zeo', metavar='ADDRESS',
-                      help='connect to ZEO server instead')
-    parser.add_option('--storage',
+                      help='connect to ZEO server instead'
+                      ' (host:port or socket name)')
+    parser.add_option('--storage', metavar='NAME',
                       help='connect to given ZEO storage')
     parser.add_option('--listen', metavar='ADDRESS',
                       help='specify port (or host:port) to listen on',
@@ -140,7 +141,7 @@ def main(args=None, start_serving=True):
                       help='be quiet')
     parser.add_option('--rw', action='store_false', dest='readonly',
                       default=True,
-                      help='open the database read-write (allows creation of the standard Zope local utilities if missing)')
+                      help='open the database read-write (default: read-only)')
     opts, args = parser.parse_args(args)
 
     options = Options()
@@ -183,7 +184,8 @@ def main(args=None, start_serving=True):
             except ValueError:
                 parser.error('specified ZEO port must be an integer')
         else:
-            zeo_address = (opts.zeo, 8100)
+            # socket filename
+            zeo_address = opts.zeo
         if opts.storage:
             zeo_storage = opts.storage
         else:
