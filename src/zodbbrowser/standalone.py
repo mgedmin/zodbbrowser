@@ -5,6 +5,8 @@ ZODB Browser as a standalone app
 This is a pile of hacks since bootstrapping a Zope 3 based app is incredibly
 painful.
 """
+import os
+import stat
 import sys
 import asyncore
 import socket
@@ -177,13 +179,23 @@ def main(args=None, start_serving=True):
         db = DB(FileStorage(filename, read_only=opts.readonly))
     elif opts.zeo:
         if ':' in opts.zeo:
+            # remote hostname:port ZEO connection
             zeo_address = opts.zeo.split(':', 1)
             try:
                 zeo_address[1] = int(zeo_address[1])
             except ValueError:
                 parser.error('specified ZEO port must be an integer')
+            zeo_address = tuple(zeo_address)
         else:
-            zeo_address = (opts.zeo, 8100)
+            zeo_address = opts.zeo
+            if os.path.exists(zeo_address):
+                # try ZEO connection through UNIX socket
+                mode = os.stat(zeo_address)
+                if not stat.S_ISSOCK(mode.st_mode):
+                    parser.error('specified file is not a valid UNIX socket')
+            else:
+                # remote ZEO connection
+                zeo_address = (zeo_address, 8100)
         if opts.storage:
             zeo_storage = opts.storage
         else:
