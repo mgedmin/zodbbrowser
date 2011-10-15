@@ -163,7 +163,8 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
 
     def testSelectObjectToView_by_oid_in_hex(self):
         oid = u64(self.root['stub']._p_oid)
-        view = ZodbInfoView(self.root, TestRequest(form={'oid': hex(oid)}))
+        hex_oid = hex(oid).rstrip('L')
+        view = ZodbInfoView(self.root, TestRequest(form={'oid': hex_oid}))
         self.assertEquals(view.selectObjectToView(), self.root['stub'])
 
     def testFindClosestPersistent(self):
