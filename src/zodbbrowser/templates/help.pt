@@ -48,6 +48,13 @@
   in the heading area.  To clear it and go back to always seeing the current
   state of the objects, click on 'Latest' in the history list.</p>
 
+  <p>You can also click on 'view transaction record' to find all other objects
+  that were modified in the same transaction, or view nearby transactions.</p>
+
+  <p>At the moment there's no convenient link to view the <a
+  href="@@zodbbrowser_history">latest 5 transactions</a> in the database,
+  (other than this one).</p>
+
   <h3>Filtering by attribute</h3>
 
   <p>You can hide changes to uninteresting attributes in the history list by
