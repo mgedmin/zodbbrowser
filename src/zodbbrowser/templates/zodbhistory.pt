@@ -23,10 +23,8 @@
           <span tal:content="history/short" />
         </a>
       </h4>
-      <div class="diff">
-        <span tal:repeat="obj history/objects">
-          <a tal:attributes="href obj/url">object&nbsp;<span tal:replace="obj/oid_repr" /></a>
-        </span>
+      <div class="diff" tal:repeat="obj history/objects">
+        <a tal:attributes="href obj/url" tal:content="structure obj/repr">(obj)</a>
       </div>
     </div>
   </div>
