@@ -25,10 +25,16 @@
       </h4>
       <div class="diff">
         <h5 class="expander">
-          <img tal:attributes="src context/++resource++zodbbrowser/expand.png"
-               alt="expand" />&nbsp;<span tal:replace="python: len(history['objects'])" /> objects saved
+          <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
+               alt="collapse"
+               tal:condition="not:history/hidden"
+        /><img tal:attributes="src context/++resource++zodbbrowser/expand.png"
+               alt="expand"
+               tal:condition="history/hidden"
+        />&nbsp;<span tal:replace="history/summary">N objects saved</span>
         </h5>
-        <div class="collapsible" style="display: none">
+        <div class="collapsible"
+             tal:attributes="style python: history['hidden'] and 'display: none' or None">
           <ol>
             <li tal:repeat="obj history/objects">
               <span tal:replace="obj/oid_repr" />
