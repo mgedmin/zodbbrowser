@@ -123,10 +123,15 @@ This is a fresh database, so it has only one transaction:
 
     >>> printCSSPath(browser, 'div.history h4')
     <h4 class="transaction">
-      <a href="@@zodbbrowser?oid=XX">Latest</a>
+      <a class="title" href="@@zodbbrowser?oid=XX">
+        Latest
+      </a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
-      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+      <a class="subtitle" href="@@zodbbrowser_history?tid=XXXXXXXXXXXXXXXXXX">
+        view transaction record
+      </a>
+      <a class="title" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
         #1:
         <span>YYYY-MM-DD HH:MM:SS</span>
       </a>
