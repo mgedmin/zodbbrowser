@@ -11,20 +11,30 @@
   <div class="history">
     <div tal:attributes="class python:'tid' in request and 'none' or 'latest'">
       <h4 class="transaction">
-        <a href="@@zodbbrowser_history">Latest</a>
+        <a class="title" href="@@zodbbrowser_history">Latest</a>
       </h4>
     </div>
     <div class="transaction" tal:repeat="history view/listHistory"
         tal:attributes="class python:history['current']
                                       and 'transaction current' or 'transaction'">
       <h4 class="transaction" tal:attributes="id string:tid${history/utid}">
-        <a tal:attributes="href history/href">
+        <a class="title" tal:attributes="href history/href">
           #<span tal:replace="history/index" />:
           <span tal:content="history/short" />
         </a>
       </h4>
-      <div class="diff" tal:repeat="obj history/objects">
-        <a tal:attributes="href obj/url" tal:content="structure obj/repr">(obj)</a>
+      <div class="diff">
+        <h5 class="expander">
+          <img tal:attributes="src context/++resource++zodbbrowser/expand.png"
+               alt="expand" />&nbsp;<span tal:replace="python: len(history['objects'])" /> objects saved
+        </h5>
+        <div class="collapsible" style="display: none">
+          <ol>
+            <li tal:repeat="obj history/objects">
+              <a tal:attributes="href obj/url" tal:content="structure obj/repr">(obj)</a>
+            </li>
+          </ol>
+        </div>
       </div>
     </div>
   </div>

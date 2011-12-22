@@ -95,6 +95,16 @@ h3.expander:hover {
   background: #f8fff8;
 }
 
+h5.expander {
+  cursor: default;
+  padding: 1px;
+}
+
+h5.expander:hover {
+  background: #f8fff8;
+}
+
+
 div.transaction {
   margin: 0;
   padding-bottom: 1em;
@@ -107,30 +117,38 @@ h4.transaction {
   color: black;
 }
 
-h4.transaction a:link,
-h4.transaction a:visited {
+h4.transaction a.title:link,
+h4.transaction a.title:visited {
   display: block;
   color: black;
   text-decoration: none;
   padding: 2px;
 }
-h4.transaction a:hover,
-h4.transaction a:active {
+h4.transaction a.title:hover,
+h4.transaction a.title:active {
   color: #760;
   background: #ffa;
 }
 
-div.transaction div.toolbox {
-    float: right;
-    padding: 4px;
+h4.transaction a.subtitle {
+  float: right;
+  padding: 2px;
+  color: #003344;
+  font-size: 12px;
+  font-weight: normal;
 }
 
 div.transaction div.toolbox {
-    display: none;
+  float: right;
+  padding: 4px;
+}
+
+div.transaction div.toolbox {
+  display: none;
 }
 
 div.transaction:hover div.toolbox {
-    display: block;
+  display: block;
 }
 
 div.object .truncated {
@@ -169,6 +187,13 @@ div.error,
 div.diff {
   padding: 4px;
   margin-left: 2em;
+  margin-bottom: 0;
+}
+
+div.diff ol {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
   margin-bottom: 0;
 }
 
