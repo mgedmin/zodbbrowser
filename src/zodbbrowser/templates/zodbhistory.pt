@@ -9,7 +9,13 @@
   </div>
 
   <div class="history">
-    <div tal:attributes="class python:'tid' in request and 'none' or 'latest'">
+    <div tal:condition="python: view.page > 0">
+      <h4 class="paging transaction" tal:define="prev_page python:view.page - 1">
+        <a class="title" tal:attributes="href string:@@zodbbrowser_history?page=${prev_page}">Newer</a>
+      </h4>
+    </div>
+    <div tal:condition="python: view.page == 0"
+         tal:attributes="class python:'tid' in request and 'none' or 'latest'">
       <h4 class="transaction">
         <a class="title" href="@@zodbbrowser_history">Latest</a>
       </h4>
@@ -44,6 +50,11 @@
           </ol>
         </div>
       </div>
+    </div>
+    <div tal:condition="python: view.page < view.last_page">
+      <h4 class="paging transaction" tal:define="next_page python:view.page + 1">
+        <a class="title" tal:attributes="href string:@@zodbbrowser_history?page=${next_page}">Older</a>
+      </h4>
     </div>
   </div>
 

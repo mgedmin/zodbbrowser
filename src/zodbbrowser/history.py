@@ -99,7 +99,21 @@ class ZodbHistory(object):
     def __init__(self, connection):
         self._connection = connection
         self._storage = connection._storage
+        self._tids = [t.tid for t in self._storage.iterator()]
+
+    @property
+    def tids(self):
+        return tuple(self._tids) # readonlify
+
+    def __len__(self):
+        return len(self._tids)
 
     def __iter__(self):
         return self._storage.iterator()
+
+    def __getslice__(self, start, stop):
+        tids = self._tids[start:stop]
+        if not tids:
+            return []
+        return self._storage.iterator(tids[0], tids[-1])
 
