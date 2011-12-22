@@ -103,7 +103,6 @@ class VeryCarefulView(BrowserView):
                 transaction.abort()
 
 
-
 class ZodbInfoView(VeryCarefulView):
     """Zodb browser view"""
 
@@ -191,11 +190,7 @@ class ZodbInfoView(VeryCarefulView):
         return self.state.getObjectId()
 
     def getObjectType(self):
-        cls = getattr(self.obj, '__class__', None)
-        if type(self.obj) is not cls:
-            return '%s - %s' % (type(self.obj), cls)
-        else:
-            return str(cls)
+        return getObjectType(self.obj)
 
     def getStateTid(self):
         return u64(self.state.tid)
@@ -452,7 +447,7 @@ class ZodbHistoryView(VeryCarefulView):
                 objects.append(dict(
                     oid=u64(record.oid),
                     oid_repr=oid_repr(record.oid),
-                    class_repr=repr(obj.__class__),
+                    class_repr=getObjectType(obj),
                     url=url,
                     repr=IValueRenderer(obj).render(d.tid),
                 ))
@@ -473,4 +468,12 @@ class ZodbHistoryView(VeryCarefulView):
         if results and not requested_tid and self.page == 0:
             results[-1]['current'] = True
         return results[::-1]
+
+
+def getObjectType(obj):
+    cls = getattr(obj, '__class__', None)
+    if type(obj) is not cls:
+        return '%s - %s' % (type(obj), cls)
+    else:
+        return str(cls)
 
