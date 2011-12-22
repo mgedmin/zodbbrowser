@@ -1,0 +1,47 @@
+<metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
+<metal:block fill-slot="content">
+
+<div class="object">
+  <div class="heading">
+    <h1>
+      Latest transactions
+    </h1>
+  </div>
+
+  <div class="history">
+    <div tal:attributes="class python:'tid' in request and 'none' or 'latest'">
+      <h4 class="transaction">
+        <a href="@@zodbbrowser_history">Latest</a>
+      </h4>
+    </div>
+    <div class="transaction" tal:repeat="history view/listHistory"
+        tal:attributes="class python:history['current']
+                                      and 'transaction current' or 'transaction'">
+      <h4 class="transaction" tal:attributes="id string:tid${history/utid}">
+        <a tal:attributes="href history/href">
+          #<span tal:replace="history/index" />:
+          <span tal:content="history/short" />
+        </a>
+      </h4>
+      <div class="diff">
+        <span tal:repeat="obj history/objects">
+          <a tal:attributes="href obj/url">object&nbsp;<span tal:replace="obj/oid_repr" /></a>
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <a tal:attributes="href view/homepage">zodb browser</a>
+  v<span tal:replace="view/version" />
+  | <a href="@@zodbbrowser_help">help</a>
+</div>
+
+<img id="collapseImg" style="display:none" alt=""
+     tal:attributes="src context/++resource++zodbbrowser/collapse.png" />
+<img id="expandImg" style="display:none" alt=""
+     tal:attributes="src context/++resource++zodbbrowser/expand.png" />
+</metal:block>
+</metal:block>

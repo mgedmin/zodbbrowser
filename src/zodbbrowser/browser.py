@@ -20,6 +20,7 @@ import simplejson
 
 from zodbbrowser import __version__, __homepage__
 from zodbbrowser.interfaces import IObjectHistory, IValueRenderer
+from zodbbrowser.interfaces import IDatabaseHistory
 from zodbbrowser.state import ZodbObjectState
 from zodbbrowser.diff import compareDictsHTML
 
@@ -383,4 +384,59 @@ class ZodbInfoView(VeryCarefulView):
         if isinstance(tid, str) and len(tid) == 8:
             return str(TimeStamp(tid))
         return tid_repr(tid)
+
+
+class ZodbHistoryView(VeryCarefulView):
+    """Zodb history view"""
+
+    adapts(Interface, IBrowserRequest)
+
+    template = ViewPageTemplateFile('templates/zodbhistory.pt')
+
+    version = __version__
+    homepage = __homepage__
+    
+    def render(self):
+        return self.template()
+
+    def getUrl(self, tid=None):
+        url = "@@zodbbrowser_history"
+        if tid is None and 'tid' in self.request:
+            url += "?tid=" + self.request['tid']
+        elif tid is not None:
+            url += "?tid=0x%x" % tid
+        return url
+
+    def listHistory(self):
+        if 'tid' in self.request:
+            requested_tid = p64(int(self.request['tid'], 0))
+        else:
+            requested_tid = None
+        self.history = IDatabaseHistory(self.jar)
+        results = []
+        for n, d in enumerate(self.history):
+            utid = u64(d.tid)
+            short = "%s %s %s" % (TimeStamp(d.tid),
+                                  d.user,
+                                  d.description)
+            objects = []
+            for record in d:
+                url = "@@zodbbrowser?oid=0x%x&tid=0x%x" % (u64(record.oid),
+                                                           utid)
+                objects.append(dict(
+                    oid=u64(record.oid),
+                    oid_repr=oid_repr(record.oid),
+                    url=url,
+                ))
+            results.append(dict(
+                index=(n + 1),
+                short=short,
+                utid=utid,
+                current=(d.tid == requested_tid),
+                href=self.getUrl(tid=utid),
+                objects=objects,
+            ))
+        if results and not requested_tid:
+            results[-1]['current'] = True
+        return results[::-1]
 
