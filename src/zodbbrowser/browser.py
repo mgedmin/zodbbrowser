@@ -395,8 +395,25 @@ class ZodbHistoryView(VeryCarefulView):
 
     version = __version__
     homepage = __homepage__
-    
+
+    page_size = 5
+
     def render(self):
+        if 'page_size' in self.request:
+            self.page_size = max(1, int(self.request['page_size']))
+        self.history = IDatabaseHistory(self.jar)
+        if 'page' in self.request:
+            self.page = int(self.request['page'])
+        elif 'tid' in self.request:
+            tid = int(self.request['tid'], 0)
+            self.page = self.findPage(p64(tid))
+        else:
+            self.page = 0
+        self.last_page = max(0, len(self.history) - 1) // self.page_size
+        if self.page > self.last_page:
+            self.page = self.last_page
+        self.last_idx = max(0, len(self.history) - self.page * self.page_size)
+        self.first_idx = max(0, self.last_idx  - self.page_size)
         return self.template()
 
     def getUrl(self, tid=None):
@@ -407,14 +424,22 @@ class ZodbHistoryView(VeryCarefulView):
             url += "?tid=0x%x" % tid
         return url
 
+    def findPage(self, tid):
+        try:
+            pos = list(self.history.tids).index(tid)
+        except ValueError:
+            return 0
+        else:
+            return (len(self.history) - pos - 1) // self.page_size
+
     def listHistory(self):
         if 'tid' in self.request:
             requested_tid = p64(int(self.request['tid'], 0))
         else:
             requested_tid = None
-        self.history = IDatabaseHistory(self.jar)
+
         results = []
-        for n, d in enumerate(self.history):
+        for n, d in enumerate(self.history[self.first_idx:self.last_idx]):
             utid = u64(d.tid)
             short = "%s %s %s" % (TimeStamp(d.tid),
                                   d.user,
@@ -436,7 +461,7 @@ class ZodbHistoryView(VeryCarefulView):
             else:
                 summary = '%d object records' % len(objects)
             results.append(dict(
-                index=(n + 1),
+                index=(self.first_idx + n + 1),
                 short=short,
                 utid=utid,
                 current=(d.tid == requested_tid),
@@ -445,7 +470,7 @@ class ZodbHistoryView(VeryCarefulView):
                 hidden=(len(objects) > 5),
                 objects=objects,
             ))
-        if results and not requested_tid:
+        if results and not requested_tid and self.page == 0:
             results[-1]['current'] = True
         return results[::-1]
 
