@@ -31,6 +31,8 @@
         <div class="collapsible" style="display: none">
           <ol>
             <li tal:repeat="obj history/objects">
+              <span tal:replace="obj/oid_repr" />
+              <span tal:replace="obj/class_repr" />
               <a tal:attributes="href obj/url" tal:content="structure obj/repr">(obj)</a>
             </li>
           </ol>
