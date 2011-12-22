@@ -89,7 +89,7 @@
     <div class="collapsible">
       <div tal:attributes="class python:view.getRequestedTid() and 'none' or 'latest'">
         <h4 class="transaction">
-          <a tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
+          <a class="title" tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
             >Latest</a>
         </h4>
       </div>
@@ -97,7 +97,9 @@
           tal:attributes="class python:(history['current'] or repeat['history'].start() and not view.getRequestedTid())
                                           and 'transaction current' or 'transaction'">
         <h4 class="transaction" tal:attributes="id string:tid${history/utid}">
-          <a tal:attributes="href history/href">
+          <a class="subtitle"
+             tal:attributes="href string:@@zodbbrowser_history?tid=${history/utid}">view transaction record</a>
+          <a class="title" tal:attributes="href history/href">
             #<span tal:replace="history/index" />:
             <span tal:content="history/short" />
           </a>
