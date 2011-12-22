@@ -61,6 +61,7 @@
 </div>
 
 <div class="footer">
+  <span tal:replace="view/renderingTime"></span>
   <a tal:attributes="href view/homepage">zodb browser</a>
   v<span tal:replace="view/version" />
   | <a href="@@zodbbrowser_help">help</a>
