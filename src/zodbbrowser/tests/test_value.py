@@ -56,7 +56,7 @@ class FrobRenderer(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self, tid=None):
+    def render(self, tid=None, can_link=True):
         if tid:
             return '<Frob [tid=%s]>' % tid
         else:
@@ -70,7 +70,7 @@ class StructRenderer(object):
     def __init__(self, context):
         self.context = context
 
-    def render(self, tid=None):
+    def render(self, tid=None, can_link=True):
         return '<span class="struct">Struct</span>'
 
 

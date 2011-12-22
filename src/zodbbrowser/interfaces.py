@@ -62,7 +62,7 @@ class IDatabaseHistory(Interface):
 class IValueRenderer(Interface):
     """Renderer of attribute values."""
 
-    def render(tid=None):
+    def render(tid=None, can_link=True):
         """Render object value to HTML.
 
         Hyperlinks to other persistent objects will be limited to versions
