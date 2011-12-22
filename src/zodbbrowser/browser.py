@@ -61,27 +61,34 @@ class ZodbObjectAttribute(object):
         return not self.__eq__(other)
 
 
-class ZodbInfoView(BrowserView):
-    """Zodb browser view"""
+class VeryCarefulView(BrowserView):
 
-    adapts(Interface, IBrowserRequest)
+    made_changes = False
 
-    template = ViewPageTemplateFile('templates/zodbinfo.pt')
-    confirmation_template = ViewPageTemplateFile('templates/confirm_rollback.pt')
-
-    version = __version__
-    homepage = __homepage__
+    @Lazy
+    def jar(self):
+        db = queryUtility(IDatabase, name='<target>')
+        if db is not None:
+            conn = db.open()
+            self.request.hold(Cleanup(conn.close))
+            return conn
+        try:
+            return self.request.annotations['ZODB.interfaces.IConnection']
+        except (KeyError, AttributeError):
+            obj = self.findClosestPersistent()
+            if obj is None:
+                raise Exception("ZODB connection not available for this request")
+            return obj._p_jar
 
     @property
     def readonly(self):
-        jar = self.jar
-        return jar.isReadOnly()
+        return self.jar.isReadOnly()
 
     def __call__(self):
         try:
             return self.render()
         finally:
-            if self.readonly:
+            if self.readonly or not self.made_changes:
                 resources = transaction.get()._resources
                 if resources:
                     msg = ["Aborting changes made to:"]
@@ -91,8 +98,21 @@ class ZodbInfoView(BrowserView):
                                 msg.append("  oid=%s %s" % (oid_repr(o._p_oid), repr(o)))
                         else:
                             msg.append("  %s" % repr(r))
-                    log.warning("\n".join(msg))
+                    log.debug("\n".join(msg))
                 transaction.abort()
+
+
+
+class ZodbInfoView(VeryCarefulView):
+    """Zodb browser view"""
+
+    adapts(Interface, IBrowserRequest)
+
+    template = ViewPageTemplateFile('templates/zodbinfo.pt')
+    confirmation_template = ViewPageTemplateFile('templates/confirm_rollback.pt')
+
+    version = __version__
+    homepage = __homepage__
 
     def render(self):
         self.obj = self.selectObjectToView()
@@ -117,6 +137,7 @@ class ZodbInfoView(BrowserView):
                 self.history.rollback(rtid)
                 transaction.get().note('Rollback to old state %s'
                                         % self.requestedState)
+                self.made_changes = True
                 self._redirectToSelf()
                 return ''
             # will show confirmation prompt
@@ -191,21 +212,6 @@ class ZodbInfoView(BrowserView):
 
     def locate_json(self, path):
         return simplejson.dumps(self.locate(path))
-
-    @Lazy
-    def jar(self):
-        db = queryUtility(IDatabase, name='<target>')
-        if db is not None:
-            conn = db.open()
-            self.request.hold(Cleanup(conn.close))
-            return conn
-        try:
-            return self.request.annotations['ZODB.interfaces.IConnection']
-        except (KeyError, AttributeError):
-            obj = self.findClosestPersistent()
-            if obj is None:
-                raise Exception("ZODB connection not available for this request")
-            return obj._p_jar
 
     def locate(self, path):
         not_found = object() # marker
@@ -377,3 +383,4 @@ class ZodbInfoView(BrowserView):
         if isinstance(tid, str) and len(tid) == 8:
             return str(TimeStamp(tid))
         return tid_repr(tid)
+
