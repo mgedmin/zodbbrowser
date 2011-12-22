@@ -422,14 +422,14 @@ class ZodbHistoryView(VeryCarefulView):
             objects = []
             for record in d:
                 obj = self.jar.get(record.oid)
-                repr = IValueRenderer(obj).render(d.tid)
                 url = "@@zodbbrowser?oid=0x%x&tid=0x%x" % (u64(record.oid),
                                                            utid)
                 objects.append(dict(
                     oid=u64(record.oid),
                     oid_repr=oid_repr(record.oid),
+                    class_repr=repr(obj.__class__),
                     url=url,
-                    repr=repr,
+                    repr=IValueRenderer(obj).render(d.tid),
                 ))
             results.append(dict(
                 index=(n + 1),
