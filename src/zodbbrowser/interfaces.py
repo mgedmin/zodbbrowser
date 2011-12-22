@@ -44,6 +44,21 @@ class IObjectHistory(Interface):
         """Roll back object state to what it was at or before tid."""
 
 
+class IDatabaseHistory(Interface):
+    """History of the entire database.
+
+    Adapt a connection object to IObjectHistory.
+    """
+
+    def __iter__(n):
+        """Return an iterator over the history record.
+
+        Records are ordered by age, from oldest (index 0) to newest.
+
+        Each record provides ZODB.interfaces.an IStorageTransactionInformation.
+        """
+
+
 class IValueRenderer(Interface):
     """Renderer of attribute values."""
 

@@ -1,12 +1,13 @@
 import inspect
 
 from ZODB.utils import tid_repr
+from ZODB.interfaces import IConnection
 from persistent import Persistent
 from zope.proxy import removeAllProxies
 from zope.interface import implements
 from zope.component import adapts
 
-from zodbbrowser.interfaces import IObjectHistory
+from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
 
 
 class ZodbObjectHistory(object):
@@ -88,4 +89,17 @@ class ZodbObjectHistory(object):
         if state != self.loadState():
             self._obj.__setstate__(state)
             self._obj._p_changed = True
+
+
+class ZodbHistory(object):
+
+    adapts(IConnection)
+    implements(IDatabaseHistory)
+
+    def __init__(self, connection):
+        self._connection = connection
+        self._storage = connection._storage
+
+    def __iter__(self):
+        return self._storage.iterator()
 
