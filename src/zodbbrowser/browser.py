@@ -115,6 +115,7 @@ class ZodbInfoView(VeryCarefulView):
     homepage = __homepage__
 
     def render(self):
+        self._started = time.time()
         self.obj = self.selectObjectToView()
         self.history = IObjectHistory(self.obj)
         self.latest = True
@@ -144,6 +145,9 @@ class ZodbInfoView(VeryCarefulView):
             return self.confirmation_template()
 
         return self.template()
+
+    def renderingTime(self):
+        return '%.3fs |' % (time.time() - self._started)
 
     def _redirectToSelf(self):
         self.request.response.redirect(self.getUrl())
@@ -394,6 +398,7 @@ class ZodbHistoryView(VeryCarefulView):
     page_size = 5
 
     def render(self):
+        self._started = time.time()
         if 'page_size' in self.request:
             self.page_size = max(1, int(self.request['page_size']))
         self.history = IDatabaseHistory(self.jar)
@@ -410,6 +415,9 @@ class ZodbHistoryView(VeryCarefulView):
         self.last_idx = max(0, len(self.history) - self.page * self.page_size)
         self.first_idx = max(0, self.last_idx  - self.page_size)
         return self.template()
+
+    def renderingTime(self):
+        return '%.3fs |' % (time.time() - self._started)
 
     def getUrl(self, tid=None):
         url = "@@zodbbrowser_history"
