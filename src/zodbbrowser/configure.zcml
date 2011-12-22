@@ -11,6 +11,9 @@
   <adapter factory=".value.ListValue" />
   <adapter factory=".value.DictValue" />
   <adapter factory=".value.PersistentValue" />
+  <adapter factory=".value.PersistentDictValue" />
+  <adapter factory=".value.PersistentMappingValue" />
+  <adapter factory=".value.PersistentListValue" />
   <adapter factory=".value.ProvidesValue" />
 
   <adapter factory=".state.GenericState" />
