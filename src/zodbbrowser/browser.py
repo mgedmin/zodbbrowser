@@ -431,12 +431,18 @@ class ZodbHistoryView(VeryCarefulView):
                     url=url,
                     repr=IValueRenderer(obj).render(d.tid),
                 ))
+            if len(objects) == 1:
+                summary = '1 object record'
+            else:
+                summary = '%d object records' % len(objects)
             results.append(dict(
                 index=(n + 1),
                 short=short,
                 utid=utid,
                 current=(d.tid == requested_tid),
                 href=self.getUrl(tid=utid),
+                summary=summary,
+                hidden=(len(objects) > 5),
                 objects=objects,
             ))
         if results and not requested_tid:
