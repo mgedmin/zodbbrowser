@@ -8,6 +8,7 @@ from zope.interface import implements
 from zope.component import adapts
 
 from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
+from zodbbrowser import cache
 
 
 class ZodbObjectHistory(object):
@@ -99,7 +100,7 @@ class ZodbHistory(object):
     def __init__(self, connection):
         self._connection = connection
         self._storage = connection._storage
-        self._tids = [t.tid for t in self._storage.iterator()]
+        self._tids = cache.getStorageTids(self._storage)
 
     @property
     def tids(self):
