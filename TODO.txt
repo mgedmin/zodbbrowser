@@ -5,22 +5,23 @@ More of a wishlist, really.
 
 Planned features:
 
-- Compatibility with Zope 3.2
-    Because we still have one instance running Zope 3.2 in production.
-    It's possible we'll upgrade it to Zope 3.4 sooner than we fix
-    zodbbrowser to support Zope 3.2.
 - Command-line option to specify a htpasswd file name for protection
     or maybe a randomly-generated password printed to stdout, so only the
     person running bin/zodbbrowser can access it
-- Show persistent object attributes when hovering on a link
-- Figure out if it's possible to show a list of transactions
+- Show persistent object attributes when hovering on a link?
+- Figure out if it's possible to show a list of transactions at reasonable speed
     speed test: 66428 transactions in a 2 gb data.fs take ~12 seconds to
     iterate
     another 1.6 gb data.fs with 126735 transactions took 42 seconds
     a third 8 gb data.fs with 922737 transactions took 85 seconds (this is a
     newer, faster server: disk I/O at 100 megs/s instead of 8 megs/s of the
     old one)
-    [adamg: use paging???]
+    storage.iterator() always reads from the beginning of the file, so paging
+    cannot be implemented efficiently with the current ZODB APIs.  Can we
+    iterate once then cache all the data?  A million transaction records would
+    take how much RAM?
+    I'm afraid the only thing to do is to build a transaction index, for faster
+    seeks.  Ugh.
 - Help page in a javascripty-popup (lightbox-style)
 - Finding backreferences
     could be very very expensive
@@ -40,8 +41,7 @@ Optimization:
 Refactorings:
 
 - Standalone app: see if you can replace the zope publisher with something
-  lightweight (WSGI?) so that you can inspect databases when their structure
-  is broken (no site/unpickleable site objects)
+  lightweight and modern (Pyramid?)
 
 Tests:
 
