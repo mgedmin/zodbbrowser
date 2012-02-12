@@ -34,10 +34,10 @@ Open http://localhost:8070 in a web browser.  Note that there are no
 access controls; all other users on the local machine will be able to
 access the database contents.
 
-Or you could try to use easy_install.  It may work or it may not, depending
-on the current state of all the dependencies (buildout.cfg hardcodes
-dependency version to a known-working-together state, called the "Zope 3.4
-Known Good Set", so buildout-based installs are safer) ::
+Or you could try to use ``easy_install`` or ``pip``.  It may work or it may
+not, depending on the current state of all the dependencies (buildout.cfg
+hardcodes dependency version to a known-working-together state, called the
+"Zope 3.4 Known Good Set", so buildout-based installs are safer) ::
 
   easy_install zodbbrowser
   zodbbrowser /path/to/Data.fs
@@ -59,6 +59,16 @@ command-line options::
     --listen=ADDRESS  specify port (or host:port) to listen on
     --rw              open the database read-write (allows creation of the
                       standard Zope local utilities if missing)
+
+
+Help!  Broken objects everywhere
+--------------------------------
+
+If you don't want to see ``<persistent broken ...>`` everywhere, make sure
+your application objects are importable from the Python path.  The easiest way
+of doing that is adding zodbbrowser to your application's buildout (or
+virtualenv, if you use virtualenvs).  This way your application (or Zope's)
+nice __repr__ will also be used.
 
 
 Online help
