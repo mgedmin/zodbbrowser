@@ -4,6 +4,12 @@ ZODB Browser
 The ZODB browser allows you to inspect persistent objects stored in the ZODB,
 view their attributes and historical changes made to them.
 
+.. warning::
+
+  ZODB is based on Python pickles, which are not secure -- they allow
+  **arbitrary command execution**.  Do not use zodbbrowser on databases from
+  untrusted sources.
+
 
 Usage as a standalone project
 -----------------------------
