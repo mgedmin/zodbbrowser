@@ -4,7 +4,7 @@
 <div class="object">
   <div class="heading">
     <h1>
-      Latest transactions
+      ZODB transactions
     </h1>
   </div>
 
@@ -43,7 +43,7 @@
              tal:attributes="style python: history['hidden'] and 'display: none' or None">
           <ol>
             <li tal:repeat="obj history/objects">
-              <span tal:replace="obj/oid_repr" />
+              <a tal:attributes="href obj/url" tal:content="obj/path">/(path)</a>
               <span tal:replace="obj/class_repr" />
               <a tal:attributes="href obj/url" tal:content="structure obj/repr">(obj)</a>
             </li>
