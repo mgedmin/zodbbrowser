@@ -202,6 +202,9 @@ class ZodbInfoView(VeryCarefulView):
     def getStateTidNice(self):
         return self._tidToTimestamp(self.state.tid)
 
+    def getPickleSize(self):
+        return len(self.state.pickledState)
+
     def getRootOid(self):
         root = self.jar.root()
         try:

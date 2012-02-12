@@ -16,6 +16,8 @@
              tal:attributes="value view/getPath"/>
     </h1>
     <span id="pathError" style="display:none"></span>
+    <span class="pickleSize">
+      <span tal:replace="view/getPickleSize" /> bytes pickled</span>
     <h2 class="type" tal:content="view/getObjectType" />
     <div class="tid-info" tal:condition="not:view/latest">
       at <a tal:attributes="href string:#tid${view/getStateTid}"
