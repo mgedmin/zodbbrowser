@@ -454,6 +454,7 @@ class ZodbHistoryView(VeryCarefulView):
                                                            utid)
                 objects.append(dict(
                     oid=u64(record.oid),
+                    path=getObjectPath(obj, d.tid),
                     oid_repr=oid_repr(record.oid),
                     class_repr=getObjectType(obj),
                     url=url,
@@ -484,4 +485,31 @@ def getObjectType(obj):
         return '%s - %s' % (type(obj), cls)
     else:
         return str(cls)
+
+
+def getObjectPath(obj, tid):
+    path = []
+    seen_root = False
+    state = ZodbObjectState(obj, tid)
+    while True:
+        if state.isRoot():
+            path.append('/')
+            seen_root = True
+        else:
+            if path:
+                path.append('/')
+            if not state.getName() and state.getParentState() is None:
+                # not using hex() because we don't want L suffixes for
+                # 64-bit values
+                path.append('0x%x' % state.getObjectId())
+                break
+            path.append(state.getName() or '???')
+        state = state.getParentState()
+        if state is None:
+            if not seen_root:
+                path.append('/')
+                path.append('...')
+                path.append('/')
+            break
+    return ''.join(path[::-1])
 
