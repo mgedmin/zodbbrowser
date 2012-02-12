@@ -23,7 +23,10 @@ def getStorageTids(storage, cache_for=5*MINUTES):
         if cache_dict.get('tids'):
             first = cache_dict['tids'][-1]
             last = cache_dict['tids'][-1]
-            first_record = next(storage.iterator(), None)
+            try:
+                first_record = storage.iterator().next()
+            except StopIteration:
+                first_record = None
             if first_record and first_record.tid == first:
                 # okay, look for new transactions appended at the end
                 new = [t.tid for t in storage.iterator(start=last)]
