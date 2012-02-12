@@ -84,11 +84,13 @@ class ZodbObjectState(object):
         self.tid = None
         self.requestedTid = tid
         self.loadError = None
+        self.pickledState = ''
         self._load()
 
     def _load(self):
         self.tid = self.history.lastChange(self.requestedTid)
         try:
+            self.pickledState = self.history.loadStatePickle(self.tid)
             loadedState = self.history.loadState(self.tid)
         except Exception, e:
             self.loadError = "%s: %s" % (e.__class__.__name__, e)

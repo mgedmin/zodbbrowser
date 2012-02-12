@@ -82,6 +82,10 @@ class ZodbObjectHistory(object):
                 '%r did not exist in or before transaction %r' %
                 (self._obj, tid_repr(tid)))
 
+    def loadStatePickle(self, tid=None):
+        return self._connection._storage.loadSerial(self._obj._p_oid,
+                                                    self.lastChange(tid))
+
     def loadState(self, tid=None):
         return self._connection.oldstate(self._obj, self.lastChange(tid))
 

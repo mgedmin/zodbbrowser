@@ -13,6 +13,8 @@ Changes
 
 - More descriptive page titles (LP#931115).
 
+- Show object size in the header (LP#497780).
+
 - Update maintainer email in setup.py.
 
 

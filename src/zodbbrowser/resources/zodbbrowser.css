@@ -73,6 +73,11 @@ input#gotoInput {
   margin: 6px;
 }
 
+div.object .pickleSize {
+  float: right;
+}
+
+div.object .pickleSize,
 div.object h2 {
   font-size: 14px;
   color: black;

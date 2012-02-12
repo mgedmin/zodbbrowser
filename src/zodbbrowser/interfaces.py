@@ -40,6 +40,12 @@ class IObjectHistory(Interface):
         Returns the unpicked state, not an actual persistent object.
         """
 
+    def loadStatePickle(tid=None):
+        """Load and return the object's historical state at or before tid.
+
+        Returns the picked state as a string.
+        """
+
     def rollback(tid):
         """Roll back object state to what it was at or before tid."""
 
