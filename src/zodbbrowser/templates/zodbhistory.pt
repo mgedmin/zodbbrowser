@@ -6,9 +6,14 @@
 
 <div class="object">
   <div class="heading">
-    <h1>
+    <h1 id="path">
       ZODB transactions
     </h1>
+    <h1 id="goto" style="display:none">
+      <input type="hidden" id="api" name="api" value="@@zodbbrowser_path_to_oid" />
+      <input type="text" class="goto" id="gotoInput" name="goto" />
+    </h1>
+    <span id="pathError" style="display:none"></span>
   </div>
 
   <div class="history">

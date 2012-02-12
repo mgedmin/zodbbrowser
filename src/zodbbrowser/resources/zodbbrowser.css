@@ -42,14 +42,15 @@ div.heading h1 a:active {
   color: white;
 }
 
-span.breadcrumbs {
+#path {
   display: block;
   border: 1px solid #afa;
   padding: 1px 2px;
 }
 
-span.breadcrumbs:hover {
+#path:hover {
   border: 1px solid #00cc33;
+  cursor: default;
 }
 
 input#gotoInput {
