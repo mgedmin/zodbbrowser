@@ -21,6 +21,11 @@ We see the class name right underneath that
       &lt;class 'zope.site.folder.Folder'&gt;
     </h2>
 
+Both of these are also visible in the page title
+
+    >>> printCSSPath(browser, 'title')
+    <title> Folder at / - ZODB Browser</title>
+
 If you click on the path, it turns into a navigation bar where you can
 type object paths to navigate to them.  This requires JavaScript, which is
 not available for our functional tests, so we simulate that by performing
