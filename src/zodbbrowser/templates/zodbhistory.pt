@@ -1,4 +1,7 @@
 <metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
+<title metal:fill-slot="title">
+  ZODB Transactions, page <tal:x replace="python: view.page + 1" />
+</title>
 <metal:block fill-slot="content">
 
 <div class="object">
