@@ -1,8 +1,15 @@
 Changes
 -------
 
-0.9.1 (unreleased)
+0.10.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~
+
+- Browsing of transaction records (@@zodb_history).  Initial implementation so
+  far, unbelievably slow when you have large databases (LP#907900).
+
+- ZODB Browser now avoids writing to the database even in read-write mode.
+  Previously when your objects had write-on-read semantics, those writes might
+  have snuck in.
 
 - More descriptive page titles (LP#931115).
 
