@@ -51,7 +51,7 @@ setup(
     name="zodbbrowser",
     license='ZPL 2.1',
     maintainer="Programmers of Vilnius",
-    maintainer_email="tautvilas@pov.lt",
+    maintainer_email="marius@pov.lt",
     description="ZODB browser",
     long_description=long_description,
     version=version,
