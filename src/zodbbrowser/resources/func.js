@@ -130,7 +130,7 @@ function activateGoTo() {
     var path = $('#gotoInput').val();
     var api_url = '@@zodbbrowser_path_to_oid';
     $('#pathError').text("Loading...").slideDown();
-    $.ajax({url: api, dataType: 'json', data: "path=" + path,
+    $.ajax({url: api_url, dataType: 'json', data: "path=" + path,
             timeout: 7000, success: ajaxSuccessHandler,
             error: ajaxErrorHandler});
 }
