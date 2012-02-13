@@ -1,6 +1,7 @@
 import logging
 import itertools
 import collections
+import re
 from cgi import escape
 
 from ZODB.utils import u64
@@ -102,6 +103,43 @@ def join_with_commas(html, open, close):
             item += trailer
         html[n] = item
     return prefix + '<br />'.join(html) + suffix
+
+
+class StringValue(GenericValue):
+    """String renderer."""
+    adapts(basestring)
+    implements(IValueRenderer)
+
+    def __init__(self, context):
+        self.context = context
+
+    def render(self, tid=None, can_link=True, limit=200, threshold=4):
+        if self.context.count('\n') <= threshold:
+            return GenericValue.render(self, tid, can_link=can_link,
+                                       limit=limit)
+        else:
+            if isinstance(self.context, unicode):
+                prefix = 'u'
+                context = self.context
+            else:
+                prefix = ''
+                context = self.context.decode('latin-1').encode('ascii',
+                                                            'backslashreplace')
+            lines = [re.sub(r'^[ \t]+',
+                            lambda m: '&nbsp;' * len(m.group(0).expandtabs()),
+                            escape(line))
+                     for line in context.splitlines()]
+            nl = '<br />' # hm, maybe '\\n<br />'?
+            if sum(map(len, lines)) > limit:
+                head = nl.join(lines[:5])
+                tail = nl.join(lines[5:])
+                id = truncate(tail)
+                return (prefix + "'<span class=\"struct\">" + head + nl
+                        + '<span id="%s" class="truncated">...</span>' % id
+                        + "'</span>")
+            else:
+                return (prefix + "'<span class=\"struct\">" + nl.join(lines)
+                        + "'</span>")
 
 
 class TupleValue(object):

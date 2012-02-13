@@ -17,6 +17,8 @@ Changes
 
 - Expand truncated values by clicking on them (LP#931184).
 
+- More user-friendly representation of multiline text values.
+
 - Update maintainer email in setup.py.
 
 
