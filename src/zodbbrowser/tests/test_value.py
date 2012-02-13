@@ -10,7 +10,8 @@ from zope.component import adapts, provideAdapter
 
 from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue,
-                               PersistentValue, ProvidesValue, MAX_CACHE_SIZE,
+                               PersistentValue, ProvidesValue, StringValue,
+                               MAX_CACHE_SIZE,
                                TRUNCATIONS, TRUNCATIONS_IN_ORDER, truncate,
                                resetTruncations, pruneTruncations)
 
@@ -132,13 +133,107 @@ class TestGenericValue(unittest.TestCase):
     def test_conteinerish_things_and_truncation(self):
         self.assertEquals(GenericValue([1, 2, 3]).render(limit=3),
                           '[1,<span id="tr1" class="truncated">...</span> (3 items)')
-        # XXX: I've just realized truncation is HTML-blind and might truncate
-        # markup...
 
     def test_conteinerish_things_do_not_explode(self):
         self.assertEquals(GenericValue(ExplodingLen()).render(),
                           '&lt;ExplodingLen&gt;')
 
+
+class TestStringValue(unittest.TestCase):
+
+    def tearDown(self):
+        resetTruncations()
+
+    def test_interface_compliance(self):
+        verifyObject(IValueRenderer, StringValue(()))
+
+    def test_empty_string(self):
+        self.assertEquals(StringValue('').render(), "''")
+
+    def test_short_string(self):
+        self.assertEquals(StringValue('xyzzy').render(), "'xyzzy'")
+
+    def test_short_string_escaping(self):
+        self.assertEquals(StringValue('x"y\'z\\z<y&').render(),
+                          """'x"y\\'z\\\\z&lt;y&amp;'""")
+
+    def test_short_string_control_char(self):
+        self.assertEquals(StringValue('\x17').render(),
+                          """'\\x17'""")
+
+    def test_short_string_unicode(self):
+        self.assertEquals(StringValue(u'\u1234').render(),
+                          """u'\u1234'""")
+
+    def test_short_string_truncation(self):
+        self.assertEquals(StringValue('a very long string').render(limit=10),
+                          """'a very lo<span id="tr1" class="truncated">...</span>""")
+        self.assertEquals(TRUNCATIONS['tr1'], "ng string'")
+        self.assertEquals(list(TRUNCATIONS_IN_ORDER), ['tr1'])
+
+    def test_long_string(self):
+        self.assertEquals(StringValue('line1 <\n'
+                                      'line2 &\n'
+                                      'line3\n'
+                                      'line4\n'
+                                      'line5\n').render(),
+                          '\'<span class="struct">line1 &lt;<br />'
+                          'line2 &amp;<br />'
+                          'line3<br />'
+                          'line4<br />'
+                          'line5\'</span>')
+
+    def test_long_string_indentation(self):
+        self.assertEquals(StringValue('line1\n'
+                                      ' line2\n'
+                                      '  line3\n'
+                                      '\tline4\n'
+                                      'line5\n').render(),
+                          '\'<span class="struct">line1<br />'
+                          '&nbsp;line2<br />'
+                          '&nbsp;&nbsp;line3<br />'
+                          '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line4<br />'
+                          'line5\'</span>')
+
+    def test_long_string_non_ascii(self):
+        self.assertEquals(StringValue('line1\n'
+                                      'line2\n'
+                                      'line3 \xff\n'
+                                      'line4\n'
+                                      'line5\n').render(),
+                          '\'<span class="struct">line1<br />'
+                          'line2<br />'
+                          'line3 \\xff<br />'
+                          'line4<br />'
+                          'line5\'</span>')
+
+    def test_long_string_unicode(self):
+        self.assertEquals(StringValue(u'line1\n'
+                                      u'line2\n'
+                                      u'line3 \xff\n'
+                                      u'line4\n'
+                                      u'line5\n').render(),
+                          u'u\'<span class="struct">line1<br />'
+                          u'line2<br />'
+                          u'line3 \xff<br />'
+                          u'line4<br />'
+                          u'line5\'</span>')
+
+    def test_long_string_truncation(self):
+        self.assertEquals(StringValue('line1\n'
+                                      'line2\n'
+                                      'line3\n'
+                                      'line4\n'
+                                      'line5\n'
+                                      'line6\n'
+                                      'line7').render(limit=10),
+                          '\'<span class="struct">line1<br />'
+                          'line2<br />'
+                          'line3<br />'
+                          'line4<br />'
+                          'line5<br />'
+                          '<span id="tr1" class="truncated">...</span>\'</span>')
+        self.assertEquals(TRUNCATIONS['tr1'], "line6<br />line7")
 
 
 class TestTupleValue(unittest.TestCase):

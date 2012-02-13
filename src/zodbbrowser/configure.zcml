@@ -7,6 +7,7 @@
   <adapter factory=".history.ZodbHistory" />
 
   <adapter factory=".value.GenericValue" />
+  <adapter factory=".value.StringValue" />
   <adapter factory=".value.TupleValue" />
   <adapter factory=".value.ListValue" />
   <adapter factory=".value.DictValue" />
