@@ -41,6 +41,24 @@
       />
 
   <page
+      name="zodbbrowser_truncated"
+      class=".browser.ZodbInfoView"
+      attribute="truncated_ajax"
+      for="zope.interface.Interface"
+      permission="zope.ManageContent"
+      zcml:condition="not-installed Products.Five"
+      />
+
+  <page
+      name="zodbbrowser_truncated"
+      class=".browser.ZodbInfoView"
+      attribute="truncated_ajax"
+      for="zope.interface.Interface"
+      permission="zope2.ViewManagementScreens"
+      zcml:condition="installed Products.Five"
+      />
+
+  <page
       name="zodbbrowser_history"
       class=".browser.ZodbHistoryView"
       for="zope.interface.Interface"

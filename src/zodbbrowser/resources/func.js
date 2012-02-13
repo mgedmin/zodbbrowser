@@ -128,9 +128,9 @@ function ajaxSuccessHandler(data, status) {
 
 function activateGoTo() {
     var path = $('#gotoInput').val();
-    var api = $('#api').val();
+    var api_url = '@@zodbbrowser_path_to_oid';
     $('#pathError').text("Loading...").slideDown();
-    $.ajax({url: api, dataType:'json', data: "path=" + path,
+    $.ajax({url: api, dataType: 'json', data: "path=" + path,
             timeout: 7000, success: ajaxSuccessHandler,
             error: ajaxErrorHandler});
 }
@@ -191,4 +191,13 @@ $(document).ready(function() {
         }
     });
     $('input.rollbackbtn').click(pressRollback);
+    $('span.truncated').click(function(event){
+        event.preventDefault();
+        var placeholder = $(this);
+        var id = placeholder.attr('id');
+        $.ajax({url: '@@zodbbrowser_truncated', data: 'id=' + id,
+                success: function(data, status) {
+                    placeholder.replaceWith(data);
+                }});
+    });
 });

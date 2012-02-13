@@ -10,7 +10,9 @@ from zope.component import adapts, provideAdapter
 
 from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue,
-                               PersistentValue, ProvidesValue)
+                               PersistentValue, ProvidesValue, MAX_CACHE_SIZE,
+                               TRUNCATIONS, TRUNCATIONS_IN_ORDER, truncate,
+                               resetTruncations, pruneTruncations)
 
 
 class Frob(object):
@@ -74,7 +76,33 @@ class StructRenderer(object):
         return '<span class="struct">Struct</span>'
 
 
+class TestTruncations(unittest.TestCase):
+
+    def tearDown(self):
+        resetTruncations()
+
+    def test_truncate(self):
+        id1 = truncate('string 1')
+        id2 = truncate('string 2')
+        self.assertEquals(id1, 'tr1')
+        self.assertEquals(id2, 'tr2')
+        self.assertEquals(TRUNCATIONS, {'tr1': 'string 1', 'tr2': 'string 2'})
+        self.assertEquals(list(TRUNCATIONS_IN_ORDER), ['tr1', 'tr2'])
+
+    def test_pruneTruncations(self):
+        for n in range(MAX_CACHE_SIZE + 3):
+            truncate('a string')
+        pruneTruncations()
+        self.assertEquals(len(TRUNCATIONS), MAX_CACHE_SIZE)
+        self.assertEquals(len(TRUNCATIONS_IN_ORDER), MAX_CACHE_SIZE)
+        self.assertEquals(sorted(TRUNCATIONS_IN_ORDER), sorted(TRUNCATIONS))
+        self.assertEquals(TRUNCATIONS_IN_ORDER[0], 'tr4')
+
+
 class TestGenericValue(unittest.TestCase):
+
+    def tearDown(self):
+        resetTruncations()
 
     def test_interface_compliance(self):
         verifyObject(IValueRenderer, GenericValue(None))
@@ -89,7 +117,9 @@ class TestGenericValue(unittest.TestCase):
 
     def test_truncation(self):
         self.assertEquals(GenericValue('a very long string').render(limit=10),
-                          """'a very lo<span class="truncated">...</span>""")
+                          """'a very lo<span id="tr1" class="truncated">...</span>""")
+        self.assertEquals(TRUNCATIONS['tr1'], "ng string'")
+        self.assertEquals(list(TRUNCATIONS_IN_ORDER), ['tr1'])
 
     def test_conteinerish_things(self):
         self.assertEquals(GenericValue([1, 2, 3]).render(),
@@ -101,7 +131,9 @@ class TestGenericValue(unittest.TestCase):
 
     def test_conteinerish_things_and_truncation(self):
         self.assertEquals(GenericValue([1, 2, 3]).render(limit=3),
-                          '[1,<span class="truncated">...</span> (3 items)')
+                          '[1,<span id="tr1" class="truncated">...</span> (3 items)')
+        # XXX: I've just realized truncation is HTML-blind and might truncate
+        # markup...
 
     def test_conteinerish_things_do_not_explode(self):
         self.assertEquals(GenericValue(ExplodingLen()).render(),
@@ -268,6 +300,9 @@ class TestPersistentValue(unittest.TestCase):
 
 class TestProvidesValue(unittest.TestCase):
 
+    def tearDown(self):
+        resetTruncations()
+
     def test_interface_compliance(self):
         verifyObject(IValueRenderer, ProvidesValue(None))
 
@@ -292,7 +327,7 @@ class TestProvidesValue(unittest.TestCase):
         renderer = ProvidesValue(frob.__provides__)
         self.assertEquals(renderer.render(limit=42),
             '&lt;Provides: zodbbrowser.tests.test_value.IS'
-            '<span class="truncated">...</span>')
+            '<span id="tr1" class="truncated">...</span>')
 
 
 def test_suite():

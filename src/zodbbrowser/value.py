@@ -1,4 +1,6 @@
 import logging
+import itertools
+import collections
 from cgi import escape
 
 from ZODB.utils import u64
@@ -16,6 +18,31 @@ from zodbbrowser.interfaces import IObjectHistory
 
 
 log = logging.getLogger(__name__)
+
+
+MAX_CACHE_SIZE = 1000
+TRUNCATIONS = {}
+TRUNCATIONS_IN_ORDER = collections.deque()
+next_id = itertools.count(1).next
+
+
+def resetTruncations(): # for tests only!
+    global next_id
+    next_id = itertools.count(1).next
+    TRUNCATIONS.clear()
+    TRUNCATIONS_IN_ORDER.clear()
+
+
+def pruneTruncations():
+    while len(TRUNCATIONS_IN_ORDER) > MAX_CACHE_SIZE:
+        del TRUNCATIONS[TRUNCATIONS_IN_ORDER.popleft()]
+
+
+def truncate(text):
+    id = 'tr%d' % next_id()
+    TRUNCATIONS[id] = text
+    TRUNCATIONS_IN_ORDER.append(id)
+    return id
 
 
 class GenericValue(object):
@@ -42,7 +69,9 @@ class GenericValue(object):
     def render(self, tid=None, can_link=True, limit=200):
         text = self._repr()
         if len(text) > limit:
-            text = escape(text[:limit]) + '<span class="truncated">...</span>'
+            id = truncate(text[limit:])
+            text = escape(text[:limit]) + (
+                        '<span id="%s" class="truncated">...</span>' % id)
         else:
             text = escape(text)
         if not isinstance(self.context, basestring):
