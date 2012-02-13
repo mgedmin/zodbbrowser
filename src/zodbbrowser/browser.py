@@ -23,6 +23,7 @@ from zodbbrowser.interfaces import IObjectHistory, IValueRenderer
 from zodbbrowser.interfaces import IDatabaseHistory
 from zodbbrowser.state import ZodbObjectState
 from zodbbrowser.diff import compareDictsHTML
+from zodbbrowser.value import pruneTruncations, TRUNCATIONS
 
 
 log = logging.getLogger("zodbbrowser")
@@ -116,6 +117,7 @@ class ZodbInfoView(VeryCarefulView):
 
     def render(self):
         self._started = time.time()
+        pruneTruncations()
         self.obj = self.selectObjectToView()
         self.history = IObjectHistory(self.obj)
         self.latest = True
@@ -213,8 +215,11 @@ class ZodbInfoView(VeryCarefulView):
             pass
         return u64(root._p_oid)
 
-    def locate_json(self, path):
+    def locate_json(self, path): # AJAX view
         return simplejson.dumps(self.locate(path))
+
+    def truncated_ajax(self, id): # AJAX view
+        return TRUNCATIONS.get(id)
 
     def locate(self, path):
         not_found = object() # marker
@@ -402,6 +407,7 @@ class ZodbHistoryView(VeryCarefulView):
 
     def render(self):
         self._started = time.time()
+        pruneTruncations()
         if 'page_size' in self.request:
             self.page_size = max(1, int(self.request['page_size']))
         self.history = IDatabaseHistory(self.jar)

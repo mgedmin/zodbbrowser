@@ -168,6 +168,7 @@ div.object .truncated {
   padding: 0 1px;
   border-radius: 2px;
   -moz-border-radius: 2px;
+  cursor: pointer;
 }
 
 span.struct {
