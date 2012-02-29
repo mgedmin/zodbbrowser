@@ -1,8 +1,8 @@
 Changes
 -------
 
-0.10.0 (unreleased)
-~~~~~~~~~~~~~~~~~~
+0.10.0 (2012-02-29)
+~~~~~~~~~~~~~~~~~~~
 
 - Browsing of transaction records (@@zodb_history).  Initial implementation so
   far, unbelievably slow when you have large databases (LP#907900).
@@ -20,6 +20,8 @@ Changes
 - More user-friendly representation of multiline text values.
 
 - Update maintainer email in setup.py.
+
+- Better error message for "address already in use" errors.
 
 
 0.9.0 (2011-10-21)
