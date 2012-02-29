@@ -12,6 +12,7 @@ import asyncore
 import socket
 import optparse
 import logging
+import errno
 
 from ZEO.ClientStorage import ClientStorage
 from ZODB.DB import DB
@@ -100,8 +101,15 @@ def start_server(options, db):
 
     server = getUtility(IServerType, options.server_type)
     host, port = options.listen_on
-    server.create(options.server_type, task_dispatcher, db,
-                  ip=host, port=port, verbose=options.verbose)
+    try:
+        server.create(options.server_type, task_dispatcher, db,
+                      ip=host, port=port, verbose=options.verbose)
+    except socket.error, e:
+        if e.errno == errno.EADDRINUSE:
+            sys.exit("Cannot listen on %s:%s: %s" % (host or '0.0.0.0',
+                                                     port, e))
+        else:
+            raise
 
     if options.verbose:
         print "Listening on http://%s:%d/" % (host or socket.gethostname(),
