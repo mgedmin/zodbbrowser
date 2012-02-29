@@ -87,6 +87,7 @@ setup(
         "zope.app.zcmlfiles",
         "zope.server",
         "zope.error",
+        "zope.exceptions",
         "zope.session",
         # dependencies that easy_install pulls in via setuptools extras
         # but that are dropped when you do pip install, *sigh*
