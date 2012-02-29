@@ -16,7 +16,8 @@ from zope.security.checker import ProxyFactory
 
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
-from zodbbrowser.browser import getObjectTypeShort
+from zodbbrowser.browser import getObjectType, getObjectTypeShort
+from zodbbrowser.browser import getObjectPath
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 
@@ -450,6 +451,13 @@ class TestZodbInfoView(unittest.TestCase):
 
 
 class TestHelperFunctions(unittest.TestCase):
+
+    def test_getObjectType(self):
+        self.assertEqual(getObjectType(NonpersistentStub()),
+                         "<class 'zodbbrowser.tests.test_browser.NonpersistentStub'>")
+        self.assertEqual(getObjectType(ProxyFactory(NonpersistentStub())),
+                         "<type 'zope.security._proxy._Proxy'> -"
+                         " <class 'zodbbrowser.tests.test_browser.NonpersistentStub'>")
 
     def test_getObjectTypeShort(self):
         self.assertEqual(getObjectTypeShort(NonpersistentStub()),
