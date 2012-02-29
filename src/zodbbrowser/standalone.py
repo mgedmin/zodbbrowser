@@ -13,6 +13,7 @@ import socket
 import optparse
 import logging
 import errno
+import traceback
 
 from ZEO.ClientStorage import ClientStorage
 from ZODB.DB import DB
@@ -24,6 +25,7 @@ from zope.app.appsetup.appsetup import SystemConfigurationParticipation
 from zope.component import getUtility, provideUtility
 from zope.server.taskthreads import ThreadedTaskDispatcher
 from zope.event import notify
+from zope.exceptions import exceptionformatter
 import zope.app.component.hooks
 
 from zodbbrowser.state import install_provides_hack
@@ -128,6 +130,12 @@ def stop_serving():
     asyncore.close_all()
 
 
+def monkeypatch_error_formatting():
+    """Use Zope's custom traceback formatter for clearer error messages."""
+    traceback.format_exception = exceptionformatter.format_exception
+    traceback.print_exception = exceptionformatter.print_exception
+
+
 def main(args=None, start_serving=True):
     logging.basicConfig(format="%(message)s")
 
@@ -182,6 +190,8 @@ def main(args=None, start_serving=True):
 
     if opts.storage and not opts.zeo:
         parser.error('a ZEO storage was specified without ZEO connection')
+
+    monkeypatch_error_formatting()
 
     if opts.db:
         filename = opts.db
