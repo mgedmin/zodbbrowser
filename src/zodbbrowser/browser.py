@@ -198,6 +198,9 @@ class ZodbInfoView(VeryCarefulView):
     def getObjectType(self):
         return getObjectType(self.obj)
 
+    def getObjectTypeShort(self):
+        return getObjectTypeShort(self.obj)
+
     def getStateTid(self):
         return u64(self.state.tid)
 
@@ -494,6 +497,14 @@ def getObjectType(obj):
         return '%s - %s' % (type(obj), cls)
     else:
         return str(cls)
+
+
+def getObjectTypeShort(obj):
+    cls = getattr(obj, '__class__', None)
+    if type(obj) is not cls:
+        return '%s - %s' % (type(obj).__name__, cls.__name__)
+    else:
+        return cls.__name__
 
 
 def getObjectPath(obj, tid):

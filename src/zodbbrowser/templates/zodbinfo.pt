@@ -1,6 +1,6 @@
 <metal:block metal:use-macro="view/@@zodbbrowser_macros/page">
 <title metal:fill-slot="title">
-  <tal:x replace="view/obj/__class__/__name__" />
+  <tal:x replace="view/getObjectTypeShort" />
   at <tal:x replace="view/getPath"/> - ZODB Browser
 </title>
 <metal:block fill-slot="content">

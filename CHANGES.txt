@@ -6,6 +6,9 @@ Changes
 
 - Standalone app mode uses the Zope exception formatter for easier debugging.
 
+- Bugfix for weird LocationError: '__class__' for some containers
+  with custom traversal rules.
+
 
 0.10.0 (2012-02-29)
 ~~~~~~~~~~~~~~~~~~~

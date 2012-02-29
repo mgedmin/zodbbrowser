@@ -12,9 +12,11 @@ from zope.component import provideAdapter, getGlobalSiteManager
 from zope.interface import implements
 from zope.publisher.browser import TestRequest
 from zope.traversing.interfaces import IContainmentRoot
+from zope.security.checker import ProxyFactory
 
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
+from zodbbrowser.browser import getObjectTypeShort
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 
@@ -445,6 +447,15 @@ class TestZodbInfoView(unittest.TestCase):
                           '1905-05-13 03:32:22.050327')
         self.assertEquals(view._tidToTimestamp('something else'),
                           "'something else'")
+
+
+class TestHelperFunctions(unittest.TestCase):
+
+    def test_getObjectTypeShort(self):
+        self.assertEqual(getObjectTypeShort(NonpersistentStub()),
+                         'NonpersistentStub')
+        self.assertEqual(getObjectTypeShort(ProxyFactory(NonpersistentStub())),
+                         '_Proxy - NonpersistentStub')
 
 
 def test_suite():
