@@ -185,7 +185,7 @@ looking at an old snapshot instead of the current state
 You can click around and follow links to other objects, to see how they
 looked at that time too.
 
-    >>> browser.getLink(url='oid=1&tid=').click()
+    >>> browser.getLink(url='oid=0x1&tid=').click()
 
     >>> printCSSPath(browser, 'h1#path')
     <h1 id="path">
