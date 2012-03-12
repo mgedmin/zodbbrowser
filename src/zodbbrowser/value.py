@@ -219,7 +219,7 @@ class PersistentValue(object):
 
     def render(self, tid=None, can_link=True):
         obj = self.context
-        url = '%s?oid=%d' % (self.view_name, u64(self.context._p_oid))
+        url = '%s?oid=0x%x' % (self.view_name, u64(self.context._p_oid))
         if tid is not None:
             url += "&tid=%d" % u64(tid)
             try:

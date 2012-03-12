@@ -9,6 +9,9 @@ Changes
 - Bugfix for weird LocationError: '__class__' for some containers
   with custom traversal rules.
 
+- Links to persistent objects in value representations now also use
+  hex OIDs.
+
 
 0.10.0 (2012-02-29)
 ~~~~~~~~~~~~~~~~~~~
