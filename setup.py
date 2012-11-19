@@ -77,6 +77,7 @@ setup(
         "zope.app.testing",
         "zope.testbrowser",
         "lxml",
+        "cssselect",
         "unittest2",
         # dependencies just for the standalone app
         "zope.app.authentication",
