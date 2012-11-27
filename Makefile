@@ -16,9 +16,13 @@ TMPDIR = tmp
 all: bin/buildout
 	bin/buildout
 
-.PHONY: check test
-check test: bin/test
+.PHONY: test
+test: bin/test
 	bin/test -s zodbbrowser --auto-color
+
+.PHONY: check
+check: bin/detox
+	bin/detox
 
 # test with pager
 .PHONY: testp
@@ -68,7 +72,7 @@ checkzope2: dist
 	bin/test -s zodbbrowser
 
 .PHONY: distcheck
-distcheck: check checklatestzope dist
+distcheck: check checkzope2 checkzope34kgs dist
 	version=`$(PYTHON) setup.py --version` && \
 	rm -rf $(TMPDIR) && \
 	mkdir $(TMPDIR) && \
@@ -114,6 +118,6 @@ release:
 bin/buildout: bootstrap.py
 	$(PYTHON) bootstrap.py
 
-bin/test: bin/buildout
+bin/test bin/detox bin/python bin/zodbbrowser: bin/buildout
 	bin/buildout
 
