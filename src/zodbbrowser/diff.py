@@ -90,7 +90,7 @@ def compareDictsHTML(new, old, tid=None, indent=''):
     html = [indent + '<div class="diff">\n']
     diff = compareDicts(new, old)
     for key, (action, newvalue, oldvalue) in sorted(diff.items(),
-                                            key=lambda (k, v): (type(k), k)):
+                                            key=lambda (k, v): (str(type(k)), k)):
         what = action.split()[0]
         html.append(indent + '  <div class="diffitem %s">\n' % escape(what))
         if isinstance(key, basestring) and isascii(key):
