@@ -2,8 +2,11 @@
 # Options
 #
 
-# Or you may want to select an explicit Python version, e.g.
-PYTHON = python2.5
+# Or you may want to select an explicit Python version, e.g. python2.7
+PYTHON = python
+
+# Directory that will be nuked and created for stuff
+TMPDIR = tmp
 
 #
 # Interesting targets
@@ -40,24 +43,24 @@ preview-pypi-description:
 dist:
 	$(PYTHON) setup.py sdist
 
-.PHONY: checklatestzope
-checklatestzope: dist
+.PHONY: checkzope34kgs
+checkzope34kgs: dist
 	version=`$(PYTHON) setup.py --version` && \
-	rm -rf tmp && \
-	mkdir tmp && \
-	cd tmp && \
+	rm -rf $(TMPDIR) && \
+	mkdir $(TMPDIR) && \
+	cd $(TMPDIR) && \
 	tar xvzf ../dist/zodbbrowser-$$version.tar.gz && \
 	cd zodbbrowser-$$version && \
-	$(PYTHON) bootstrap.py && \
-	bin/buildout -c bleeding-edge.cfg && \
+	python2.5 bootstrap.py && \
+	bin/buildout -c zope34kgs.cfg && \
 	bin/test -s zodbbrowser
 
 .PHONY: checkzope2
 checkzope2: dist
 	version=`$(PYTHON) setup.py --version` && \
-	rm -rf tmp && \
-	mkdir tmp && \
-	cd tmp && \
+	rm -rf $(TMPDIR) && \
+	mkdir $(TMPDIR) && \
+	cd $(TMPDIR) && \
 	tar xvzf ../dist/zodbbrowser-$$version.tar.gz && \
 	cd zodbbrowser-$$version && \
 	$(PYTHON) bootstrap.py && \
@@ -67,9 +70,9 @@ checkzope2: dist
 .PHONY: distcheck
 distcheck: check checklatestzope dist
 	version=`$(PYTHON) setup.py --version` && \
-	rm -rf tmp && \
-	mkdir tmp && \
-	cd tmp && \
+	rm -rf $(TMPDIR) && \
+	mkdir $(TMPDIR) && \
+	cd $(TMPDIR) && \
 	tar xvzf ../dist/zodbbrowser-$$version.tar.gz && \
 	cd zodbbrowser-$$version && \
 	make dist && \
@@ -82,7 +85,7 @@ distcheck: check checklatestzope dist
 	cd .. && \
 	diff -ur one two -x SOURCES.txt && \
 	cd .. && \
-	rm -rf tmp && \
+	rm -rf $(TMPDIR) && \
 	echo "sdist seems to be ok"
 # I'm ignoring SOURCES.txt since it appears that the second sdist gets a new
 # source file, namely, setup.cfg.  Setuptools/distutils black magic, may it rot
@@ -108,7 +111,7 @@ release:
 # Implementation
 #
 
-bin/buildout:
+bin/buildout: bootstrap.py
 	$(PYTHON) bootstrap.py
 
 bin/test: bin/buildout
