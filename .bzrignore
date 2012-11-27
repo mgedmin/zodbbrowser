@@ -15,3 +15,4 @@ coverage
 Paste-1.7.2-py2.5.egg
 test
 tmp
+.tox
