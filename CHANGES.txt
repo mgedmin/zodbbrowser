@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.10.2 (unreleased)
+0.10.2 (2012-11-28)
 ~~~~~~~~~~~~~~~~~~~
 
 - Bugfix for POSKeyErrors when viewing BTrees of non-trivial sizes
