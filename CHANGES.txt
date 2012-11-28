@@ -4,6 +4,9 @@ Changes
 0.10.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- Bugfix for POSKeyErrors when viewing BTrees of non-trivial sizes
+  (LP#953480).  This fixes a regression introduced in version 0.10.0.
+
 
 0.10.1 (2012-11-27)
 ~~~~~~~~~~~~~~~~~~~

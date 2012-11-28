@@ -118,6 +118,13 @@ class TestLargeOOBTreeHistory(RealDatabaseTest):
             state = self.getState(tids[i])
             self.assertEquals(len(state.asDict()), i + 1)
 
+    def test_loadStatePickle(self):
+        tids = [d['tid'] for d in IObjectHistory(self.tree)][::-1]
+        for i in range(0, 100):
+            # Regression test: make sure we're not getting those
+            # POSKeyErrors.  LP#953480
+            IObjectHistory(self.tree).loadStatePickle(tids[i])
+
     def test_rollback_to_last_state_does_nothing(self):
         history = IObjectHistory(self.tree)
         history.rollback(history.lastChange())

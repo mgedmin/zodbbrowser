@@ -61,6 +61,16 @@ class OOBTreeHistory(ZodbObjectHistory):
     def _lastRealChange(self, tid=None):
         return ZodbObjectHistory(self._obj).lastChange(tid)
 
+    def loadStatePickle(self, tid=None):
+        # lastChange would return the tid that modified self._obj or any
+        # of its subobjects, thanks to the history merging done by _load.
+        # We need the real last change value.
+        # XXX: this is used to show the pickled size of an object.  It
+        # will be misleading for BTrees if we show just the size for the
+        # main BTree object while we're hiding all the individual buckets.
+        return self._connection._storage.loadSerial(self._obj._p_oid,
+                                                    self._lastRealChange(tid))
+
     def loadState(self, tid=None):
         # lastChange would return the tid that modified self._obj or any
         # of its subobjects, thanks to the history merging done by _load.
