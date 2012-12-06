@@ -4,6 +4,9 @@ Changes
 0.10.3 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- Custom representation of persistent objects with no __repr__ to avoid
+  showing misleading memory addresses (LP#1087138).
+
 
 0.10.2 (2012-11-28)
 ~~~~~~~~~~~~~~~~~~~

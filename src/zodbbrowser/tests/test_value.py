@@ -48,6 +48,10 @@ class PersistentFrob(Persistent):
         return '<PersistentFrob>'
 
 
+class PersistentFrobNoRepr(Persistent):
+    _p_oid = p64(23)
+
+
 class Struct(object):
     pass
 
@@ -137,6 +141,12 @@ class TestGenericValue(unittest.TestCase):
     def test_conteinerish_things_do_not_explode(self):
         self.assertEquals(GenericValue(ExplodingLen()).render(),
                           '&lt;ExplodingLen&gt;')
+
+    def test_override_default_repr_of_Persistent(self):
+        # https://bugs.launchpad.net/zodbbrowser/+bug/1087138
+        self.assertEqual(GenericValue(PersistentFrobNoRepr()).render(),
+                         '&lt;zodbbrowser.tests.test_value.PersistentFrobNoRepr'
+                         ' with oid 0x17&gt;')
 
 
 class TestStringValue(unittest.TestCase):
