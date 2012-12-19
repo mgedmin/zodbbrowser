@@ -296,14 +296,15 @@ def test_suite():
         (re.compile(r'zope\.app\.folder\.folder\.Folder'),
             'zope.site.folder.Folder'),
     ])
+    optionflags = doctest.REPORT_ONLY_FIRST_FAILURE | doctest.REPORT_NDIFF
     here = os.path.dirname(__file__)
-    for filename in os.listdir(here):
+    for filename in sorted(os.listdir(here)):
         if not filename.endswith('.txt') or filename.startswith('.'):
             continue
         test = doctest.DocFileSuite(filename,
                                     setUp=setUp,
                                     checker=checker,
-                                    optionflags=doctest.REPORT_NDIFF)
+                                    optionflags=optionflags)
         test.layer = TestsWithServer
         suite.addTest(test)
     return suite
