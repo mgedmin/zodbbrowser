@@ -77,7 +77,7 @@ references, we show hyperlinks
     <span class="attr">
       <strong>data</strong>:
       <a class="objlink" href="@@zodbbrowser?oid=2">
-        &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
+        &lt;BTrees.OOBTree.OOBTree with oid XX&gt; (0 items)
       </a>
     </span>
 
@@ -102,7 +102,7 @@ this particular case, all the items are stored in the 'data' attribute
     <span class="attr">
       <strong>data</strong>:
       <a class="objlink" href="@@zodbbrowser?oid=XX">
-        &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
+        &lt;BTrees.OOBTree.OOBTree with oid XX&gt; (0 items)
       </a>
     </span>
 
@@ -152,13 +152,13 @@ Each transaction shows which attributes have changed
       <div class="diffitem added">
         <strong>__parent__</strong>: added
         <a class="objlink" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
-          &lt;zope.app.folder.folder.Folder object at 0xXXXXXXX&gt; (3 items)
+          &lt;zope.app.folder.folder.Folder with oid XX&gt; (3 items)
         </a>
       </div>
       <div class="diffitem added">
         <strong>data</strong>: added
         <a class="objlink" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
-          &lt;BTrees.OOBTree.OOBTree object at 0xXXXXXXX&gt; (0 items)
+          &lt;BTrees.OOBTree.OOBTree with oid XX&gt; (0 items)
         </a>
       </div>
     </div>

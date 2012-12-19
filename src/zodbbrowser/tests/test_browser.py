@@ -17,7 +17,6 @@ from zope.security.checker import ProxyFactory
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
 from zodbbrowser.browser import getObjectType, getObjectTypeShort
-from zodbbrowser.browser import getObjectPath
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 

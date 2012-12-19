@@ -4,6 +4,10 @@ Changes
 0.10.4 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- The fix for LP#1087138 was extremely buggy and caused LP#1091716.
+  I didn't notice because tox.ini was also buggy and ran the wrong test
+  suite on the wrong code.
+
 
 0.10.3 (2012-12-06)
 ~~~~~~~~~~~~~~~~~~~

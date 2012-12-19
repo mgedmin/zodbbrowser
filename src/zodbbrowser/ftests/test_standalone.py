@@ -289,6 +289,7 @@ def test_suite():
         (re.compile(r'\btid[0-9xA-Fa-f]+'), 'tidXXXXXXXXXXXXXXXXXX'),
         (re.compile(r'\btid=[0-9xA-Fa-f]+'), 'tid=XXXXXXXXXXXXXXXXXX'),
         (re.compile(r'\boid=[0-9xA-Fa-f]+'), 'oid=XX'),
+        (re.compile(r'\boid [0-9xA-Fa-f]+'), 'oid XX'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d[.]\d\d\d\d\d\d'),
             'YYYY-MM-DD HH:MM:SS.SSSSSS'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),
