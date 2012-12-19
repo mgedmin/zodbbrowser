@@ -96,22 +96,32 @@ def configure(options):
     endInteraction()
 
 
+task_dispatcher = None
+port = None
+
+
 def start_server(options, db):
-    global task_dispatcher
+    global task_dispatcher, port
     task_dispatcher = ThreadedTaskDispatcher()
     task_dispatcher.setThreadCount(options.threads)
 
-    server = getUtility(IServerType, options.server_type)
+    server_type = getUtility(IServerType, options.server_type)
     host, port = options.listen_on
     try:
-        server.create(options.server_type, task_dispatcher, db,
-                      ip=host, port=port, verbose=options.verbose)
+        server = server_type.create(name=options.server_type, ip=host,
+                                    port=port, db=db,
+                                    task_dispatcher=task_dispatcher,
+                                    verbose=options.verbose)
     except socket.error, e:
         if e.errno == errno.EADDRINUSE:
             sys.exit("Cannot listen on %s:%s: %s" % (host or '0.0.0.0',
                                                      port, e))
         else:
             raise
+    else:
+        # port can be 0, which means "pick any free port".  Let's show the
+        # port that was picked
+        port = server.socket.getsockname()[1]
 
     if options.verbose:
         print "Listening on http://%s:%d/" % (host or socket.gethostname(),
@@ -126,7 +136,9 @@ def serve_forever(interval=30.0):
 
 
 def stop_serving():
+    global task_dispatcher
     task_dispatcher.shutdown(False)
+    task_dispatcher = None
     asyncore.close_all()
 
 
