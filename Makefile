@@ -21,7 +21,7 @@ test: bin/test
 	bin/test -s zodbbrowser --auto-color -v1
 
 .PHONY: check
-check: bin/detox
+check: bin/detox test
 	bin/detox
 
 # test with pager
