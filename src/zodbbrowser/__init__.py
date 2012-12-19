@@ -3,6 +3,7 @@ ZODB Browser has the following submodules:
 
   diff         -- compute differences between two dictionaries
   testing      -- doodads to make writing tests easier
+  cache        -- caching logic
 
   history      -- extracts historical state information from the ZODB
   state        -- IStateInterpreter adapters for making sense of unpickled data
@@ -18,7 +19,7 @@ ZODB Browser has the following submodules:
 """
 
 
-__version__ = '0.10.4.dev'
+__version__ = '0.10.4'
 __homepage__ = 'http://launchpad.net/zodbbrowser'
 
 
