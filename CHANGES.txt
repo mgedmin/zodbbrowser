@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.10.4 (unreleased)
+0.10.4 (2012-12-19)
 ~~~~~~~~~~~~~~~~~~~
 
 - The previous release was completely broken (LP#1091716).  Fix the issue,
