@@ -18,7 +18,7 @@ all: bin/buildout
 
 .PHONY: test
 test: bin/test
-	bin/test -s zodbbrowser --auto-color
+	bin/test -s zodbbrowser --auto-color -v1
 
 .PHONY: check
 check: bin/detox
