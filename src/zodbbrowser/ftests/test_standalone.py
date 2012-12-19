@@ -23,6 +23,7 @@ from zope.app.appsetup.interfaces import DatabaseOpened
 from zope.app.appsetup.bootstrap import bootStrapSubscriber
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
+from zodbbrowser import standalone
 
 
 class ServerController(object):
@@ -30,25 +31,19 @@ class ServerController(object):
     def __init__(self):
         self.server_thread = None
         self.url = None
-        self.port_number = None
-
-    def findUnusedPort(self):
-        """Find an unused TCP port number."""
-        return 1234 # TODO: be smarter
+        self.port_number = 0
 
     def run(self, *args):
         """Run the standalone ZODB Browser web app in the background."""
         if self.server_thread is not None:
             raise AssertionError('Already running a server')
 
-        if not self.port_number:
-            self.port_number = self.findUnusedPort()
-
-        self.url = 'http://localhost:%d/' % self.port_number
-
         args += ('--listen', str(self.port_number))
         args += ('--quiet', )
         main(list(args), start_serving=False)
+
+        self.port_number = standalone.port
+        self.url = 'http://localhost:%d/' % self.port_number
 
         self.server_thread = threading.Thread(name='server',
                                               target=serve_forever,
