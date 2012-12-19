@@ -4,7 +4,7 @@ import collections
 import re
 from cgi import escape
 
-from ZODB.utils import u64
+from ZODB.utils import u64, oid_repr
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
@@ -59,14 +59,13 @@ class GenericValue(object):
 
     def _repr(self):
         # hook for subclasses
-        if True:
-            if self.context.__class__.__repr__ is object.__repr__:
-                # Special-case objects with the default __repr__ (LP#1087138)
-                if isinstance(self.context, Persistent):
-                    return '<%s.%s with oid 0x%x>' % (
-                        self.context.__class__.__module__,
-                        self.context.__class__.__name__,
-                        u64(self.context._p_oid))
+        if self.context.__class__.__repr__ is object.__repr__:
+            # Special-case objects with the default __repr__ (LP#1087138)
+            if isinstance(self.context, Persistent):
+                return '<%s.%s with oid %s>' % (
+                    self.context.__class__.__module__,
+                    self.context.__class__.__name__,
+                    oid_repr(self.context._p_oid))
         try:
             return repr(self.context)
         except Exception:
@@ -234,6 +233,7 @@ class PersistentValue(object):
                 oldstate = IObjectHistory(self.context).loadState(tid)
                 clone = self.context.__class__.__new__(self.context.__class__)
                 clone.__setstate__(oldstate)
+                clone._p_oid = self.context._p_oid
                 obj = clone
             except Exception:
                 log.debug('Could not load old state for %s 0x%x',
