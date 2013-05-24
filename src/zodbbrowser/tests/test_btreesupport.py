@@ -1,7 +1,7 @@
 import unittest
 
 import transaction
-from BTrees.OOBTree import OOBTree
+from BTrees.OOBTree import OOBTree, OOBucket
 from zope.interface.verify import verifyObject
 from zope.component import provideAdapter
 from zope.app.folder import Folder
@@ -13,9 +13,10 @@ from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.btreesupport import (
         OOBTreeHistory,
         OOBTreeState,
-        EmptyOOBTreeState, 
+        EmptyOOBTreeState,
         FolderState,
         BTreeContainerState,
+        OOBucketState,
 )
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
@@ -37,6 +38,9 @@ class TestOOBTreeState(unittest.TestCase):
 
     def test_interface_compliance(self):
         verifyObject(IStateInterpreter, self.state)
+
+    def test_getError(self):
+        self.assertEquals(self.state.getError(), None)
 
     def test_getName(self):
         self.assertEquals(self.state.getName(), None)
@@ -231,4 +235,39 @@ class TestBTreeContainerState(RealDatabaseTest):
         state = BTreeContainerState(None, BTreeContainer().__getstate__(),
                                     None)
         self.assertEquals(list(state.listItems()), []);
+
+
+class TestOOBucketState(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        bucket = OOBucket()
+        bucket[1] = 42
+        bucket[2] = 23
+        bucket[3] = 17
+        state = bucket.__getstate__()
+        self.state = OOBucketState(None, state, None)
+
+    def test_interface_compliance(self):
+        verifyObject(IStateInterpreter, self.state)
+
+    def test_getError(self):
+        self.assertEquals(self.state.getError(), None)
+
+    def test_getName(self):
+        self.assertEquals(self.state.getName(), None)
+
+    def test_getParent(self):
+        self.assertEquals(self.state.getParent(), None)
+
+    def test_listAttributes(self):
+        self.assertEquals(self.state.listAttributes(), [('_next', None)])
+
+    def test_listItems(self):
+        self.assertEquals(list(self.state.listItems()),
+                          [(1, 42), (2, 23), (3, 17)])
+
+    def test_asDict(self):
+        self.assertEquals(self.state.asDict(),
+                          dict(_next=None, _items={1: 42, 2: 23, 3: 17}))
 

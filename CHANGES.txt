@@ -4,6 +4,8 @@ Changes
 0.10.5 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- Custom representation of OOBucket objects.
+
 
 0.10.4 (2012-12-19)
 ~~~~~~~~~~~~~~~~~~~

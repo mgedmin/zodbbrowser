@@ -30,5 +30,6 @@
   <adapter factory=".btreesupport.EmptyOOBTreeState" />
   <adapter factory=".btreesupport.FolderState" />
   <adapter factory=".btreesupport.BTreeContainerState" />
+  <adapter factory=".btreesupport.OOBucketState" />
 
 </configure>

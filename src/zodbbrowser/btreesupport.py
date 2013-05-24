@@ -10,7 +10,7 @@ The format of the picked BTree state is nicely documented in ZODB's source
 code, specifically, BTreeTemplate.c and BucketTemplate.c.
 """
 
-from BTrees.OOBTree import OOBTree
+from BTrees.OOBTree import OOBTree, OOBucket
 from zope.component import adapts, getMultiAdapter
 from zope.interface import implements
 
@@ -174,4 +174,52 @@ class BTreeContainerState(GenericState):
         loadedstate = IObjectHistory(data).loadState(self.tid)
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
+
+class OOBucketState(GenericState):
+    """A single OOBTree bucket, should you wish to look at the internals
+
+    Here's the state description direct from BTrees/BucketTemplate.c::
+
+     * For a set bucket (self->values is NULL), a one-tuple or two-tuple.  The
+     * first element is a tuple of keys, of length self->len.  The second element
+     * is the next bucket, present if and only if next is non-NULL:
+     *
+     *     (
+     *          (keys[0], keys[1], ..., keys[len-1]),
+     *          <self->next iff non-NULL>
+     *     )
+     *
+     * For a mapping bucket (self->values is not NULL), a one-tuple or two-tuple.
+     * The first element is a tuple interleaving keys and values, of length
+     * 2 * self->len.  The second element is the next bucket, present iff next is
+     * non-NULL:
+     *
+     *     (
+     *          (keys[0], values[0], keys[1], values[1], ...,
+     *                               keys[len-1], values[len-1]),
+     *          <self->next iff non-NULL>
+     *     )
+
+    OOBucket is a mapping bucket; OOSet is a set bucket.
+    """
+    adapts(OOBucket, tuple, None)
+    implements(IStateInterpreter)
+
+    def getError(self):
+        return None
+
+    def getName(self):
+        return None
+
+    def getParent(self):
+        return None
+
+    def listAttributes(self):
+        return [('_next', self.state[1] if len(self.state) > 1 else None)]
+
+    def listItems(self):
+        return zip(self.state[0][::2], self.state[0][1::2])
+
+    def asDict(self):
+        return dict(self.listAttributes(), _items=dict(self.listItems()))
 
