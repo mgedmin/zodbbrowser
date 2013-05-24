@@ -115,8 +115,11 @@ release:
 # Implementation
 #
 
-bin/buildout: bootstrap.py
-	$(PYTHON) bootstrap.py
+bin/buildout: python/bin/python bootstrap.py
+	python/bin/python bootstrap.py
+
+python/bin/python:
+	virtualenv -p $(PYTHON) python
 
 bin/test bin/detox bin/python bin/zodbbrowser: bin/buildout
 	bin/buildout
