@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import with_statement # python 2.5 or later needed
 import os
 import re
 from setuptools import setup, find_packages
