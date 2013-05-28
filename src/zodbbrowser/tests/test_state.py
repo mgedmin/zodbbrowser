@@ -241,6 +241,19 @@ class TestOrderedContainerState(RealDatabaseTest):
         self.assertEquals(list(self.container.items()),
                           [('foo', 1), ('bar', 2), ('baz', 3)])
 
+    def test_listItems_nonpersistent_order(self):
+        # I once saw a live OrderedContainer that had a plain mutable
+        # builtin list in its _order attribute
+        self.container._order = list(self.container._order)
+        transaction.commit()
+        self.tid = self.container._p_serial
+        self.state = OrderedContainerState(self.container,
+                                           self.container.__getstate__(),
+                                           self.tid)
+        self.assertEquals(list(self.state.listItems()),
+                          [('foo', 1), ('bar', 2)])
+
+
 
 class TestFallbackState(unittest.TestCase):
 

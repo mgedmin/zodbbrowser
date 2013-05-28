@@ -254,12 +254,14 @@ class OrderedContainerState(GenericState):
         # in a nasty way (LP #487243).
         container = OrderedContainer()
         container.__setstate__(self.state)
-        old_data_state = IObjectHistory(container._data).loadState(self.tid)
-        old_order_state = IObjectHistory(container._order).loadState(self.tid)
-        container._data = PersistentDict()
-        container._data.__setstate__(old_data_state)
-        container._order = PersistentList()
-        container._order.__setstate__(old_order_state)
+        if isinstance(container._data, PersistentDict):
+            old_data_state = IObjectHistory(container._data).loadState(self.tid)
+            container._data = PersistentDict()
+            container._data.__setstate__(old_data_state)
+        if isinstance(container._order, PersistentList):
+            old_order_state = IObjectHistory(container._order).loadState(self.tid)
+            container._order = PersistentList()
+            container._order.__setstate__(old_order_state)
         return container.items()
 
 

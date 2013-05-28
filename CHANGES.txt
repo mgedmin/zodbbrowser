@@ -7,6 +7,8 @@ Changes
 - Custom representation of OOBucket objects.
 - Dropped Python 2.4 support.
 - Slightly better error pages when you specify an invalid/nonexistent OID.
+- Handle OrderedContainers with non-persistent ``_order`` or ``_data``
+  attributes (I've seen the first in the wild).
 
 
 0.10.4 (2012-12-19)
