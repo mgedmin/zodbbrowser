@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import re
 from setuptools import setup, find_packages
 
 
@@ -37,11 +38,22 @@ class UltraMagicString(object):
 
 def read_file(relative_filename):
     here = os.path.dirname(__file__)
-    text = open(os.path.join(here, relative_filename)).read()
-    return UltraMagicString(text)
+    with open(os.path.join(here, relative_filename)) as f:
+        return f.read()
+
+
+def linkify_bugs(text):
+    return re.sub(r'\bLP#(\d+)\b', r'`LP#\1 <http://pad.lv/\1>`__', text)
+
 
 def get_long_description():
-    return read_file('README.txt') + '\n\n' + read_file('CHANGES.txt')
+    return UltraMagicString(
+        linkify_bugs(
+            read_file('README.txt') +
+            '\n\n' +
+            read_file('CHANGES.txt')
+        )
+    )
 
 
 version, homepage = get_version_and_homepage()
