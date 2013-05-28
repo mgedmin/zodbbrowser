@@ -144,8 +144,8 @@ This is a fresh database, so it has only one transaction:
 
 Each transaction shows which attributes have changed
 
-    >>> printCSSPath(browser, 'div.transaction > div.diff')
-    <div class="diff">
+    >>> printCSSPath(browser, 'div.transaction > div.diff') # doctest: +ELLIPSIS
+    <div class="diff">...
       <div class="diffitem added">
         <strong>__name__</strong>: added u'browsing'
       </div>

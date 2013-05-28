@@ -289,10 +289,16 @@ def test_suite():
             'YYYY-MM-DD HH:MM:SS.SSSSSS'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),
             'YYYY-MM-DD HH:MM:SS'),
+        # zope.app.folder.folder.Folder was moved to zope.site.folder.Folder
+        # but we still support ancient zope versions here
         (re.compile(r'zope\.app\.folder\.folder\.Folder'),
             'zope.site.folder.Folder'),
+        # zope.container 4.0.0 made Folder objects inherit from BTreeContainer
+        # this adds one new attribute that our tests don't expect to see
+        (re.compile(r'<strong>_BTreeContainer__len</strong>'), ''),
     ])
-    optionflags = doctest.REPORT_ONLY_FIRST_FAILURE | doctest.REPORT_NDIFF
+    optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
+                   doctest.REPORT_NDIFF | doctest.NORMALIZE_WHITESPACE)
     here = os.path.dirname(__file__)
     for filename in sorted(os.listdir(here)):
         if not filename.endswith('.txt') or filename.startswith('.'):
