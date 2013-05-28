@@ -94,7 +94,7 @@
     <div class="collapsible">
       <div tal:attributes="class python:view.getRequestedTid() and 'none' or 'latest'">
         <h4 class="transaction">
-          <a class="title" tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectId}"
+          <a class="title" tal:attributes="href string:@@zodbbrowser?oid=${view/getObjectIdHex}"
             >Latest</a>
         </h4>
       </div>

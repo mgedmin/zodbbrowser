@@ -204,6 +204,9 @@ class ZodbInfoView(VeryCarefulView):
     def getObjectId(self):
         return self.state.getObjectId()
 
+    def getObjectIdHex(self):
+        return '0x%x' % self.state.getObjectId()
+
     def getObjectType(self):
         return getObjectType(self.obj)
 
