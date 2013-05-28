@@ -52,7 +52,7 @@ dist:
 	$(PYTHON) setup.py sdist
 
 .PHONY: checkzope2
-checkzope2: dist
+checkzope2: dist python/bin/python
 	version=`$(PYTHON) setup.py --version` && \
 	rm -rf $(TMPDIR) && \
 	mkdir $(TMPDIR) && \
