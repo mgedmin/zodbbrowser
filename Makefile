@@ -47,18 +47,6 @@ preview-pypi-description:
 dist:
 	$(PYTHON) setup.py sdist
 
-.PHONY: checkzope34kgs
-checkzope34kgs: dist
-	version=`$(PYTHON) setup.py --version` && \
-	rm -rf $(TMPDIR) && \
-	mkdir $(TMPDIR) && \
-	cd $(TMPDIR) && \
-	tar xvzf ../dist/zodbbrowser-$$version.tar.gz && \
-	cd zodbbrowser-$$version && \
-	python2.5 bootstrap.py && \
-	bin/buildout -c zope34kgs.cfg && \
-	bin/test -s zodbbrowser
-
 .PHONY: checkzope2
 checkzope2: dist
 	version=`$(PYTHON) setup.py --version` && \
@@ -72,7 +60,7 @@ checkzope2: dist
 	bin/test -s zodbbrowser
 
 .PHONY: distcheck
-distcheck: check checkzope2 checkzope34kgs dist
+distcheck: check checkzope2 dist
 	version=`$(PYTHON) setup.py --version` && \
 	rm -rf $(TMPDIR) && \
 	mkdir $(TMPDIR) && \
