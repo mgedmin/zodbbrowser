@@ -6,6 +6,7 @@ Changes
 
 - Custom representation of OOBucket objects.
 - Dropped Python 2.4 support.
+- Slightly better error pages when you specify an invalid/nonexistent OID.
 
 
 0.10.4 (2012-12-19)

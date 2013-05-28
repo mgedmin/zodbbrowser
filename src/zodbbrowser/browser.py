@@ -10,9 +10,11 @@ from zope.component import adapts, queryUtility
 from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
 from zope.cachedescriptors.property import Lazy
+from zope.exceptions.interfaces import UserError
 from ZODB.utils import p64, u64, tid_repr, oid_repr
 from ZODB.Connection import Connection
 from ZODB.interfaces import IDatabase
+from ZODB.POSException import POSKeyError
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
 import transaction
@@ -165,10 +167,17 @@ class ZodbInfoView(VeryCarefulView):
                 obj = None
         if obj is None:
             if 'oid' in self.request:
-                oid = int(self.request['oid'], 0)
+                try:
+                    oid = int(self.request['oid'], 0)
+                except ValueError:
+                    raise UserError('OID is not an integer: %r' %
+                                    self.request['oid'])
             else:
                 oid = self.getRootOid()
-            obj = self.jar.get(p64(oid))
+            try:
+                obj = self.jar.get(p64(oid))
+            except POSKeyError:
+                raise UserError('There is no object with OID 0x%x' % oid)
         return obj
 
     def findClosestPersistent(self):
