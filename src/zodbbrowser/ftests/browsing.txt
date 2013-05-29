@@ -152,7 +152,7 @@ Each transaction shows which attributes have changed
       <div class="diffitem added">
         <strong>__parent__</strong>: added
         <a class="objlink" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
-          &lt;zope.app.folder.folder.Folder with oid XX&gt; (3 items)
+          &lt;zope.app.folder.folder.Folder with oid XX&gt; (... items)
         </a>
       </div>
       <div class="diffitem added">

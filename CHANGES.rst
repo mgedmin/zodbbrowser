@@ -5,10 +5,13 @@ Changes
 ~~~~~~~~~~~~~~~~~~~
 
 - Dropped Python 2.4 and 2.5 support.
+- Migrated source from Launchpad to Github.
 - Custom representation of OOBucket objects.
 - Slightly better error pages when you specify an invalid/nonexistent OID.
 - Handle OrderedContainers with non-persistent ``_order`` or ``_data``
   attributes (I've seen the first in the wild).
+- Partial fix for LP#1185175: cannot browse objects of classes that use
+  zope.interface.implementsOnly.
 
 
 0.10.4 (2012-12-19)

@@ -21,7 +21,8 @@ import transaction
 import simplejson
 
 from zodbbrowser import __version__, __homepage__
-from zodbbrowser.interfaces import IObjectHistory, IValueRenderer
+from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.interfaces import IDatabaseHistory
 from zodbbrowser.state import ZodbObjectState
 from zodbbrowser.diff import compareDictsHTML
@@ -121,7 +122,8 @@ class ZodbInfoView(VeryCarefulView):
         self._started = time.time()
         pruneTruncations()
         self.obj = self.selectObjectToView()
-        self.history = IObjectHistory(self.obj)
+        # Not using IObjectHistory(self.obj) because LP#1185175
+        self.history = ZodbObjectHistory(self.obj)
         self.latest = True
         if self.request.get('tid'):
             self.state = ZodbObjectState(self.obj,

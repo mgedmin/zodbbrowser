@@ -10,6 +10,7 @@ from cgi import escape
 
 import transaction
 from lxml.html import fromstring, tostring
+from persistent import Persistent
 from ZODB.POSException import ReadOnlyError
 from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.DB import DB
@@ -21,6 +22,7 @@ from zope.app.publication.zopepublication import ZopePublication
 from zope.app.folder.folder import Folder
 from zope.app.appsetup.interfaces import DatabaseOpened
 from zope.app.appsetup.bootstrap import bootStrapSubscriber
+from zope.interface import Interface, implementsOnly
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
 from zodbbrowser import standalone
@@ -73,6 +75,14 @@ class TestsWithoutServer(object):
     """
 
 
+class IMyOwnInterface(Interface):
+    pass
+
+
+class PersistentSubclassThatUsesImplementsOnly(Persistent):
+    implementsOnly(IMyOwnInterface)
+
+
 class TestsWithServer(object):
     """Functional tests with a web app running in the background."""
 
@@ -105,6 +115,7 @@ class TestsWithServer(object):
         cls.createTestDataForBrowsing(root_folder)
         cls.createTestDataForRollbacking(root_folder)
         cls.createTestDataForRollbackCanBeCancelled(root_folder)
+        cls.createTestDataForImplementsOnly(root_folder)
         connection.close()
         db.close()
 
@@ -128,6 +139,13 @@ class TestsWithServer(object):
         root_folder['rbcbc'] = Folder()
         transaction.commit()
         root_folder['rbcbc'].random_attribute = 'hey'
+        transaction.commit()
+
+    @classmethod
+    def createTestDataForImplementsOnly(cls, root_folder):
+        # set up data that implements-only.txt expects
+        root_folder['io'] = Folder()
+        root_folder['io'].crash = PersistentSubclassThatUsesImplementsOnly()
         transaction.commit()
 
 
