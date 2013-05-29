@@ -15,7 +15,7 @@ scripts = bin/test bin/detox bin/python bin/zodbbrowser
 
 # my cargo-culted release rules
 FILE_WITH_VERSION = src/zodbbrowser/__init__.py
-FILE_WITH_CHANGELOG = CHANGES.txt
+FILE_WITH_CHANGELOG = CHANGES.rst
 VCS_STATUS = git status --porcelain
 VCS_EXPORT = git archive --format=tar --prefix=tmp/tree/ HEAD | tar -xf -
 VCS_TAG = git tag

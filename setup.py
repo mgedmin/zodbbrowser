@@ -50,9 +50,9 @@ def linkify_bugs(text):
 def get_long_description():
     return UltraMagicString(
         linkify_bugs(
-            read_file('README.txt') +
+            read_file('README.rst') +
             '\n\n' +
-            read_file('CHANGES.txt')
+            read_file('CHANGES.rst')
         )
     )
 

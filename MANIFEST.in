@@ -2,6 +2,6 @@ include *.cfg
 exclude .installed.cfg
 include bootstrap.py
 include Makefile
-include *.txt
+include *.rst
 include tox.ini
 recursive-include src *.zcml *.pt *.js *.css *.png *.txt
