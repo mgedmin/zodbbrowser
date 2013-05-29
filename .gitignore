@@ -18,3 +18,4 @@ tmp
 .tox
 python
 *.pyc
+.coverage
