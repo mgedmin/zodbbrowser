@@ -111,7 +111,7 @@ release:
 	@echo Please run $(VCS_TAG) `$(PYTHON) setup.py --version`
 	@echo Please increment the version number in $(FILE_WITH_VERSION)
 	@echo Please add a new empty entry in $(FILE_WITH_CHANGELOG)
-	@echo Then please $(VCS_COMMIT_AND_PUSH)
+	@echo "Then please $(VCS_COMMIT_AND_PUSH)"
 
 #
 # Implementation
