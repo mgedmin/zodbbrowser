@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.11.0 (unreleased)
+0.11.0 (2013-05-29)
 ~~~~~~~~~~~~~~~~~~~
 
 - Dropped Python 2.4 and 2.5 support.

@@ -104,8 +104,8 @@ release:
 	@ver_and_date="`$(PYTHON) setup.py --version` (`date +%Y-%m-%d`)" && \
 	    grep -q "^$$ver_and_date$$" $(FILE_WITH_CHANGELOG) || { \
 	        echo "$(FILE_WITH_CHANGELOG) has no entry for $$ver_and_date"; exit 1; }
+	@test -z "`$(VCS_STATUS) 2>&1`" || { echo "Your working tree is not clean:" 1>&2; $(VCS_STATUS) 1>&2; exit 1; }
 	make distcheck
-	@test -z "`$(VCS_STATUS) 2>&1`" || { echo; echo "Your working tree is not clean" 1>&2; $(VCS_STATUS); exit 1; }
 	# I'm chicken so I won't actually do these things yet
 	@echo Please run $(PYTHON) setup.py sdist register upload
 	@echo Please run $(VCS_TAG) `$(PYTHON) setup.py --version`

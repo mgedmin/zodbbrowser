@@ -3,5 +3,7 @@ exclude .installed.cfg
 include bootstrap.py
 include Makefile
 include *.rst
+include *.txt
 include tox.ini
+include .travis.yml
 recursive-include src *.zcml *.pt *.js *.css *.png *.txt
