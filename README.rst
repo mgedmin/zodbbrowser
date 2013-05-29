@@ -1,6 +1,8 @@
 ZODB Browser
 ============
 
+|buildstatus|_ |coverage|_
+
 The ZODB browser allows you to inspect persistent objects stored in the ZODB,
 view their attributes and historical changes made to them.
 
@@ -118,4 +120,12 @@ Marius Gedminas (marius@pov.lt) from `Programmers of Vilnius
 <http://pov.lt/>`_.  It is licenced under the `Zope Public Licence
 <http://www.zope.org/Resources/ZPL>`_.
 
-Please report bugs at https://bugs.launchpad.net/zodbbrowser
+Please report bugs at https://github.com/mgedmin/zodbbrowser/issues
+or at the old bugtracker at https://bugs.launchpad.net/zodbbrowser
+
+
+.. |buildstatus| image:: https://api.travis-ci.org/mgedmin/zodbbrowser.png?branch=master
+.. _buildstatus: https://travis-ci.org/mgedmin/zodbbrowser
+
+.. |coverage| image:: https://coveralls.io/repos/mgedmin/zodbbrowser/badge.png?branch=master
+.. _coverage: https://coveralls.io/r/mgedmin/zodbbrowser
