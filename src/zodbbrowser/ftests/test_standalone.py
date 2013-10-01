@@ -284,7 +284,7 @@ def fixupWhitespace(element, indent=0, step=2, split_if_longer=38):
         element.tail = None
     element.tail = stripify(element.tail)
     if element.tail and element.tail.startswith(' '):
-        element.tail = '\n' +  ' ' * indent + element.tail.lstrip()
+        element.tail = '\n' + ' ' * indent + element.tail.lstrip()
 
 
 def setUp(test):

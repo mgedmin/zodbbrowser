@@ -17,7 +17,7 @@ def expired(cache_dict, cache_for):
     return cache_dict['last_update'] > time.time() - cache_for
 
 
-def getStorageTids(storage, cache_for=5*MINUTES):
+def getStorageTids(storage, cache_for=5 * MINUTES):
     cache_dict = STORAGE_TIDS.setdefault(storage, {})
     if expired(cache_dict, cache_for):
         if cache_dict.get('tids'):

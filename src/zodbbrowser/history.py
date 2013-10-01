@@ -78,9 +78,8 @@ class ZodbObjectHistory(object):
             # we assume records are ordered by tid, newest to oldest
             if tid is None or record['tid'] <= tid:
                 return record['tid']
-        raise KeyError(
-                '%r did not exist in or before transaction %r' %
-                (self._obj, tid_repr(tid)))
+        raise KeyError('%r did not exist in or before transaction %r' %
+                       (self._obj, tid_repr(tid)))
 
     def loadStatePickle(self, tid=None):
         return self._connection._storage.loadSerial(self._obj._p_oid,

@@ -78,8 +78,8 @@ class GenericValue(object):
         text = self._repr()
         if len(text) > limit:
             id = truncate(text[limit:])
-            text = escape(text[:limit]) + (
-                        '<span id="%s" class="truncated">...</span>' % id)
+            text = '%s<span id="%s" class="truncated">...</span>' % (
+                escape(text[:limit]), id)
         else:
             text = escape(text)
         if not isinstance(self.context, basestring):
@@ -164,7 +164,7 @@ class TupleValue(object):
         if len(html) == 1:
             html.append('') # (item) -> (item, )
         result = '(%s)' % ', '.join(html)
-        if  len(result) > threshold or '<span class="struct">' in result:
+        if len(result) > threshold or '<span class="struct">' in result:
             if len(html) == 2 and html[1] == '':
                 return join_with_commas(html[:1], '(', ', )')
             else:
@@ -185,7 +185,7 @@ class ListValue(object):
         for item in self.context:
             html.append(IValueRenderer(item).render(tid, can_link))
         result = '[%s]' % ', '.join(html)
-        if  len(result) > threshold or '<span class="struct">' in result:
+        if len(result) > threshold or '<span class="struct">' in result:
             return join_with_commas(html, '[', ']')
         return result
 
@@ -243,7 +243,6 @@ class PersistentValue(object):
             return '<a class="objlink" href="%s">%s</a>' % (escape(url), value)
         else:
             return value
-
 
 
 class PersistentMappingValue(PersistentValue):

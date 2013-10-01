@@ -439,7 +439,7 @@ class ZodbHistoryView(VeryCarefulView):
         if self.page > self.last_page:
             self.page = self.last_page
         self.last_idx = max(0, len(self.history) - self.page * self.page_size)
-        self.first_idx = max(0, self.last_idx  - self.page_size)
+        self.first_idx = max(0, self.last_idx - self.page_size)
         return self.template()
 
     def renderingTime(self):

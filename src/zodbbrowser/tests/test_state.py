@@ -167,8 +167,8 @@ class TestPersistentMappingSate(unittest.TestCase):
 
     def test_listItems(self):
         state = PersistentMappingState(Frob(),
-                                    {'data': dict(a=42, b=23, c=17)},
-                                    None)
+                                       {'data': dict(a=42, b=23, c=17)},
+                                       None)
         self.assertEquals(state.listItems(),
                           [('a', 42), ('b', 23), ('c', 17)])
 
@@ -252,7 +252,6 @@ class TestOrderedContainerState(RealDatabaseTest):
                                            self.tid)
         self.assertEquals(list(self.state.listItems()),
                           [('foo', 1), ('bar', 2)])
-
 
 
 class TestFallbackState(unittest.TestCase):

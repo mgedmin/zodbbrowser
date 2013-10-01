@@ -320,7 +320,6 @@ class TestListValue(unittest.TestCase):
               '<br /><span class="struct">Struct]</span></span>')
 
 
-
 class TestDictValue(unittest.TestCase):
 
     maxDiff = None
@@ -356,8 +355,8 @@ class TestDictValue(unittest.TestCase):
         self.assertEquals(DictValue(
             {'some long key name': 'some long value',
              'some other long key name': 'some other long value'}).render(threshold=50),
-           "{<span class=\"struct\">'some long key name': 'some long value',"
-           "<br />'some other long key name': 'some other long value'}</span>")
+            "{<span class=\"struct\">'some long key name': 'some long value',"
+            "<br />'some other long key name': 'some other long value'}</span>")
 
     def test_nested_dicts(self):
         self.assertEquals(DictValue(
@@ -365,14 +364,14 @@ class TestDictValue(unittest.TestCase):
                    'some other long key name': 'some other long value',
                    'struct': Struct()},
              'B': ['something else entirely']}).render().replace('<br />', '\n<br />'),
-           "{<span class=\"struct\">'A':"
-                " {<span class=\"struct\">'some long key name':"
-                " 'some long value',\n"
-                "<br />'some other long key name':"
-                " 'some other long value',\n"
-                "<br />'struct':"
-                " <span class=\"struct\">Struct}</span>,</span>\n"
-           "<br />'B': ['something else entirely'] (1 item)}</span>")
+            "{<span class=\"struct\">'A':"
+            " {<span class=\"struct\">'some long key name':"
+            " 'some long value',\n"
+            "<br />'some other long key name':"
+            " 'some other long value',\n"
+            "<br />'struct':"
+            " <span class=\"struct\">Struct}</span>,</span>\n"
+            "<br />'B': ['something else entirely'] (1 item)}</span>")
 
     def test_tid_is_preserved(self):
         self.assertEquals(DictValue({Frob(): Frob()}).render(tid=42),

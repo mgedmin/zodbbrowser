@@ -48,9 +48,9 @@ def compareTuples(new, old):
             break
         last += 1
     return (old[:first],
-            old[first:len(old)-last],
-            new[first:len(new)-last],
-            old[len(old)-last:])
+            old[first:len(old) - last],
+            new[first:len(new) - last],
+            old[len(old) - last:])
 
 
 def compareTuplesHTML(new, old, tid=None, indent=''):

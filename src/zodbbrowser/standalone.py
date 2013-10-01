@@ -53,7 +53,7 @@ class Options(object):
 
           <include package="zodbbrowser" />
 
-          <browser:defaultView 
+          <browser:defaultView
               for="persistent.Persistent"
               name="zodbbrowser"
               xmlns:browser="http://namespaces.zope.org/browser" />
@@ -126,6 +126,7 @@ def start_server(options, db):
     if options.verbose:
         print "Listening on http://%s:%d/" % (host or socket.gethostname(),
                                               port)
+
 
 def serve_forever(interval=30.0):
     try:

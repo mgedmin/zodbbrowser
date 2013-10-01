@@ -11,12 +11,12 @@ from zope.app.testing import setup
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.btreesupport import (
-        OOBTreeHistory,
-        OOBTreeState,
-        EmptyOOBTreeState,
-        FolderState,
-        BTreeContainerState,
-        OOBucketState,
+    OOBTreeHistory,
+    OOBTreeState,
+    EmptyOOBTreeState,
+    FolderState,
+    BTreeContainerState,
+    OOBucketState,
 )
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
@@ -206,7 +206,7 @@ class TestFolderState(RealDatabaseTest):
 
     def test_listItems_no_data(self):
         state = FolderState(None, Folder().__getstate__(), None)
-        self.assertEquals(list(state.listItems()), []);
+        self.assertEquals(list(state.listItems()), [])
 
 
 class TestBTreeContainerState(RealDatabaseTest):
@@ -234,7 +234,7 @@ class TestBTreeContainerState(RealDatabaseTest):
     def test_listItems_no_data(self):
         state = BTreeContainerState(None, BTreeContainer().__getstate__(),
                                     None)
-        self.assertEquals(list(state.listItems()), []);
+        self.assertEquals(list(state.listItems()), [])
 
 
 class TestOOBucketState(unittest.TestCase):

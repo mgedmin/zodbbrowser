@@ -315,7 +315,7 @@ def tearDown(test):
 
 
 def test_suite():
-    optionflags = doctest.REPORT_NDIFF|doctest.NORMALIZE_WHITESPACE
+    optionflags = doctest.REPORT_NDIFF | doctest.NORMALIZE_WHITESPACE
     return doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
                                 optionflags=optionflags)
 
