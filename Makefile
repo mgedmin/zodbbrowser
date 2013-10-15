@@ -121,7 +121,7 @@ bin/buildout: python/bin/python bootstrap.py
 	python/bin/python bootstrap.py
 
 python/bin/python:
-	virtualenv -p $(PYTHON) python --distribute
+	virtualenv -p $(PYTHON) python
 
 $(scripts): bin/buildout
 	bin/buildout
