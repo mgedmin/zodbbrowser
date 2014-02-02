@@ -2,6 +2,7 @@ import unittest
 import transaction
 import sys
 import gc
+import json
 
 from ZODB.utils import u64, p64, tid_repr, oid_repr
 from ZODB.interfaces import IDatabase
@@ -198,40 +199,47 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
 
     def testLocate(self):
         view = self._zodbInfoView(self.root, TestRequest())
-        jsonResult = view.locate_json('/')
-        self.assertTrue('"url": "@@zodbbrowser?oid=0x0"' in jsonResult)
-        self.assertTrue('"oid": 0' in jsonResult)
-        jsonResult = view.locate_json('/stub/member/notpersistent')
-        self.assertTrue('"partial_url"' in jsonResult)
-        self.assertTrue('"partial_oid"' in jsonResult)
-        self.assertTrue('"error": "Not persistent: /stub/member/notpersistent"')
-        jsonResult = view.locate_json('/stub/nonexistent')
-        self.assertTrue('"partial_url": "@@zodbbrowser?oid=0x1"' in jsonResult)
-        self.assertTrue('"partial_path": "/stub", ' in jsonResult)
-        self.assertTrue('"error": "Not found: /stub/nonexistent"}' in jsonResult)
-        self.assertTrue('"partial_oid": 1' in jsonResult)
+        jsonResult = json.loads(view.locate_json('/'))
+        self.assertEqual(jsonResult,
+                         {"url": "@@zodbbrowser?oid=0x0",
+                          "oid": 0})
+        jsonResult = json.loads(view.locate_json('/stub/member/notpersistent'))
+        self.assertTrue("partial_url" in jsonResult)
+        self.assertTrue("partial_oid" in jsonResult)
+        self.assertEqual(jsonResult["error"],
+                         "Not persistent: /stub/member/notpersistent")
+        jsonResult = json.loads(view.locate_json('/stub/nonexistent'))
+        self.assertEqual(jsonResult,
+                         {"partial_url": "@@zodbbrowser?oid=0x1",
+                          "partial_path": "/stub",
+                          "error": "Not found: /stub/nonexistent",
+                          "partial_oid": 1})
 
     def testLocateStartWithOID(self):
         view = self._zodbInfoView(self.root, TestRequest())
-        jsonResult = view.locate_json('0')
-        self.assertTrue('"url": "@@zodbbrowser?oid=0x0"' in jsonResult)
-        self.assertTrue('"oid": 0' in jsonResult)
-        jsonResult = view.locate_json('0x0')
-        self.assertTrue('"url": "@@zodbbrowser?oid=0x0"' in jsonResult)
-        self.assertTrue('"oid": 0' in jsonResult)
-        jsonResult = view.locate_json('0x1/nonexistent')
-        self.assertTrue('"partial_url": "@@zodbbrowser?oid=0x1"' in jsonResult)
-        self.assertTrue('"partial_path": "0x1", ' in jsonResult)
-        self.assertTrue('"error": "Not found: 0x1/nonexistent"}' in jsonResult)
-        self.assertTrue('"partial_oid": 1' in jsonResult)
+        jsonResult = json.loads(view.locate_json('0'))
+        self.assertEqual(jsonResult,
+                         {"url": "@@zodbbrowser?oid=0x0",
+                          "oid": 0})
+        jsonResult = json.loads(view.locate_json('0x0'))
+        self.assertEqual(jsonResult,
+                         {"url": "@@zodbbrowser?oid=0x0",
+                          "oid": 0})
+        jsonResult = json.loads(view.locate_json('0x1/nonexistent'))
+        self.assertEqual(jsonResult,
+                         {"partial_url": "@@zodbbrowser?oid=0x1",
+                          "partial_path": "0x1",
+                          "error": "Not found: 0x1/nonexistent",
+                          "partial_oid": 1})
 
     def testLocateStartWithOID_that_does_not_exist(self):
         view = self._zodbInfoView(self.root, TestRequest())
-        jsonResult = view.locate_json('0x1234')
-        self.assertTrue('"partial_url": "@@zodbbrowser?oid=0x0"' in jsonResult)
-        self.assertTrue('"partial_path": "/", ' in jsonResult)
-        self.assertTrue('"error": "Not found: 0x1234"}' in jsonResult)
-        self.assertTrue('"partial_oid": 0' in jsonResult)
+        jsonResult = json.loads(view.locate_json('0x1234'))
+        self.assertEqual(jsonResult,
+                         {"partial_url": "@@zodbbrowser?oid=0x0",
+                          "partial_path": "/",
+                          "error": "Not found: 0x1234",
+                          "partial_oid": 0})
 
     def testGetUrl(self):
         view = self._zodbInfoView(self.root, TestRequest())
