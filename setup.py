@@ -83,6 +83,7 @@ setup(
     package_dir={'': 'src'},
     install_requires=[
         "ZODB3",
+        "ZConfig",
         "zope.app.pagetemplate",
         "zope.app.publication",
         "zope.component",

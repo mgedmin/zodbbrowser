@@ -14,6 +14,9 @@ import optparse
 import logging
 import errno
 import traceback
+import io
+
+import ZConfig
 
 from ZEO.ClientStorage import ClientStorage
 from ZODB.DB import DB
@@ -29,6 +32,13 @@ from zope.exceptions import exceptionformatter
 import zope.app.component.hooks
 
 from zodbbrowser.state import install_provides_hack
+
+SCHEMA_XML = """
+<schema>
+  <import package="ZODB"/>
+  <section type="ZODB.storage" name="zodb" attribute="zodb" required="yes" />
+</schema>
+"""
 
 
 class Options(object):
@@ -156,9 +166,11 @@ def main(args=None, start_serving=True):
         args = sys.argv[1:]
 
     parser = optparse.OptionParser(
-        'usage: %prog [options] [FILENAME | --zeo ADDRESS]',
+        'usage: %prog [options] [FILENAME | --zeo ADDRESS | --config FILE]',
         prog='zodbbrowser',
         description='Open a ZODB database and start a web-based browser app.')
+    parser.add_option('--config', metavar='FILE',
+                      help='use a ZConfig file to specify database')
     parser.add_option('--zeo', metavar='ADDRESS',
                       help='connect to ZEO server instead'
                       ' (host:port or socket name)')
@@ -200,6 +212,10 @@ def main(args=None, start_serving=True):
 
     if opts.db and opts.zeo:
         parser.error('you specified both ZEO and FileStorage; pick one')
+    if opts.db and opts.config:
+        parser.error('you specified both ZConfig and FileStorage; pick one')
+    if opts.Config and opts.zeo:
+        parser.error('you specified both ZConfig and ZEO; pick one')
 
     if opts.storage and not opts.zeo:
         parser.error('a ZEO storage was specified without ZEO connection')
@@ -234,6 +250,10 @@ def main(args=None, start_serving=True):
         else:
             zeo_storage = '1'
         db = DB(ClientStorage(zeo_address, storage=zeo_storage, read_only=opts.readonly))
+    elif opts.config:
+        schema = ZConfig.loadSchemaFile(io.BytesIO(SCHEMA_XML))
+        config, _ = ZConfig.loadConfig(schema, opts.config)
+        db = DB(config.zodb.open())
     else:
         parser.error('please specify a database')
 

@@ -3,7 +3,9 @@ Changes
 
 0.11.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
-- No changes.
+- Add support for a ZConfig configuration file to specify the
+  database. This bring support for RelStorage and other non-default
+  storages.
 
 
 0.11.0 (2013-05-29)
