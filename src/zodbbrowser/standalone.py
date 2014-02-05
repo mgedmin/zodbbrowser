@@ -36,7 +36,21 @@ from zodbbrowser.state import install_provides_hack
 SCHEMA_XML = """
 <schema>
   <import package="ZODB"/>
-  <section type="ZODB.storage" name="zodb" attribute="zodb" required="yes" />
+  <multisection type="ZODB.database" name="*" required="yes"
+           attribute="databases">
+    <description>
+
+      Application database.
+
+      At least one database must be specified.  The first will be used
+      as the main database.  At most one of the databases can be unnamed.
+
+      All of the databases specified will be part of a multi-database.
+      See the ZODB documentation of multi-databases for details of how
+      this is useful.
+
+    </description>
+  </multisection>
 </schema>
 """
 
@@ -214,7 +228,7 @@ def main(args=None, start_serving=True):
         parser.error('you specified both ZEO and FileStorage; pick one')
     if opts.db and opts.config:
         parser.error('you specified both ZConfig and FileStorage; pick one')
-    if opts.Config and opts.zeo:
+    if opts.config and opts.zeo:
         parser.error('you specified both ZConfig and ZEO; pick one')
 
     if opts.storage and not opts.zeo:
@@ -253,7 +267,9 @@ def main(args=None, start_serving=True):
     elif opts.config:
         schema = ZConfig.loadSchemaFile(io.BytesIO(SCHEMA_XML))
         config, _ = ZConfig.loadConfig(schema, opts.config)
-        db = DB(config.zodb.open())
+        if len(config.databases) != 1:
+            parser.error('specify only 1 database in the ZConfig file')
+        db = config.databases[0].open()
     else:
         parser.error('please specify a database')
 
