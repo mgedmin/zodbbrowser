@@ -180,10 +180,10 @@ def main(args=None, start_serving=True):
         args = sys.argv[1:]
 
     parser = optparse.OptionParser(
-        'usage: %prog [options] [FILENAME | --zeo ADDRESS | --config FILE]',
+        'usage: %prog [options] [FILENAME | --zeo ADDRESS | --zconfig FILE]',
         prog='zodbbrowser',
         description='Open a ZODB database and start a web-based browser app.')
-    parser.add_option('--config', metavar='FILE',
+    parser.add_option('--zconfig', metavar='FILE',
                       help='use a ZConfig file to specify database')
     parser.add_option('--zeo', metavar='ADDRESS',
                       help='connect to ZEO server instead'
@@ -226,9 +226,9 @@ def main(args=None, start_serving=True):
 
     if opts.db and opts.zeo:
         parser.error('you specified both ZEO and FileStorage; pick one')
-    if opts.db and opts.config:
+    if opts.db and opts.zconfig:
         parser.error('you specified both ZConfig and FileStorage; pick one')
-    if opts.config and opts.zeo:
+    if opts.zconfig and opts.zeo:
         parser.error('you specified both ZConfig and ZEO; pick one')
 
     if opts.storage and not opts.zeo:
@@ -264,9 +264,9 @@ def main(args=None, start_serving=True):
         else:
             zeo_storage = '1'
         db = DB(ClientStorage(zeo_address, storage=zeo_storage, read_only=opts.readonly))
-    elif opts.config:
+    elif opts.zconfig:
         schema = ZConfig.loadSchemaFile(io.BytesIO(SCHEMA_XML))
-        config, _ = ZConfig.loadConfig(schema, opts.config)
+        config, _ = ZConfig.loadConfig(schema, opts.zconfig)
         if len(config.databases) != 1:
             parser.error('specify only 1 database in the ZConfig file')
         db = config.databases[0].open()
