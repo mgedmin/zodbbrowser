@@ -124,6 +124,9 @@ setup(
         app=[],
     ),
     entry_points=dict(
-        console_scripts=['zodbbrowser = zodbbrowser.standalone:main'],
+        console_scripts=[
+            'zodbbrowser = zodbbrowser.standalone:main',
+            'zodbcheck = zodbbrowser.check:main',
+            ],
     ),
 )
