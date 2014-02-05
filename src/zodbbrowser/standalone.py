@@ -14,11 +14,9 @@ import optparse
 import logging
 import errno
 import traceback
-import io
-
-import ZConfig
 
 from ZEO.ClientStorage import ClientStorage
+from ZODB.config import databaseFromFile
 from ZODB.DB import DB
 from ZODB.MappingStorage import MappingStorage
 from ZODB.FileStorage.FileStorage import FileStorage
@@ -265,11 +263,7 @@ def main(args=None, start_serving=True):
             zeo_storage = '1'
         db = DB(ClientStorage(zeo_address, storage=zeo_storage, read_only=opts.readonly))
     elif opts.zconfig:
-        schema = ZConfig.loadSchemaFile(io.BytesIO(SCHEMA_XML))
-        config, _ = ZConfig.loadConfig(schema, opts.zconfig)
-        if len(config.databases) != 1:
-            parser.error('specify only 1 database in the ZConfig file')
-        db = config.databases[0].open()
+        db = databaseFromFile(open(opts.zconfig))
     else:
         parser.error('please specify a database')
 
