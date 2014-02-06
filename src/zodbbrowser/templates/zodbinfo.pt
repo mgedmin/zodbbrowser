@@ -84,6 +84,43 @@
     </div>
   </div>
 
+  <tal:references
+     tal:define="references view/getReferences"
+     tal:condition="references">
+    <div class="referred-by"
+         tal:condition="references/backward">
+      <h3 class="expander">
+        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
+             alt="collapse" />&nbsp;Referred by  (<span tal:replace="python: len(references['backward'])"></span>)
+      </h3>
+      <ul class="collapsible">
+        <li tal:repeat="reference references/backward">
+          <a href="#"
+             tal:attributes="href string:@@zodbbrowser?oid=${reference/oid}"
+             tal:content="structure reference/info">
+            OID
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="references"
+         tal:condition="references/forward">
+      <h3 class="expander">
+        <img tal:attributes="src context/++resource++zodbbrowser/expand.png"
+             alt="collapse" />&nbsp;References (<span tal:replace="python: len(references['forward'])"></span>)
+      </h3>
+      <ul class="collapsible" style="display: none;">
+        <li tal:repeat="reference references/forward">
+          <a href="#"
+             tal:attributes="href string:@@zodbbrowser?oid=${reference/oid}"
+             tal:content="structure reference/info">
+            OID
+          </a>
+        </li>
+      </ul>
+    </div>
+  </tal:references>
+
   <div class="history"
        tal:define="history view/listHistory"
        tal:condition="history">

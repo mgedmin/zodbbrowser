@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 real_Provides = zope.interface.declarations.Provides
 
 
-def install_provides_hack():
+def monkeypatch_provides():
     """Monkey-patch zope.interface.Provides with a more lenient version.
 
     A common result of missing modules in sys.path is that you cannot

@@ -29,7 +29,9 @@ from zope.event import notify
 from zope.exceptions import exceptionformatter
 import zope.app.component.hooks
 
-from zodbbrowser.state import install_provides_hack
+from zodbbrowser.state import monkeypatch_provides
+from zodbbrowser.references import ReferencesDatabase
+from zodbbrowser.interfaces import IReferencesDatabase
 
 SCHEMA_XML = """
 <schema>
@@ -239,6 +241,8 @@ def main(args=None, start_serving=True):
     parser.add_option('--listen', metavar='ADDRESS',
                       help='specify port (or host:port) to listen on',
                       default='localhost:8070')
+    parser.add_option('--load-references', metavar='FILE.DB', dest='load',
+                      help='load reference information computed by zodbcheck')
     parser.add_option('-q', '--quiet', action='store_false', dest='verbose',
                       default=True,
                       help='be quiet')
@@ -270,26 +274,34 @@ def main(args=None, start_serving=True):
     else:
         opts.db = None
 
+    # Install various patches
     monkeypatch_error_formatting()
+    monkeypatch_provides()
 
+    # Configure application
+    configure(options)
+
+    # Open database to browse
     try:
         db = open_database(opts)
     except ValueError as e:
         parser.error(e.msg)
-
-    internal_db = DB(MappingStorage())
-
-    configure(options)
-
     provideUtility(db, IDatabase, name='<target>')
 
+    # Optionaly load references
+    if opts.load:
+        try:
+            references = ReferencesDatabase(opts.load)
+        except ValueError as e:
+            parser.error(e.msg)
+        if references.check_database():
+            provideUtility(references, IReferencesDatabase)
+
+    # Get the server started
+    internal_db = DB(MappingStorage())
     notify(zope.app.appsetup.interfaces.DatabaseOpened(internal_db))
-
     start_server(options, internal_db)
-
     notify(zope.app.appsetup.interfaces.ProcessStarting())
-
-    install_provides_hack()
 
     if start_serving:
         serve_forever()

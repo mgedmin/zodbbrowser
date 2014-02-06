@@ -96,7 +96,7 @@ def main(args=None):
                       help='connect to given ZEO storage')
     parser.add_option('--db', metavar='DATA.FS',
                       help='use given Data.fs file')
-    parser.add_option('--save', metavar='FILE.DB',
+    parser.add_option('--save-references', metavar='FILE.DB', dest='save',
                       help='save computed information for reuse')
     parser.add_option('--rw', action='store_false', dest='readonly',
                       default=True,

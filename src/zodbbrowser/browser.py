@@ -24,6 +24,7 @@ from zodbbrowser import __version__, __homepage__
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.interfaces import IDatabaseHistory
+from zodbbrowser.interfaces import IReferencesDatabase
 from zodbbrowser.state import ZodbObjectState
 from zodbbrowser.diff import compareDictsHTML
 from zodbbrowser.value import pruneTruncations, TRUNCATIONS
@@ -190,6 +191,27 @@ class ZodbInfoView(VeryCarefulView):
             except AttributeError:
                 return None
         return obj
+
+    def getReferences(self):
+        db = queryUtility(IReferencesDatabase)
+        if db is None:
+            return None
+
+        def prepare(oid):
+            try:
+                obj = self.jar.get(p64(oid))
+            except POSKeyError:
+                info = '<b>Broken object at {0}</b>'.format(oid)
+            else:
+                info = IValueRenderer(obj).render(None)
+            return {
+                'info': info,
+                'oid': hex(oid)}
+
+        return {'forward': map(prepare,
+                               db.get_forward_references(self.obj._p_oid)),
+                'backward': map(prepare,
+                                db.get_backward_references(self.obj._p_oid))}
 
     def getRequestedTid(self):
         if 'tid' in self.request:

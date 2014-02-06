@@ -1,6 +1,21 @@
 from zope.interface import Interface
 
 
+class IReferencesDatabase(Interface):
+
+    def check_database():
+        """Return true if the database is usable.
+        """
+
+    def get_forward_references(oid):
+        """Return a set of forward references.
+        """
+
+    def get_backward_references(oid):
+        """Return a set of backward references.
+        """
+
+
 class IObjectHistory(Interface):
     """History of persistent object state.
 
