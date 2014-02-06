@@ -3,15 +3,23 @@ from zope.interface import Interface
 
 class IReferencesDatabase(Interface):
 
-    def check_database():
-        """Return true if the database is usable.
+    def createDatabase():
+        """Prepare the database.
         """
 
-    def get_forward_references(oid):
+    def checkDatabase():
+        """Return true if the database is usable and ready.
+        """
+
+    def getBrokenOIDs():
+        """Return a set of broken references.
+        """
+
+    def getForwardReferences(oid):
         """Return a set of forward references.
         """
 
-    def get_backward_references(oid):
+    def getBackwardReferences(oid):
         """Return a set of backward references.
         """
 

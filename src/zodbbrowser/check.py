@@ -1,81 +1,17 @@
 #!/usr/bin/env python
-import cPickle
-import io
 import logging
 import optparse
-import sqlite3
 import sys
 
-from ZODB.utils import u64
 from zodbbrowser.standalone import open_database
+from zodbbrowser.references import ReferencesDatabase
 
-def referredoids(data):
-    """Analyze a record data an return a set of unique OID referred inside
-    this record.
+def iter_database(db):
+    """Iter over records located inside the database.
     """
-    oids = set()
-    refs = []
-    unpickler = cPickle.Unpickler(io.BytesIO(data))
-    unpickler.persistent_load = refs
-    unpickler.noload()
-    unpickler.noload()
-    for ref in refs:
-        if isinstance(ref, tuple):
-            oids.add(ref[0])
-        elif isinstance(ref, str):
-            oids.add(ref)
-        else:
-            assert isinstance(ref, list)
-            oids.add(ref[1][1])
-    return oids
-
-def analyze_database(db):
-    """Analyze a Zope database and return two dictionnary: one called
-    forward_references containing which OID refers which other and a
-    second one called backward_references containing a list of which
-    OID are referred by which other.
-
-    """
-    forward_references = {}
-    backward_references = {}
-
     for transaction in db._storage.iterator():
         for record in transaction:
-            current_oid = u64(record.oid)
-            referred_oids = map(u64, referredoids(record.data))
-            forward_references[current_oid] = referred_oids
-            for oid in referred_oids:
-                backward_references.setdefault(oid, set([])).add(current_oid)
-
-    return forward_references, backward_references
-
-def save_references(db_name, forward_references, backward_references):
-    """Save forward and backward references into an SQLite database.
-    """
-    connection = sqlite3.connect(db_name)
-    cursor = connection.cursor()
-    cursor.execute("""
-CREATE TABLE IF NOT EXISTS forward_references
-(source_oid BIGINT, target_oid BIGINT)
-    """)
-    cursor.execute("""
-CREATE TABLE IF NOT EXISTS backward_references
-(source_oid BIGINT, target_oid BIGINT)
-    """)
-    for source_oid, target_oids in forward_references.iteritems():
-        for target_oid in target_oids:
-            cursor.execute("""
-INSERT INTO forward_references (source_oid, target_oid) VALUES
-({0}, {1})
-            """.format(source_oid, target_oid))
-    for source_oid, target_oids in backward_references.iteritems():
-        for target_oid in target_oids:
-            cursor.execute("""
-INSERT INTO backward_references (source_oid, target_oid) VALUES
-({0}, {1})
-            """.format(source_oid, target_oid))
-    connection.commit()
-    connection.close()
+            yield record
 
 def main(args=None):
     logging.basicConfig(format="%(message)s")
@@ -107,14 +43,15 @@ def main(args=None):
     except ValueError as e:
         parser.error(e.msg)
 
-    forward_references, backward_references = analyze_database(db)
+    references = ReferencesDatabase(opts.save or ':memory:')
+    if references.checkDatabase():
+        parser.error('database already initialized')
+    references.createDatabase()
+    # XXX We should implement other iteration methods over the
+    # database depending on the database capabilities.
+    references.analyzeRecords(iter_database(db))
 
-    if opts.save:
-        save_references(opts.save, forward_references, backward_references)
-
-    found_oids = set(forward_references.iterkeys())
-    referred_oids = set(backward_references.iterkeys())
-    broken_oids = referred_oids - found_oids
+    broken_oids = references.getBrokenOIDs()
     if broken_oids:
         # We have broken objects
         print '{0} broken objects'.format(len(broken_oids))

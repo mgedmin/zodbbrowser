@@ -69,7 +69,10 @@ class ZodbObjectAttribute(object):
 
 class VeryCarefulView(BrowserView):
 
+    version = __version__
+    homepage = __homepage__
     made_changes = False
+    state = None
 
     @Lazy
     def jar(self):
@@ -86,9 +89,22 @@ class VeryCarefulView(BrowserView):
                 raise Exception("ZODB connection not available for this request")
             return obj._p_jar
 
-    @property
+    @Lazy
     def readonly(self):
         return self.jar.isReadOnly()
+
+    def getOIDRenderedValue(self, oid):
+        try:
+            obj = self.jar.get(p64(oid))
+        except POSKeyError:
+            info = '<b>Broken object at {0}</b>'.format(oid)
+        else:
+            tid = None
+            if self.state:
+                tid = self.state.tid
+            info = IValueRenderer(obj).render(tid)
+        return {'info': info,
+                'oid': hex(oid)}
 
     def __call__(self):
         try:
@@ -108,6 +124,27 @@ class VeryCarefulView(BrowserView):
                 transaction.abort()
 
 
+class ZodbBrokenView(VeryCarefulView):
+    """Zodb help view"""
+
+    adapts(Interface, IBrowserRequest)
+
+    template = ViewPageTemplateFile('templates/broken.pt')
+
+    def getBrokenObjects(self):
+        db = queryUtility(IReferencesDatabase)
+        if db is None:
+            return []
+        return map(self.getOIDRenderedValue,
+                   db.getBrokenOIDs())
+
+    def isFeatureAvailable(self):
+        return queryUtility(IReferencesDatabase) is not None
+
+    def render(self):
+        return self.template()
+
+
 class ZodbInfoView(VeryCarefulView):
     """Zodb browser view"""
 
@@ -115,9 +152,6 @@ class ZodbInfoView(VeryCarefulView):
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
     confirmation_template = ViewPageTemplateFile('templates/confirm_rollback.pt')
-
-    version = __version__
-    homepage = __homepage__
 
     def render(self):
         self._started = time.time()
@@ -197,21 +231,10 @@ class ZodbInfoView(VeryCarefulView):
         if db is None:
             return None
 
-        def prepare(oid):
-            try:
-                obj = self.jar.get(p64(oid))
-            except POSKeyError:
-                info = '<b>Broken object at {0}</b>'.format(oid)
-            else:
-                info = IValueRenderer(obj).render(None)
-            return {
-                'info': info,
-                'oid': hex(oid)}
-
-        return {'forward': map(prepare,
-                               db.get_forward_references(self.obj._p_oid)),
-                'backward': map(prepare,
-                                db.get_backward_references(self.obj._p_oid))}
+        return {'forward': map(self.getOIDRenderedValue,
+                               db.getForwardReferences(self.obj._p_oid)),
+                'backward': map(self.getOIDRenderedValue,
+                                db.getBackwardReferences(self.obj._p_oid))}
 
     def getRequestedTid(self):
         if 'tid' in self.request:
@@ -438,10 +461,6 @@ class ZodbHistoryView(VeryCarefulView):
     adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbhistory.pt')
-
-    version = __version__
-    homepage = __homepage__
-
     page_size = 5
 
     def render(self):

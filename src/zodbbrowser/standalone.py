@@ -14,6 +14,7 @@ import optparse
 import logging
 import errno
 import traceback
+import logging
 
 from ZEO.ClientStorage import ClientStorage
 from ZODB.config import databaseFromFile
@@ -32,6 +33,8 @@ import zope.app.component.hooks
 from zodbbrowser.state import monkeypatch_provides
 from zodbbrowser.references import ReferencesDatabase
 from zodbbrowser.interfaces import IReferencesDatabase
+
+log = logging.getLogger("zodbbrowser")
 
 SCHEMA_XML = """
 <schema>
@@ -294,8 +297,10 @@ def main(args=None, start_serving=True):
             references = ReferencesDatabase(opts.load)
         except ValueError as e:
             parser.error(e.msg)
-        if references.check_database():
+        if references.checkDatabase():
             provideUtility(references, IReferencesDatabase)
+        else:
+            log.error("Reference database not initialized, skipping it.")
 
     # Get the server started
     internal_db = DB(MappingStorage())

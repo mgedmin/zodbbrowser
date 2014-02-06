@@ -23,6 +23,24 @@
       />
 
   <page
+      name="zodbbrowser_broken"
+      class=".browser.ZodbBrokenView"
+      for="zope.interface.Interface"
+      permission="zope.ManageContent"
+      menu="zmi_actions"
+      title="ZODB broken Browser"
+      zcml:condition="not-installed Products.Five"
+      />
+
+  <page
+      name="zodbbrowser_broken"
+      class=".browser.ZodbBrokenView"
+      for="zope.interface.Interface"
+      permission="zope2.ViewManagementScreens"
+      zcml:condition="installed Products.Five"
+      />
+
+  <page
       name="zodbbrowser_path_to_oid"
       class=".browser.ZodbInfoView"
       attribute="locate_json"
