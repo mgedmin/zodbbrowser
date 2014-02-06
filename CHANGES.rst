@@ -1,8 +1,8 @@
 Changes
 -------
 
-0.11.1 (unreleased)
-~~~~~~~~~~~~~~~~~~~
+0.11.1a1-md (unreleased)
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Add command to check a database for broken records and cache the object
   references information in a sqlite database file. This allows for
