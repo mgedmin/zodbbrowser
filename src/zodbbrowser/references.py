@@ -1,32 +1,12 @@
 
-import cPickle
-import io
 import sqlite3
 
 from ZODB.utils import u64
+from ZODB.serialize import referencesf
 from zope.interface import implements
 
 from zodbbrowser.interfaces import IReferencesDatabase
 
-def get_referred_oids(data):
-    """Analyze a record data an return a set of unique OID referred inside
-    this record.
-    """
-    oids = set()
-    refs = []
-    unpickler = cPickle.Unpickler(io.BytesIO(data))
-    unpickler.persistent_load = refs
-    unpickler.noload()
-    unpickler.noload()
-    for ref in refs:
-        if isinstance(ref, tuple):
-            oids.add(ref[0])
-        elif isinstance(ref, str):
-            oids.add(ref)
-        else:
-            assert isinstance(ref, list)
-            oids.add(ref[1][1])
-    return oids
 
 def connect(callback):
     """Decorator for the reference database to access the sqlite DB.
@@ -58,7 +38,7 @@ class ReferencesDatabase(object):
         cursor = connection.cursor()
         for record in records:
             current_oid = u64(record.oid)
-            referred_oids = map(u64, get_referred_oids(record.data))
+            referred_oids = set(map(u64, referencesf(record.data)))
 
             for referred_oid in referred_oids or [-1]:
                 cursor.execute("""

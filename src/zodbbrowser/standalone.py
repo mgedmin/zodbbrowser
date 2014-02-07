@@ -14,7 +14,6 @@ import optparse
 import logging
 import errno
 import traceback
-import logging
 
 from ZEO.ClientStorage import ClientStorage
 from ZODB.config import databaseFromFile
