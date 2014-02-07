@@ -18,6 +18,4 @@ ZODB Browser has the following submodules:
 
 """
 
-import pkg_resources
-__version__ = pkg_resources.get_distribution('zodbbrowser').version
 __homepage__ = 'http://launchpad.net/zodbbrowser'
