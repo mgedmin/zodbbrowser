@@ -67,7 +67,7 @@ setup(
     maintainer_email="marius@pov.lt",
     description="ZODB browser",
     long_description=long_description,
-    version='0.11.1a2-md',
+    version='0.11.1a3-md.dev0',
     url=homepage,
     classifiers=[
         'Development Status :: 4 - Beta',
