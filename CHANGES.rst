@@ -1,8 +1,20 @@
 Changes
 -------
 
-0.11.1 (unreleased)
-~~~~~~~~~~~~~~~~~~~
+0.11.1a2-md (unreleased)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Nothing changed yet.
+
+
+0.11.1a1-md (2014-02-07)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add command to check a database for broken records and cache the object
+  references information in a sqlite database file. This allows for
+  displaying forward and backward object references as wel as providing
+  an overview of currently broken object and by whom they are referred to.
+
 - Add support for a ZConfig configuration file to specify the
   database. This bring support for RelStorage and other non-default
   storages.
