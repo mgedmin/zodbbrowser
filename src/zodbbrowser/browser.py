@@ -75,6 +75,10 @@ class VeryCarefulView(BrowserView):
     state = None
 
     @Lazy
+    def references(self):
+        return queryUtility(IReferencesDatabase)
+
+    @Lazy
     def jar(self):
         db = queryUtility(IDatabase, name='<target>')
         if db is not None:
@@ -93,16 +97,36 @@ class VeryCarefulView(BrowserView):
     def readonly(self):
         return self.jar.isReadOnly()
 
+    def findObjectFromOID(self, oid, tid=None):
+        p_oid = p64(oid)
+        try:
+            return self.jar.get(p_oid)
+        except POSKeyError as error:
+            if self.references is not None:
+                for referred in self.references.getBackwardReferences(p_oid):
+                    try:
+                        # This will access the original object and create a ghost.
+                        ZodbObjectState(self.jar.get(p64(referred)), tid)
+                    except POSKeyError:
+                        continue
+                    # We loaded a referrer. Maybe we can try to load
+                    # the object again.
+                    try:
+                        return self.jar.get(p_oid)
+                    except POSKeyError:
+                        pass
+            raise error
+
     def getOIDRenderedValue(self, oid):
         formatted_oid = hex(oid)
+        tid = None
+        if self.state:
+            tid =  self.state.tid
         try:
-            obj = self.jar.get(p64(oid))
+            obj = self.findObjectFromOID(oid, tid)
         except POSKeyError:
             info = '<b>Broken object at {0}</b>'.format(formatted_oid)
         else:
-            tid = None
-            if self.state:
-                tid = self.state.tid
             info = IValueRenderer(obj).render(tid)
         return {'info': info,
                 'oid': formatted_oid}
@@ -133,14 +157,13 @@ class ZodbBrokenView(VeryCarefulView):
     template = ViewPageTemplateFile('templates/broken.pt')
 
     def getBrokenObjects(self):
-        db = queryUtility(IReferencesDatabase)
-        if db is None:
+        if self.references is None:
             return []
         return map(self.getOIDRenderedValue,
-                   db.getBrokenOIDs())
+                   self.references.getBrokenOIDs())
 
     def isFeatureAvailable(self):
-        return queryUtility(IReferencesDatabase) is not None
+        return self.references is not None
 
     def render(self):
         return self.template()
@@ -213,7 +236,7 @@ class ZodbInfoView(VeryCarefulView):
             else:
                 oid = self.getRootOid()
             try:
-                obj = self.jar.get(p64(oid))
+                obj = self.findObjectFromOID(oid)
             except POSKeyError:
                 raise UserError('There is no object with OID 0x%x' % oid)
         return obj
@@ -228,14 +251,15 @@ class ZodbInfoView(VeryCarefulView):
         return obj
 
     def getReferences(self):
-        db = queryUtility(IReferencesDatabase)
-        if db is None:
+        if self.references is None:
             return None
-
-        return {'forward': map(self.getOIDRenderedValue,
-                               db.getForwardReferences(self.obj._p_oid)),
-                'backward': map(self.getOIDRenderedValue,
-                                db.getBackwardReferences(self.obj._p_oid))}
+        return {
+            'forward': map(
+                self.getOIDRenderedValue,
+                self.references.getForwardReferences(self.obj._p_oid)),
+            'backward': map(
+                self.getOIDRenderedValue,
+                self.references.getBackwardReferences(self.obj._p_oid))}
 
     def getRequestedTid(self):
         if 'tid' in self.request:
