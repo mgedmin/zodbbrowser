@@ -101,8 +101,9 @@ CREATE INDEX IF NOT EXISTS target_oid_index ON links (target_oid)
         oids = set([])
         cursor = connection.cursor()
         result = cursor.execute("""
-SELECT DISTINCT target_oid FROM links WHERE target_oid > -1
-EXCEPT SELECT DISTINCT source_oid FROM links
+SELECT a.target_oid FROM links AS a LEFT OUTER JOIN links AS b
+ON a.target_oid = b.source_oid
+WHERE a.target_oid > -1 AND b.source_oid IS NULL
         """)
         for oid in result.fetchall():
             oids.add(oid[0])
