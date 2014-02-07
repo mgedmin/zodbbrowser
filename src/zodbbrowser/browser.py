@@ -1,5 +1,6 @@
 import time
 import logging
+import pkg_resources
 from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
@@ -20,7 +21,7 @@ from persistent.TimeStamp import TimeStamp
 import transaction
 import simplejson
 
-from zodbbrowser import __version__, __homepage__
+from zodbbrowser import __homepage__
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.interfaces import IDatabaseHistory
@@ -31,6 +32,8 @@ from zodbbrowser.value import pruneTruncations, TRUNCATIONS
 
 
 log = logging.getLogger("zodbbrowser")
+
+__version__ = pkg_resources.get_distribution('zodbbrowser').version
 
 
 class ZodbHelpView(BrowserView):

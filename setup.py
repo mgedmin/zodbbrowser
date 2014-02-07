@@ -5,13 +5,13 @@ import re
 from setuptools import setup, find_packages
 
 
-def get_version_and_homepage():
+def get_homepage():
     # extracts it from src/zodbbrowser/__init__.py
     here = os.path.dirname(__file__)
     zodbbrowser = os.path.join(here, 'src', 'zodbbrowser', '__init__.py')
     d = {}
     execfile(zodbbrowser, d)
-    return d['__version__'], d['__homepage__']
+    return d['__homepage__']
 
 
 class UltraMagicString(object):
@@ -57,7 +57,7 @@ def get_long_description():
     )
 
 
-version, homepage = get_version_and_homepage()
+homepage = get_homepage()
 long_description = get_long_description()
 
 setup(
@@ -67,7 +67,7 @@ setup(
     maintainer_email="marius@pov.lt",
     description="ZODB browser",
     long_description=long_description,
-    version=version,
+    version='0.11.1a3-md.dev0',
     url=homepage,
     classifiers=[
         'Development Status :: 4 - Beta',
