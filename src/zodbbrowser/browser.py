@@ -94,17 +94,18 @@ class VeryCarefulView(BrowserView):
         return self.jar.isReadOnly()
 
     def getOIDRenderedValue(self, oid):
+        formatted_oid = hex(oid)
         try:
             obj = self.jar.get(p64(oid))
         except POSKeyError:
-            info = '<b>Broken object at {0}</b>'.format(oid)
+            info = '<b>Broken object at {0}</b>'.format(formatted_oid)
         else:
             tid = None
             if self.state:
                 tid = self.state.tid
             info = IValueRenderer(obj).render(tid)
         return {'info': info,
-                'oid': hex(oid)}
+                'oid': formatted_oid}
 
     def __call__(self):
         try:

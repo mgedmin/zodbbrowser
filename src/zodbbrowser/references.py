@@ -74,6 +74,12 @@ INSERT INTO links (source_oid, target_oid) VALUES
 CREATE TABLE IF NOT EXISTS links
 (source_oid BIGINT, target_oid BIGINT)
         """)
+        cursor.execute("""
+CREATE INDEX IF NOT EXISTS source_oid_index ON links (source_oid)
+        """)
+        cursor.execute("""
+CREATE INDEX IF NOT EXISTS target_oid_index ON links (target_oid)
+        """)
         connection.commit()
 
     @connect
