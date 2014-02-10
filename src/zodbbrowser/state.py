@@ -29,6 +29,7 @@ except ImportError:
     from zope.app.container.contained import ContainedProxy # BBB
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+from zodbbrowser.interfaces import HistoryMissingError
 
 
 log = logging.getLogger(__name__)
@@ -96,6 +97,9 @@ class ZodbObjectState(object):
             self.state = getMultiAdapter(
                 (self.obj, loadedState, self.requestedTid), IStateInterpreter)
             return
+        except HistoryMissingError as error:
+            self.loadError = "Missing history: %s" % \
+                             (error)
         except POSKeyError as error:
             self.loadError = "Broken object: %s" % (error)
         except Exception as error:

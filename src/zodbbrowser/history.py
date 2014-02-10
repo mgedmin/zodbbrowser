@@ -2,11 +2,13 @@ import inspect
 
 from ZODB.utils import tid_repr
 from ZODB.interfaces import IConnection
+from ZODB.POSException import POSKeyError
 from persistent import Persistent
 from zope.proxy import removeAllProxies
 from zope.interface import implements
 from zope.component import adapts
 
+from zodbbrowser.interfaces import HistoryMissingError
 from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
 from zodbbrowser import cache
 
@@ -78,8 +80,12 @@ class ZodbObjectHistory(object):
             # we assume records are ordered by tid, newest to oldest
             if tid is None or record['tid'] <= tid:
                 return record['tid']
-        raise KeyError('%r did not exist in or before transaction %r' %
-                       (self._obj, tid_repr(tid)))
+        if tid is None:
+            # It means there is just no history, so the object is broken.
+            raise POSKeyError(self._obj._p_oid)
+        raise HistoryMissingError(
+            '%r did not exist in or before transaction %r' %
+            (self._obj, tid_repr(tid)))
 
     def loadStatePickle(self, tid=None):
         return self._connection._storage.loadSerial(self._obj._p_oid,

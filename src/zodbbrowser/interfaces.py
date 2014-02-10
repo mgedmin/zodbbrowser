@@ -1,6 +1,10 @@
 from zope.interface import Interface
 
 
+class HistoryMissingError(ValueError):
+    pass
+
+
 class IReferencesDatabase(Interface):
 
     def createDatabase():
