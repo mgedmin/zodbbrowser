@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 import optparse
+import os
 import sys
 
 from zodbbrowser.standalone import open_database
@@ -33,7 +34,10 @@ def main(args=None):
     parser.add_option('--db', metavar='DATA.FS',
                       help='use given Data.fs file')
     parser.add_option('--save-references', metavar='FILE.DB', dest='save',
-                      help='save computed information for reuse')
+                      help='save computed references in a database for reuse')
+    parser.add_option('--override-references', action="store_true",
+                      dest="override", default=False,
+                      help='override a reference database')
     parser.add_option('--rw', action='store_false', dest='readonly',
                       default=True,
                       help='open the database read-write (default: read-only)')
@@ -44,8 +48,11 @@ def main(args=None):
         parser.error(e.msg)
 
     references = ReferencesDatabase(opts.save or ':memory:')
-    if references.checkDatabase():
-        parser.error('database already initialized')
+    if opts.save:
+        if opts.override and os.path.isfile(opts.save):
+            os.unlink(opts.save)
+        elif references.checkDatabase():
+            parser.error('database already initialized')
     references.createDatabase()
     # XXX We should implement other iteration methods over the
     # database depending on the database capabilities.
