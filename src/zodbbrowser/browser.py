@@ -191,7 +191,8 @@ class ZodbInfoView(VeryCarefulView):
             self.state = ZodbObjectState(self.obj,
                                          p64(int(self.request['tid'], 0)),
                                          _history=self.history)
-            self.latest = False
+            # We display the tid only if we find one.
+            self.latest = self.state.tid is None
         else:
             self.state = ZodbObjectState(self.obj, _history=self.history)
 
