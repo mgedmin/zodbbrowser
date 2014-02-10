@@ -44,8 +44,8 @@ def main(args=None):
     opts, args = parser.parse_args(args)
     try:
         db = open_database(opts)
-    except ValueError as e:
-        parser.error(e.msg)
+    except ValueError as error:
+        parser.error(error.args[0])
 
     references = ReferencesDatabase(opts.save or ':memory:')
     if opts.save:

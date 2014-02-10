@@ -286,16 +286,16 @@ def main(args=None, start_serving=True):
     # Open database to browse
     try:
         db = open_database(opts)
-    except ValueError as e:
-        parser.error(e.msg)
+    except ValueError as error:
+        parser.error(error.args[0])
     provideUtility(db, IDatabase, name='<target>')
 
     # Optionaly load references
     if opts.load:
         try:
             references = ReferencesDatabase(opts.load)
-        except ValueError as e:
-            parser.error(e.msg)
+        except ValueError as error:
+            parser.error(error.args[0])
         if references.checkDatabase():
             provideUtility(references, IReferencesDatabase)
         else:
