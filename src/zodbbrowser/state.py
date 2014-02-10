@@ -10,6 +10,7 @@ from zope.interface.interface import InterfaceClass
 from zope.proxy import removeAllProxies
 from zope.traversing.interfaces import IContainmentRoot
 from ZODB.utils import u64
+from ZODB.POSException import POSKeyError
 
 import zope.interface.declarations
 
@@ -92,13 +93,14 @@ class ZodbObjectState(object):
             self.tid = self.history.lastChange(self.requestedTid)
             self.pickledState = self.history.loadStatePickle(self.tid)
             loadedState = self.history.loadState(self.tid)
-        except Exception, e:
-            self.loadError = "%s: %s" % (e.__class__.__name__, e)
-            self.state = LoadErrorState(self.loadError, self.requestedTid)
-        else:
-            self.state = getMultiAdapter((self.obj, loadedState,
-                                         self.requestedTid),
-                                         IStateInterpreter)
+            self.state = getMultiAdapter(
+                (self.obj, loadedState, self.requestedTid), IStateInterpreter)
+            return
+        except POSKeyError as error:
+            self.loadError = "Broken object: %s" % (error)
+        except Exception as error:
+            self.loadError = "%s: %s" % (error.__class__.__name__, error)
+        self.state = LoadErrorState(self.loadError, self.requestedTid)
 
     def getError(self):
         return self.loadError
