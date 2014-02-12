@@ -64,15 +64,15 @@ def main(args=None):
     references.analyzeRecords(iter_database(db))
 
     broken_oids = references.getBrokenOIDs()
+    if not opts.save:
+        # Cleanup temporary file
+        os.unlink(database_file)
+
     if broken_oids:
         # We have broken objects
         print '{0} broken objects'.format(len(broken_oids))
         sys.exit(1)
     print 'no broken objects'
-
-    if not opts.save:
-        # Cleanup temporary file
-        os.unlink(database_file)
     sys.exit(0)
 
 
