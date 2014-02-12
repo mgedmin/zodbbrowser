@@ -3,6 +3,7 @@ import logging
 import optparse
 import os
 import sys
+import tempfile
 
 from zodbbrowser.standalone import open_database
 from zodbbrowser.references import ReferencesDatabase
@@ -47,7 +48,11 @@ def main(args=None):
     except ValueError as error:
         parser.error(error.args[0])
 
-    references = ReferencesDatabase(opts.save or ':memory:')
+    database_file = opts.save
+    if not database_file:
+        # If we don't save, create a temporary file for the database.
+        database_descriptor, database_file = tempfile.mkstemp('zodbchecker')
+    references = ReferencesDatabase(database_file)
     if opts.save:
         if opts.override and os.path.isfile(opts.save):
             os.unlink(opts.save)
@@ -64,6 +69,10 @@ def main(args=None):
         print '{0} broken objects'.format(len(broken_oids))
         sys.exit(1)
     print 'no broken objects'
+
+    if not opts.save:
+        # Cleanup temporary file
+        os.unlink(database_file)
     sys.exit(0)
 
 
