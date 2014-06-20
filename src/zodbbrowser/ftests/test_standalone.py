@@ -89,7 +89,7 @@ class TestsWithServer(object):
     @classmethod
     def setUp(cls):
         cls.server = ServerController()
-        cls.tempdir = tempfile.mkdtemp('zodbbrowser')
+        cls.tempdir = tempfile.mkdtemp(prefix='test-zodbbrowser-')
         cls.data_fs = os.path.join(cls.tempdir, 'data.fs')
         cls.createTestData()
         cls.server.run(cls.data_fs, '--rw')
@@ -154,7 +154,7 @@ class TestCanCreateEmptyDataFs(unittest.TestCase):
     layer = TestsWithoutServer
 
     def setUp(self):
-        self.tempdir = tempfile.mkdtemp('zodbbrowser')
+        self.tempdir = tempfile.mkdtemp(prefix='test-zodbbrowser-')
         self.empty_fs = os.path.join(self.tempdir, 'empty.fs')
         self.server = ServerController()
 
