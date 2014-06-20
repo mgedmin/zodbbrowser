@@ -141,6 +141,7 @@ def stop_serving():
     task_dispatcher.shutdown(False)
     task_dispatcher = None
     asyncore.close_all()
+    getUtility(IDatabase, '<target>').close()
 
 
 def monkeypatch_error_formatting():

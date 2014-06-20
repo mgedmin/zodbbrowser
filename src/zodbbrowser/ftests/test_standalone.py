@@ -14,7 +14,6 @@ from persistent import Persistent
 from ZODB.POSException import ReadOnlyError
 from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.DB import DB
-from ZODB.interfaces import IDatabase
 from zope.testing.renormalizing import RENormalizing
 from zope.testbrowser.browser import Browser
 from zope.testbrowser.interfaces import IBrowser
@@ -24,7 +23,6 @@ from zope.app.folder.folder import Folder
 from zope.app.appsetup.interfaces import DatabaseOpened
 from zope.app.appsetup.bootstrap import bootStrapSubscriber
 from zope.interface import Interface, implementsOnly
-from zope.component import getUtility
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
 from zodbbrowser import standalone
@@ -100,7 +98,6 @@ class TestsWithServer(object):
     @classmethod
     def tearDown(cls):
         cls.server.stop()
-        getUtility(IDatabase, '<target>').close()
         shutil.rmtree(cls.tempdir)
         setup.placelessTearDown()
 
