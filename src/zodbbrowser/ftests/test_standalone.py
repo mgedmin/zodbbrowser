@@ -1,4 +1,5 @@
 import os
+import gc
 import re
 import sys
 import tempfile
@@ -160,6 +161,13 @@ class TestCanCreateEmptyDataFs(unittest.TestCase):
 
     def tearDown(self):
         self.server.stop()
+        # Make sure we close any open files before we remove the database.
+        # test_cannot_start_in_read_only_mode triggers an exception after the
+        # database has been opened but before it's registered as the IDatabase
+        # utility, so we can't close it explicitly (our code has no references
+        # to the DB; in fact the only refs are the cyclic ones between storages
+        # and databases).
+        gc.collect()
         shutil.rmtree(self.tempdir)
         setup.placelessTearDown()
 
