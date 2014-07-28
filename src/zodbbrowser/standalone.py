@@ -228,6 +228,8 @@ def main(args=None, start_serving=True):
 
     if args is None:
         args = sys.argv[1:]
+    else:
+        args = args + sys.argv[1:]
 
     parser = optparse.OptionParser(
         'usage: %prog [options] [FILENAME | --zeo ADDRESS | --zconfig FILE]',

@@ -8,6 +8,7 @@ import tempfile
 from zodbbrowser.standalone import open_database
 from zodbbrowser.references import ReferencesDatabase
 
+
 def iter_database(db):
     """Iter over records located inside the database.
     """
@@ -15,11 +16,14 @@ def iter_database(db):
         for record in transaction:
             yield record
 
+
 def main(args=None):
     logging.basicConfig(format="%(message)s")
 
     if args is None:
         args = sys.argv[1:]
+    else:
+        args = args + sys.argv[1:]
 
     parser = optparse.OptionParser(
         'usage: %prog [options] [--db DATA.FS | --zeo ADDRESS | --zconfig FILE]',

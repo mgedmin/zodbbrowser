@@ -106,7 +106,7 @@ setup(
         "zope.app.component",
         "zope.securitypolicy",
         "zope.app.server",
-        "zope.app.session", # purely BBB for old Data.fs'es
+        "zope.app.session",  # purely BBB for old Data.fs'es
         "zope.app.zcmlfiles",
         "zope.server",
         "zope.error",
@@ -127,6 +127,7 @@ setup(
         console_scripts=[
             'zodbbrowser = zodbbrowser.standalone:main',
             'zodbcheck = zodbbrowser.check:main',
+            'zodbsearch = zodbbrowser.search:main',
             ],
     ),
 )
