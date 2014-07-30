@@ -4,8 +4,11 @@ Changes
 0.11.1a3-md (unreleased)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Add a script to check a database to see if a class is used as a
+  persistent object in it or not or if it is missing.
 
+- Various improvements on the previous script looking for broken
+  records and references.
 
 0.11.1a2-md (2014-02-07)
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -16,7 +19,7 @@ Changes
 0.11.1a1-md (2014-02-07)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Add command to check a database for broken records and cache the object
+- Add script to check a database for broken records and cache the object
   references information in a sqlite database file. This allows for
   displaying forward and backward object references as wel as providing
   an overview of currently broken object and by whom they are referred to.
