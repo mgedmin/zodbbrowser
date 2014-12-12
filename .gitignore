@@ -19,3 +19,4 @@ tmp
 python
 *.pyc
 .coverage
+coverage-reports/

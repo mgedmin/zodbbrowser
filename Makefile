@@ -44,8 +44,8 @@ testp:
 
 .PHONY: coverage
 coverage:
-	bin/test -s zodbbrowser -u --coverage=coverage
-	bin/coverage parts/test/working-directory/coverage
+	bin/test -s zodbbrowser -u --coverage=coverage -pvc
+	bin/coveragereport parts/test/working-directory/coverage
 
 .PHONY: tags
 tags:
