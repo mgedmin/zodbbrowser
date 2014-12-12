@@ -14,7 +14,7 @@ STORAGE_TIDS = weakref.WeakKeyDictionary()
 def expired(cache_dict, cache_for):
     if 'last_update' not in cache_dict:
         return True
-    return cache_dict['last_update'] > time.time() - cache_for
+    return time.time() > cache_dict['last_update'] + cache_for
 
 
 def getStorageTids(storage, cache_for=5 * MINUTES):
