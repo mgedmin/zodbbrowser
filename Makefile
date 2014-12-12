@@ -19,7 +19,7 @@ FILE_WITH_CHANGELOG = CHANGES.rst
 VCS_STATUS = git status --porcelain
 VCS_EXPORT = git archive --format=tar --prefix=tmp/tree/ HEAD | tar -xf -
 VCS_TAG = git tag
-VCS_COMMIT_AND_PUSH = git commit -av -m "Post-release version bump" && git push && git push --tags
+VCS_COMMIT_AND_PUSH = git commit -av -m \"Post-release version bump\" && git push && git push --tags
 
 
 #
