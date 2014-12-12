@@ -3,7 +3,9 @@ Changes
 
 0.11.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
-- No changes.
+- Updated bootstrap.py (GH #3).
+- Fixed @@zodbbrowser_history not seeing new transactions because the
+  cache is forever (GH #4).
 
 
 0.11.0 (2013-05-29)
