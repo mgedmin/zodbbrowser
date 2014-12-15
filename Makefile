@@ -118,6 +118,7 @@ release:
 #
 
 bin/buildout: python/bin/python bootstrap.py
+	python/bin/pip install -U setuptools
 	python/bin/python bootstrap.py
 
 python/bin/python:
