@@ -4,6 +4,8 @@ Changes
 0.11.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- Fix AttributeError: __repr__ when encountering instances of old-style
+  classes (GH #6).
 
 
 0.11.1 (2014-12-12)

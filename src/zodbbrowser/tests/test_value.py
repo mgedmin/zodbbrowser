@@ -16,6 +16,10 @@ from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue,
                                resetTruncations, pruneTruncations)
 
 
+class OldStyle:
+    pass
+
+
 class Frob(object):
     pass
 
@@ -115,6 +119,11 @@ class TestGenericValue(unittest.TestCase):
     def test_simple_repr(self):
         for s in [None, '', 'xyzzy', '\x17', u'\u1234']:
             self.assertEquals(GenericValue(s).render(), repr(s))
+
+    def test_no_dunder_repr(self):
+        # Fixes https://github.com/mgedmin/zodbbrowser/issues/6
+        obj = OldStyle()
+        self.assertEquals(GenericValue(obj)._repr(), repr(obj))
 
     def test_html_quoting(self):
         self.assertEquals(GenericValue('<html>').render(),

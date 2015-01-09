@@ -59,7 +59,7 @@ class GenericValue(object):
 
     def _repr(self):
         # hook for subclasses
-        if self.context.__class__.__repr__ is object.__repr__:
+        if getattr(self.context.__class__, '__repr__', None) is object.__repr__:
             # Special-case objects with the default __repr__ (LP#1087138)
             if isinstance(self.context, Persistent):
                 return '<%s.%s with oid %s>' % (
