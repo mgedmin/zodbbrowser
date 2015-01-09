@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.11.2 (unreleased)
+0.11.2 (2015-01-09)
 ~~~~~~~~~~~~~~~~~~~
 
 - Fix AttributeError: __repr__ when encountering instances of old-style
