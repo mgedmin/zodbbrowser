@@ -106,7 +106,12 @@
              tal:attributes="href string:@@zodbbrowser_history?tid=${history/utid}">view transaction record</a>
           <a class="title" tal:attributes="href history/href">
             #<span tal:replace="history/index" />:
-            <span tal:content="history/short" />
+            <span class="timestamp" tal:content="string:${history/utc_timestamp}" title="UTC" />
+            <span class="user" tal:content="history/user_id"
+                  tal:attributes="title string:user from site ${history/user_location}" />
+            <span class="location" tal:content="history/location|nothing"
+                  tal:attributes="title string:request type ${history/request_type|nothing}" />
+            <span class="description" tal:content="history/description" />
           </a>
         </h4>
         <div class="toolbox" tal:condition="python: not repeat['history'].start() and not view.readonly">

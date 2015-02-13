@@ -382,10 +382,15 @@ class ZodbInfoView(VeryCarefulView):
         state = self._loadHistoricalState()
         results = []
         for n, d in enumerate(self.history):
-            short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
-                                       time.localtime(d['time']))) + " "
-                     + d['user_name'] + " "
-                     + d['description'])
+            utc_timestamp = str(time.strftime('%Y-%m-%d %H:%M:%S',
+                                              time.gmtime(d['time'])))
+            local_timestamp = str(time.strftime('%Y-%m-%d %H:%M:%S',
+                                                time.localtime(d['time'])))
+            try:
+                user_location, user_id = d['user_name'].split()
+            except ValueError:
+                user_location = None
+                user_id = d['user_name']
             url = self.getUrl(tid=u64(d['tid']))
             current = (d['tid'] == self.state.tid and
                        self.state.requestedTid is not None)
@@ -393,10 +398,13 @@ class ZodbInfoView(VeryCarefulView):
             oldState = state[n + 1]['state']
             diff = compareDictsHTML(curState, oldState, d['tid'])
 
-            results.append(dict(short=short, utid=u64(d['tid']),
+            results.append(dict(utid=u64(d['tid']),
                                 href=url, current=current,
                                 error=state[n]['error'],
-                                diff=diff, **d))
+                                diff=diff, user_id=user_id,
+                                user_location=user_location,
+                                utc_timestamp=utc_timestamp,
+                                local_timestamp=local_timestamp, **d))
 
         # number in reverse order
         for i in range(len(results)):
@@ -470,9 +478,19 @@ class ZodbHistoryView(VeryCarefulView):
         results = []
         for n, d in enumerate(self.history[self.first_idx:self.last_idx]):
             utid = u64(d.tid)
-            short = "%s %s %s" % (TimeStamp(d.tid),
-                                  d.user,
-                                  d.description)
+            ts = TimeStamp(d.tid).timeTime()
+            utc_timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(ts))
+            local_timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts))
+            try:
+                user_location, user_id = d.user.split()
+            except ValueError:
+                user_location = None
+                user_id = d.user
+            try:
+                size = d._tend - d._tpos
+            except AttributeError:
+                size = None
+            ext = d.extension if isinstance(d.extension, dict) else {}
             objects = []
             for record in d:
                 obj = self.jar.get(record.oid)
@@ -490,15 +508,23 @@ class ZodbHistoryView(VeryCarefulView):
                 summary = '1 object record'
             else:
                 summary = '%d object records' % len(objects)
+            if size is not None:
+                summary += ' (%d bytes)' % size
             results.append(dict(
                 index=(self.first_idx + n + 1),
-                short=short,
+                utc_timestamp=utc_timestamp,
+                local_timestamp=local_timestamp,
+                user_id=user_id,
+                user_location=user_location,
+                description=d.description,
                 utid=utid,
                 current=(d.tid == requested_tid),
                 href=self.getUrl(tid=utid),
+                size=size,
                 summary=summary,
                 hidden=(len(objects) > 5),
                 objects=objects,
+                **ext
             ))
         if results and not requested_tid and self.page == 0:
             results[-1]['current'] = True

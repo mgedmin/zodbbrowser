@@ -1,8 +1,10 @@
 Changes
 -------
 
-0.11.3 (unreleased)
+0.14.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
+
+- Show request URLs in history record headers (GH #7).
 
 
 0.11.2 (2015-01-09)
