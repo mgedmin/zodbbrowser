@@ -1,0 +1,11 @@
+[run]
+source = zodbbrowser
+omit = */tests/*,*/ftests/*
+cover_pylib = False
+# branch = True
+
+[report]
+exclude_lines =
+    pragma: nocover
+    except ImportError:
+    except NameError:
