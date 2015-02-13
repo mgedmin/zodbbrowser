@@ -94,7 +94,7 @@ class TestZodbObjectAttribute(unittest.TestCase):
 
     def test_not_equals(self):
         self.assertFalse(self.attribute !=
-                          ZodbObjectAttribute('foo', 42L, 't565'))
+                         ZodbObjectAttribute('foo', 42L, 't565'))
         self.assertTrue(self.attribute != object())
 
 

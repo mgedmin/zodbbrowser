@@ -204,7 +204,7 @@ class DictValue(object):
             html.append(IValueRenderer(key).render(tid, can_link) + ': ' +
                         IValueRenderer(value).render(tid, can_link))
         if (sum(map(len, html)) < threshold and
-            '<span class="struct">' not in ''.join(html)):
+                '<span class="struct">' not in ''.join(html)):
             return '{%s}' % ', '.join(html)
         else:
             return join_with_commas(html, '{', '}')
