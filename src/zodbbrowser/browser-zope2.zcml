@@ -1,0 +1,37 @@
+<configure
+    xmlns="http://namespaces.zope.org/browser"
+    xmlns:zope="http://namespaces.zope.org/zope"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    i18n_domain='zodbbrowser'>
+
+  <page
+      name="zodbbrowser"
+      class=".browser.ZodbInfoView"
+      for="zope.interface.Interface"
+      permission="zope2.ViewManagementScreens"
+      />
+
+  <page
+      name="zodbbrowser_path_to_oid"
+      class=".browser.ZodbInfoView"
+      attribute="locate_json"
+      for="zope.interface.Interface"
+      permission="zope2.ViewManagementScreens"
+      />
+
+  <page
+      name="zodbbrowser_truncated"
+      class=".browser.ZodbInfoView"
+      attribute="truncated_ajax"
+      for="zope.interface.Interface"
+      permission="zope2.ViewManagementScreens"
+      />
+
+  <page
+      name="zodbbrowser_history"
+      class=".browser.ZodbHistoryView"
+      for="zope.interface.Interface"
+      permission="zope2.ViewManagementScreens"
+      />
+
+</configure>

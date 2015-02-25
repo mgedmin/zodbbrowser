@@ -4,75 +4,8 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain='zodbbrowser'>
 
-  <page
-      name="zodbbrowser"
-      class=".browser.ZodbInfoView"
-      for="zope.interface.Interface"
-      permission="zope.ManageContent"
-      menu="zmi_actions"
-      title="ZODB Browser"
-      zcml:condition="not-installed Products.Five"
-      />
-
-  <page
-      name="zodbbrowser"
-      class=".browser.ZodbInfoView"
-      for="zope.interface.Interface"
-      permission="zope2.ViewManagementScreens"
-      zcml:condition="installed Products.Five"
-      />
-
-  <page
-      name="zodbbrowser_path_to_oid"
-      class=".browser.ZodbInfoView"
-      attribute="locate_json"
-      for="zope.interface.Interface"
-      permission="zope.ManageContent"
-      zcml:condition="not-installed Products.Five"
-      />
-
-  <page
-      name="zodbbrowser_path_to_oid"
-      class=".browser.ZodbInfoView"
-      attribute="locate_json"
-      for="zope.interface.Interface"
-      permission="zope2.ViewManagementScreens"
-      zcml:condition="installed Products.Five"
-      />
-
-  <page
-      name="zodbbrowser_truncated"
-      class=".browser.ZodbInfoView"
-      attribute="truncated_ajax"
-      for="zope.interface.Interface"
-      permission="zope.ManageContent"
-      zcml:condition="not-installed Products.Five"
-      />
-
-  <page
-      name="zodbbrowser_truncated"
-      class=".browser.ZodbInfoView"
-      attribute="truncated_ajax"
-      for="zope.interface.Interface"
-      permission="zope2.ViewManagementScreens"
-      zcml:condition="installed Products.Five"
-      />
-
-  <page
-      name="zodbbrowser_history"
-      class=".browser.ZodbHistoryView"
-      for="zope.interface.Interface"
-      permission="zope.ManageContent"
-      zcml:condition="not-installed Products.Five"
-      />
-
-  <page
-      name="zodbbrowser_history"
-      class=".browser.ZodbHistoryView"
-      for="zope.interface.Interface"
-      permission="zope2.ViewManagementScreens"
-      zcml:condition="installed Products.Five"
-      />
+  <include file="browser-zope2.zcml" zcml:condition="installed Products.Five" />
+  <include file="browser-zope3.zcml" zcml:condition="not-installed Products.Five" />
 
   <page
       name="zodbbrowser_macros"
