@@ -5,6 +5,7 @@ Changes
 ~~~~~~~~~~~~~~~~~~~
 
 - Show request URLs in history record headers (GH #7).
+- Automate ZCML loading for Plone (GH #9).
 - Fix standalone zodbbrowser when used with Zope 2 packages (GH #10).
 
 

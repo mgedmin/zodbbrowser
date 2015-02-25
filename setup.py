@@ -126,7 +126,12 @@ setup(
         test=[],
         app=[],
     ),
-    entry_points=dict(
-        console_scripts=['zodbbrowser = zodbbrowser.standalone:main'],
-    ),
+    entry_points={
+        'console_scripts': [
+            'zodbbrowser = zodbbrowser.standalone:main',
+        ],
+        'z3c.autoinclude.plugin': [
+            'target = plone',
+        ],
+    },
 )
