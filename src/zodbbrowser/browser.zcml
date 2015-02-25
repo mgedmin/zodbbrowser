@@ -4,8 +4,13 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain='zodbbrowser'>
 
-  <include file="browser-zope2.zcml" zcml:condition="installed Products.Five" />
-  <include file="browser-zope3.zcml" zcml:condition="not-installed Products.Five" />
+  <configure zcml:condition="have standalone-zodbbrowser">
+    <include file="browser-zope3.zcml" />
+  </configure>
+  <configure zcml:condition="not-have standalone-zodbbrowser">
+    <include file="browser-zope2.zcml" zcml:condition="installed Products.Five" />
+    <include file="browser-zope3.zcml" zcml:condition="not-installed Products.Five" />
+  </configure>
 
   <page
       name="zodbbrowser_macros"

@@ -1,10 +1,11 @@
 Changes
 -------
 
-0.14.0 (unreleased)
+0.12.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
 - Show request URLs in history record headers (GH #7).
+- Fix standalone zodbbrowser when used with Zope 2 packages (GH #10).
 
 
 0.11.2 (2015-01-09)
