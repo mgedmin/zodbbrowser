@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.12.0 (unreleased)
+0.12.0 (2015-02-25)
 ~~~~~~~~~~~~~~~~~~~
 
 - Show request URLs in history record headers (GH #7).
