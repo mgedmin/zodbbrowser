@@ -77,6 +77,28 @@ CREATE INDEX IF NOT EXISTS target_oid_index ON links (target_oid)
         return True
 
     @connect
+    def getUnUsedOIDs(self, connection):
+        oids = set([])
+        cursor = connection.cursor()
+        result = cursor.execute("""
+WITH RECURSIVE links_to_root (source_oid, target_oid) AS (
+    SELECT source_oid, target_oid
+    FROM links
+    WHERE source_oid = 0
+    UNION
+    SELECT linked.source_oid, linked.target_oid
+    FROM links AS linked JOIN links_to_root AS origin
+        ON origin.target_oid = linked.source_oid
+    ORDER BY linked.source_oid
+)
+SELECT DISTINCT source_oid FROM links
+EXCEPT SELECT DISTINCT source_oid FROM links_to_root
+        """)
+        for oid in result.fetchall():
+            oids.add(oid[0])
+        return oids
+
+    @connect
     def getBrokenOIDs(self, connection):
         oids = set([])
         cursor = connection.cursor()
@@ -112,6 +134,3 @@ WHERE target_oid = {0}
         for oid in result.fetchall():
             oids.add(oid[0])
         return oids
-
-
-

@@ -128,6 +128,7 @@ setup(
             'zodbbrowser = zodbbrowser.standalone:main',
             'zodbcheck = zodbbrowser.check:main',
             'zodbsearch = zodbbrowser.search:main',
+            'sqlpack = zodbbrowser.sqlpack:main',
             ],
     ),
 )
