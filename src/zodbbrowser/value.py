@@ -59,7 +59,7 @@ class GenericValue(object):
 
     def _repr(self):
         # hook for subclasses
-        if self.context.__class__.__repr__ is object.__repr__:
+        if getattr(self.context.__class__, '__repr__', None) is object.__repr__:
             # Special-case objects with the default __repr__ (LP#1087138)
             if isinstance(self.context, Persistent):
                 return '<%s.%s with oid %s>' % (
@@ -204,7 +204,7 @@ class DictValue(object):
             html.append(IValueRenderer(key).render(tid, can_link) + ': ' +
                         IValueRenderer(value).render(tid, can_link))
         if (sum(map(len, html)) < threshold and
-            '<span class="struct">' not in ''.join(html)):
+                '<span class="struct">' not in ''.join(html)):
             return '{%s}' % ', '.join(html)
         else:
             return join_with_commas(html, '{', '}')

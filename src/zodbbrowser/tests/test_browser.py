@@ -94,7 +94,7 @@ class TestZodbObjectAttribute(unittest.TestCase):
 
     def test_not_equals(self):
         self.assertFalse(self.attribute !=
-                          ZodbObjectAttribute('foo', 42L, 't565'))
+                         ZodbObjectAttribute('foo', 42L, 't565'))
         self.assertTrue(self.attribute != object())
 
 
@@ -112,6 +112,7 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         self.root['stub'] = PersistentStub()
         self.root['stub']['member'] = NonpersistentStub()
         self.root['stub']['member']['notpersistent'] = 'string'
+        self.conn.add(self.root['stub']) # force oid allocation
         self.root['root'] = RootFolderStub()
         self.root['root']['item'] = PersistentStub()
         transaction.commit()

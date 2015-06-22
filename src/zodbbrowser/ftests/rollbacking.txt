@@ -22,7 +22,10 @@ The 'History' section shows all the transactions that modified this object.
       </a>
       <a class="title" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
         #2:
-        <span>YYYY-MM-DD HH:MM:SS</span>
+        <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
+        <span class="user" title="user from site None"></span>
+        <span class="location" title="request type None"></span>
+        <span class="description"></span>
       </a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
@@ -31,7 +34,10 @@ The 'History' section shows all the transactions that modified this object.
       </a>
       <a class="title" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
         #1:
-        <span>YYYY-MM-DD HH:MM:SS</span>
+        <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
+        <span class="user" title="user from site None"></span>
+        <span class="location" title="request type None"></span>
+        <span class="description"></span>
       </a>
     </h4>
 
@@ -82,8 +88,15 @@ and here we are:
       </a>
       <a class="title" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
         #3:
-        <span>
-          YYYY-MM-DD HH:MM:SS / zope.anybody Rollback to old state YYYY-MM-DD HH:MM:SS.SSSSSS
+        <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
+        <span class="user" title="user from site /">
+          zope.anybody
+        </span>
+        <span class="location" title="request type zope.app.rotterdam.Rotterdam">
+          /zodbbrowser
+        </span>
+        <span class="description">
+          Rollback to old state YYYY-MM-DD HH:MM:SS.SSSSSS
         </span>
       </a>
     </h4>
@@ -93,7 +106,10 @@ and here we are:
       </a>
       <a class="title" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
         #2:
-        <span>YYYY-MM-DD HH:MM:SS</span>
+        <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
+        <span class="user" title="user from site None"></span>
+        <span class="location" title="request type None"></span>
+        <span class="description"></span>
       </a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
@@ -102,7 +118,10 @@ and here we are:
       </a>
       <a class="title" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
         #1:
-        <span>YYYY-MM-DD HH:MM:SS</span>
+        <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
+        <span class="user" title="user from site None"></span>
+        <span class="location" title="request type None"></span>
+        <span class="description"></span>
       </a>
     </h4>
 

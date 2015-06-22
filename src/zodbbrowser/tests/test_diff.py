@@ -97,8 +97,8 @@ def doctest_compareTuplesHTML():
           </div>
         </div>
 
-        >>> old = (1, 2, 3, 5)
-        >>> new = (1, 3, 4, 5)
+        >>> old = (1, 2, 3, 5, 6, 7)
+        >>> new = (1, 3, 4, 5, 6, 7)
         >>> print compareTuplesHTML(new, old)
         <div class="diff">
           <div class="diffitem same">
@@ -117,16 +117,16 @@ def doctest_compareTuplesHTML():
             added 4
           </div>
           <div class="diffitem same">
-            last item kept the same
+            last 3 items kept the same
           </div>
         </div>
 
-        >>> old = (1, 2, 3, 5)
-        >>> new = (1, 3, 4, 6)
+        >>> old = (0, 1, 2, 3, 5)
+        >>> new = (0, 1, 3, 4, 6)
         >>> print compareTuplesHTML(new, old)
         <div class="diff">
           <div class="diffitem same">
-            first item kept the same
+            first 2 items kept the same
           </div>
           <div class="diffitem removed">
             removed 2
@@ -228,6 +228,35 @@ def doctest_compareDictsHTML_recursive():
           </div>
           <div class="diffitem added">
             <strong>f</strong>: added {'x': 4}
+          </div>
+        </div>
+
+        >>> old = dict(a=1, b=(2, 5), c=3, d=42)
+        >>> new = dict(a=1, b=(3, 5), d=(42, ), e='x')
+        >>> print compareDictsHTML(new, old)
+        <div class="diff">
+          <div class="diffitem changed">
+            <strong>b</strong>: tuple changed:
+            <div class="diff">
+              <div class="diffitem removed">
+                removed 2
+              </div>
+              <div class="diffitem added">
+                added 3
+              </div>
+              <div class="diffitem same">
+                last item kept the same
+              </div>
+            </div>
+          </div>
+          <div class="diffitem removed">
+            <strong>c</strong>: removed 3
+          </div>
+          <div class="diffitem changed">
+            <strong>d</strong>: changed to (42,)
+          </div>
+          <div class="diffitem added">
+            <strong>e</strong>: added 'x'
           </div>
         </div>
 

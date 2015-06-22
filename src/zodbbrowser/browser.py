@@ -82,6 +82,17 @@ class VeryCarefulView(BrowserView):
         return queryUtility(IReferencesDatabase)
 
     @Lazy
+    def supportsVersions(self):
+        db = queryUtility(IDatabase, name='<target>')
+        if db is None:
+            return False
+        try:
+            support = db.storage.supportsVersions
+        except AttributeError:
+            return True
+        return support()
+
+    @Lazy
     def jar(self):
         db = queryUtility(IDatabase, name='<target>')
         if db is not None:
@@ -108,7 +119,8 @@ class VeryCarefulView(BrowserView):
             if self.references is not None:
                 for referred in self.references.getBackwardReferences(p_oid):
                     try:
-                        # This will access the original object and create a ghost.
+                        # This will access the original object and
+                        # create a ghost.
                         ZodbObjectState(self.jar.get(p64(referred)), tid)
                     except POSKeyError:
                         continue
@@ -122,7 +134,7 @@ class VeryCarefulView(BrowserView):
 
     def getOIDRenderedValue(self, oid):
         formatted_oid = hex(oid)
-        tid = None
+        rendered_tid = tid = None
         if self.state:
             tid =  self.state.tid
         try:
@@ -130,7 +142,9 @@ class VeryCarefulView(BrowserView):
         except POSKeyError:
             info = '<b>Broken object at {0}</b>'.format(formatted_oid)
         else:
-            info = IValueRenderer(obj).render(tid)
+            if self.supportsVersions:
+                rendered_tid = tid
+            info = IValueRenderer(obj).render(rendered_tid, can_link=True)
         return {'info': info,
                 'oid': formatted_oid}
 
@@ -206,7 +220,7 @@ class ZodbInfoView(VeryCarefulView):
             if self.request.get('confirmed') == '1':
                 self.history.rollback(rtid)
                 transaction.get().note('Rollback to old state %s'
-                                        % self.requestedState)
+                                       % self.requestedState)
                 self.made_changes = True
                 self._redirectToSelf()
                 return ''
@@ -375,10 +389,11 @@ class ZodbInfoView(VeryCarefulView):
         if oid is None:
             oid = self.getObjectId()
         url = "@@zodbbrowser?oid=0x%x" % oid
-        if tid is None and 'tid' in self.request:
-            url += "&tid=" + self.request['tid']
-        elif tid is not None:
-            url += "&tid=0x%x" % tid
+        if self.supportsVersions:
+            if tid is None and 'tid' in self.request:
+                url += "&tid=" + self.request['tid']
+            elif tid is not None:
+                url += "&tid=0x%x" % tid
         return url
 
     def getBreadcrumbs(self):
@@ -456,21 +471,32 @@ class ZodbInfoView(VeryCarefulView):
         state = self._loadHistoricalState()
         results = []
         for n, d in enumerate(self.history):
-            short = (str(time.strftime('%Y-%m-%d %H:%M:%S',
-                                       time.localtime(d['time']))) + " "
-                     + d['user_name'] + " "
-                     + d['description'])
+            utc_timestamp = str(time.strftime('%Y-%m-%d %H:%M:%S',
+                                              time.gmtime(d['time'])))
+            local_timestamp = str(time.strftime('%Y-%m-%d %H:%M:%S',
+                                                time.localtime(d['time'])))
+            try:
+                user_location, user_id = d['user_name'].split()
+            except ValueError:
+                user_location = None
+                user_id = d['user_name']
             url = self.getUrl(tid=u64(d['tid']))
             current = (d['tid'] == self.state.tid and
                        self.state.requestedTid is not None)
             curState = state[n]['state']
             oldState = state[n + 1]['state']
-            diff = compareDictsHTML(curState, oldState, d['tid'])
+            tid = None
+            if self.supportsVersions:
+                tid = d['tid']
+            diff = compareDictsHTML(curState, oldState, tid)
 
-            results.append(dict(short=short, utid=u64(d['tid']),
+            results.append(dict(utid=u64(d['tid']),
                                 href=url, current=current,
                                 error=state[n]['error'],
-                                diff=diff, **d))
+                                diff=diff, user_id=user_id,
+                                user_location=user_location,
+                                utc_timestamp=utc_timestamp,
+                                local_timestamp=local_timestamp, **d))
 
         # number in reverse order
         for i in range(len(results)):
@@ -517,10 +543,11 @@ class ZodbHistoryView(VeryCarefulView):
 
     def getUrl(self, tid=None):
         url = "@@zodbbrowser_history"
-        if tid is None and 'tid' in self.request:
-            url += "?tid=" + self.request['tid']
-        elif tid is not None:
-            url += "?tid=0x%x" % tid
+        if self.supportsVersions:
+            if tid is None and 'tid' in self.request:
+                url += "?tid=" + self.request['tid']
+            elif tid is not None:
+                url += "?tid=0x%x" % tid
         return url
 
     def findPage(self, tid):
@@ -540,9 +567,19 @@ class ZodbHistoryView(VeryCarefulView):
         results = []
         for n, d in enumerate(self.history[self.first_idx:self.last_idx]):
             utid = u64(d.tid)
-            short = "%s %s %s" % (TimeStamp(d.tid),
-                                  d.user,
-                                  d.description)
+            ts = TimeStamp(d.tid).timeTime()
+            utc_timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(ts))
+            local_timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts))
+            try:
+                user_location, user_id = d.user.split()
+            except ValueError:
+                user_location = None
+                user_id = d.user
+            try:
+                size = d._tend - d._tpos
+            except AttributeError:
+                size = None
+            ext = d.extension if isinstance(d.extension, dict) else {}
             objects = []
             for record in d:
                 obj = self.jar.get(record.oid)
@@ -560,15 +597,23 @@ class ZodbHistoryView(VeryCarefulView):
                 summary = '1 object record'
             else:
                 summary = '%d object records' % len(objects)
+            if size is not None:
+                summary += ' (%d bytes)' % size
             results.append(dict(
                 index=(self.first_idx + n + 1),
-                short=short,
+                utc_timestamp=utc_timestamp,
+                local_timestamp=local_timestamp,
+                user_id=user_id,
+                user_location=user_location,
+                description=d.description,
                 utid=utid,
                 current=(d.tid == requested_tid),
                 href=self.getUrl(tid=utid),
+                size=size,
                 summary=summary,
                 hidden=(len(objects) > 5),
                 objects=objects,
+                **ext
             ))
         if results and not requested_tid and self.page == 0:
             results[-1]['current'] = True
@@ -616,4 +661,3 @@ def getObjectPath(obj, tid):
                 path.append('/')
             break
     return ''.join(path[::-1])
-

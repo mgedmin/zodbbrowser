@@ -62,7 +62,7 @@ class Options(object):
     server_type = 'WSGI-HTTP'
     verbose = True
     threads = 4
-    features = ('zserver',) # maybe 'devmode' too?
+    features = ('zserver', 'standalone-zodbbrowser') # maybe 'devmode' too?
     site_definition = """
         <configure xmlns="http://namespaces.zope.org/zope"
                    i18n_domain="zodbbrowser">
@@ -167,6 +167,7 @@ def stop_serving():
     task_dispatcher.shutdown(False)
     task_dispatcher = None
     asyncore.close_all()
+    getUtility(IDatabase, '<target>').close()
 
 
 def monkeypatch_error_formatting():

@@ -1,4 +1,5 @@
 language: python
+sudo: false
 python:
     - 2.6
     - 2.7
@@ -6,7 +7,7 @@ install:
     - travis_retry pip install -e .
     - travis_retry pip install zope.testrunner coverage coveralls
 script:
-    - coverage run --source=zodbbrowser -m zope.testrunner.__init__ --test-path=src --tests-pattern='^f?tests$'
+    - coverage run -m zope.testrunner.__init__ --test-path=src --tests-pattern='^f?tests$'
 after_success:
     - coveralls
 notifications:

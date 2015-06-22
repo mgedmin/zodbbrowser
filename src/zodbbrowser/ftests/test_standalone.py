@@ -1,13 +1,17 @@
 import os
+import gc
 import re
 import sys
+import logging
 import tempfile
 import shutil
 import doctest
 import unittest
 import threading
 from cgi import escape
+from cStringIO import StringIO
 
+import mechanize
 import transaction
 from lxml.html import fromstring, tostring
 from persistent import Persistent
@@ -15,7 +19,7 @@ from ZODB.POSException import ReadOnlyError
 from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.DB import DB
 from zope.testing.renormalizing import RENormalizing
-from zope.testbrowser.browser import Browser
+from zope.testbrowser.browser import Browser as _Browser
 from zope.testbrowser.interfaces import IBrowser
 from zope.app.testing import setup
 from zope.app.publication.zopepublication import ZopePublication
@@ -26,6 +30,42 @@ from zope.interface import Interface, implementsOnly
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
 from zodbbrowser import standalone
+
+
+class InternalServerError(Exception):
+
+    def __init__(self, url, log):
+        super(InternalServerError, self).__init__("%s\n%s" % (url, log))
+        self.url = url
+        self.log = log
+
+
+class Browser(_Browser):
+
+    capture_log = 'SiteError'  # keep '' to capture everything
+    log_format = '%(message)s' # '%(name)s %(levelname)s %(message)s' also useful
+    log_level = logging.DEBUG
+
+    # XXX: we should also wrap Form.submit the same way
+
+    def open(self, url):
+        buffer = StringIO()
+        logger = logging.getLogger(self.capture_log)
+        handler = logging.StreamHandler(buffer)
+        handler.setFormatter(logging.Formatter(self.log_format))
+        level = logger.level
+        logger.addHandler(handler)
+        try:
+            logger.setLevel(self.log_level)
+            return super(Browser, self).open(url)
+        except mechanize.HTTPError as e:
+            if e.code == 500:
+                raise InternalServerError(url, buffer.getvalue())
+            else:
+                raise
+        finally:
+            logger.handlers.remove(handler)
+            logger.setLevel(level)
 
 
 class ServerController(object):
@@ -89,7 +129,7 @@ class TestsWithServer(object):
     @classmethod
     def setUp(cls):
         cls.server = ServerController()
-        cls.tempdir = tempfile.mkdtemp('zodbbrowser')
+        cls.tempdir = tempfile.mkdtemp(prefix='test-zodbbrowser-')
         cls.data_fs = os.path.join(cls.tempdir, 'data.fs')
         cls.createTestData()
         cls.server.run(cls.data_fs, '--rw')
@@ -154,12 +194,19 @@ class TestCanCreateEmptyDataFs(unittest.TestCase):
     layer = TestsWithoutServer
 
     def setUp(self):
-        self.tempdir = tempfile.mkdtemp('zodbbrowser')
+        self.tempdir = tempfile.mkdtemp(prefix='test-zodbbrowser-')
         self.empty_fs = os.path.join(self.tempdir, 'empty.fs')
         self.server = ServerController()
 
     def tearDown(self):
         self.server.stop()
+        # Make sure we close any open files before we remove the database.
+        # test_cannot_start_in_read_only_mode triggers an exception after the
+        # database has been opened but before it's registered as the IDatabase
+        # utility, so we can't close it explicitly (our code has no references
+        # to the DB; in fact the only refs are the cyclic ones between storages
+        # and databases).
+        gc.collect()
         shutil.rmtree(self.tempdir)
         setup.placelessTearDown()
 

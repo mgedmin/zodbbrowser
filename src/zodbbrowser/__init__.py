@@ -18,4 +18,5 @@ ZODB Browser has the following submodules:
 
 """
 
-__homepage__ = 'http://launchpad.net/zodbbrowser'
+__version__ = '0.12.1.dev0'
+__homepage__ = 'https://github.com/mgedmin/zodbbrowser'

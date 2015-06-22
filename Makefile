@@ -19,7 +19,7 @@ FILE_WITH_CHANGELOG = CHANGES.rst
 VCS_STATUS = git status --porcelain
 VCS_EXPORT = git archive --format=tar --prefix=tmp/tree/ HEAD | tar -xf -
 VCS_TAG = git tag
-VCS_COMMIT_AND_PUSH = git commit -av -m "Post-release version bump" && git push && git push --tags
+VCS_COMMIT_AND_PUSH = git commit -av -m \"Post-release version bump\" && git push && git push --tags
 
 
 #
@@ -44,8 +44,7 @@ testp:
 
 .PHONY: coverage
 coverage:
-	bin/test -s zodbbrowser -u --coverage=coverage
-	bin/coverage parts/test/working-directory/coverage
+	bin/tox -e coverage
 
 .PHONY: tags
 tags:
@@ -107,7 +106,7 @@ release:
 	@test -z "`$(VCS_STATUS) 2>&1`" || { echo "Your working tree is not clean:" 1>&2; $(VCS_STATUS) 1>&2; exit 1; }
 	make distcheck
 	# I'm chicken so I won't actually do these things yet
-	@echo Please run $(PYTHON) setup.py sdist register upload
+	@echo Please run rm -rf dist && $(PYTHON) setup.py sdist && twine upload dist/*
 	@echo Please run $(VCS_TAG) `$(PYTHON) setup.py --version`
 	@echo Please increment the version number in $(FILE_WITH_VERSION)
 	@echo Please add a new empty entry in $(FILE_WITH_CHANGELOG)
@@ -118,6 +117,7 @@ release:
 #
 
 bin/buildout: python/bin/python bootstrap.py
+	python/bin/pip install -U setuptools
 	python/bin/python bootstrap.py
 
 python/bin/python:

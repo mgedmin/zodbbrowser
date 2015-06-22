@@ -99,7 +99,7 @@ def compareDictsHTML(new, old, tid=None, indent=''):
             html.append(indent + '    <strong>%s</strong>: '
                         % IValueRenderer(key).render(tid))
         if (action == CHANGED and isinstance(oldvalue, dict) and
-            isinstance(newvalue, dict)):
+                isinstance(newvalue, dict)):
             html.append('dictionary changed:\n')
             html.append(compareDictsHTML(newvalue, oldvalue, tid,
                                          indent=indent + '    '))

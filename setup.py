@@ -44,7 +44,11 @@ def read_file(relative_filename):
 
 
 def linkify_bugs(text):
-    return re.sub(r'\bLP#(\d+)\b', r'`LP#\1 <http://pad.lv/\1>`__', text)
+    text = re.sub(r'\bLP#(\d+)\b',
+                  r'`\g<0> <http://pad.lv/\1>`__', text)
+    text = re.sub(r'\bGH #(\d+)\b',
+                  r'`\g<0> <https://github.com/mgedmin/zodbbrowser/issues/\1>`__', text)
+    return text
 
 
 def get_long_description():
@@ -123,12 +127,15 @@ setup(
         test=[],
         app=[],
     ),
-    entry_points=dict(
-        console_scripts=[
+    entry_points={
+        'console_scripts': [
             'zodbbrowser = zodbbrowser.standalone:main',
             'zodbcheck = zodbbrowser.check:main',
             'zodbsearch = zodbbrowser.search:main',
             'sqlpack = zodbbrowser.sqlpack:main',
-            ],
-    ),
+        ],
+        'z3c.autoinclude.plugin': [
+            'target = plone',
+        ],
+    },
 )

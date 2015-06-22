@@ -1,38 +1,43 @@
 Changes
 -------
 
-0.11.3-md (unreleased)
-~~~~~~~~~~~~~~~~~~~~~~
-
-- Nothing changed yet.
-
-
-0.11.2-md (2014-07-30)
-~~~~~~~~~~~~~~~~~~~~~~
+0.12.1 (unreleased)
+~~~~~~~~~~~~~~~~~~~
 
 - Add a script to check a database to see if a class is used as a
   persistent object in it or not or if it is missing.
-
 - Various improvements on the previous script looking for broken
   records and references.
-
-0.11.1a2-md (2014-02-07)
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Nothing changed yet.
-
-
-0.11.1a1-md (2014-02-07)
-~~~~~~~~~~~~~~~~~~~~~~~~
-
 - Add script to check a database for broken records and cache the object
   references information in a sqlite database file. This allows for
   displaying forward and backward object references as wel as providing
   an overview of currently broken object and by whom they are referred to.
-
 - Add support for a ZConfig configuration file to specify the
   database. This bring support for RelStorage and other non-default
-  storages.
+  storage.
+
+
+0.12.0 (2015-02-25)
+~~~~~~~~~~~~~~~~~~~
+
+- Show request URLs in history record headers (GH #7).
+- Automate ZCML loading for Plone (GH #9).
+- Fix standalone zodbbrowser when used with Zope 2 packages (GH #10).
+
+
+0.11.2 (2015-01-09)
+~~~~~~~~~~~~~~~~~~~
+
+- Fix AttributeError: __repr__ when encountering instances of old-style
+  classes (GH #6).
+
+
+0.11.1 (2014-12-12)
+~~~~~~~~~~~~~~~~~~~
+
+- Updated bootstrap.py (GH #3).
+- Fixed @@zodbbrowser_history not seeing new transactions because the
+  cache is forever (GH #4).
 
 
 0.11.0 (2013-05-29)

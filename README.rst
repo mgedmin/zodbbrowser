@@ -12,6 +12,8 @@ view their attributes and historical changes made to them.
   **arbitrary command execution**.  Do not use zodbbrowser on databases from
   untrusted sources.
 
+.. contents::
+
 
 Usage as a standalone project
 -----------------------------
@@ -120,12 +122,14 @@ Marius Gedminas (marius@pov.lt) from `Programmers of Vilnius
 <http://pov.lt/>`_.  It is licenced under the `Zope Public Licence
 <http://www.zope.org/Resources/ZPL>`_.
 
-Please report bugs at https://github.com/mgedmin/zodbbrowser/issues
-or at the old bugtracker at https://bugs.launchpad.net/zodbbrowser
+Please report bugs at https://github.com/mgedmin/zodbbrowser/issues.
+
+There's an old bugtracker at https://bugs.launchpad.net/zodbbrowser but I'd
+really rather prefer new bugs in GitHub.
 
 
-.. |buildstatus| image:: https://api.travis-ci.org/mgedmin/zodbbrowser.png?branch=master
+.. |buildstatus| image:: https://api.travis-ci.org/mgedmin/zodbbrowser.svg?branch=master
 .. _buildstatus: https://travis-ci.org/mgedmin/zodbbrowser
 
-.. |coverage| image:: https://coveralls.io/repos/mgedmin/zodbbrowser/badge.png?branch=master
+.. |coverage| image:: https://coveralls.io/repos/mgedmin/zodbbrowser/badge.svg?branch=master
 .. _coverage: https://coveralls.io/r/mgedmin/zodbbrowser
