@@ -12,7 +12,7 @@ from zodbbrowser.references import ReferencesDatabase
 def iter_database(db):
     """Iter over records located inside the database.
     """
-    for transaction in db._storage.iterator():
+    for transaction in db.storage.iterator():
         for record in transaction:
             yield record
 
@@ -52,6 +52,13 @@ def main(args=None):
     except ValueError as error:
         parser.error(error.args[0])
 
+    try:
+        support = db.storage.supportsVersions()
+    except AttributeError:
+        support = True
+    if support:
+        parser.error('only supports non-versionned databases')
+
     database_file = opts.save
     if not database_file:
         # If we don't save, create a temporary file for the database.
@@ -63,8 +70,6 @@ def main(args=None):
         elif references.checkDatabase():
             parser.error('database already initialized')
     references.createDatabase()
-    # XXX We should implement other iteration methods over the
-    # database depending on the database capabilities.
     references.analyzeRecords(iter_database(db))
 
     broken_oids = references.getBrokenOIDs()
