@@ -6,12 +6,11 @@ Changes
 
 - Add a script to check a database to see if a class is used as a
   persistent object in it or not or if it is missing.
-- Various improvements on the previous script looking for broken
-  records and references.
-- Add script to check a database for broken records and cache the object
-  references information in a sqlite database file. This allows for
-  displaying forward and backward object references as wel as providing
-  an overview of currently broken object and by whom they are referred to.
+- Add script to check a database for broken records and cache the
+  object references information in a sqlite database file. This allows
+  for displaying forward and backward object references as well as
+  providing an overview of currently broken objects and by which
+  objects they are referred to.
 - Add support for a ZConfig configuration file to specify the
   database. This bring support for RelStorage and other non-default
   storage.
