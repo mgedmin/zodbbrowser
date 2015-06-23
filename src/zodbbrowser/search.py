@@ -60,8 +60,6 @@ def main(args=None):
 
     if args is None:
         args = sys.argv[1:]
-    else:
-        args = args + sys.argv[1:]
 
     parser = optparse.OptionParser(
         'usage: %prog [options] [--db DATA.FS | --zeo ADDRESS | --config FILE]',
