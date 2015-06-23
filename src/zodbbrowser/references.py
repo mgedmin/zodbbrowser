@@ -16,7 +16,9 @@ def connect(callback):
         try:
             connection = sqlite3.connect(self.db_name)
         except:
-            raise ValueError('impossible to open references database')
+            raise ValueError(
+                'impossible to open references database {}'.format(
+                    self.db_name))
         try:
             result = callback(self, connection, *args, **kwargs)
         finally:
