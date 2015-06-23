@@ -71,16 +71,16 @@ def main(args=None):
     references.createDatabase()
     references.analyzeRecords(iter_database(db))
 
-    broken_oids = references.getBrokenOIDs()
+    missing_oids = references.getMissingOIDs()
     if not opts.save:
         # Cleanup temporary file
         os.unlink(database_file)
 
-    if broken_oids:
-        # We have broken objects
-        print '{0} broken objects'.format(len(broken_oids))
+    if missing_oids:
+        # We have missing objects
+        print '{0} missing objects'.format(len(missing_oids))
         sys.exit(1)
-    print 'no broken objects'
+    print 'no missing objects'
     sys.exit(0)
 
 

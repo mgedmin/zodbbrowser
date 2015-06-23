@@ -166,18 +166,18 @@ class VeryCarefulView(BrowserView):
                 transaction.abort()
 
 
-class ZodbBrokenView(VeryCarefulView):
-    """Zodb help view"""
+class ZodbMissingView(VeryCarefulView):
+    """Zodb browser missing objects view"""
 
     adapts(Interface, IBrowserRequest)
 
-    template = ViewPageTemplateFile('templates/broken.pt')
+    template = ViewPageTemplateFile('templates/zodbmissing.pt')
 
-    def getBrokenObjects(self):
+    def getMissingObjects(self):
         if self.references is None:
             return []
         return map(self.getOIDRenderedValue,
-                   self.references.getBrokenOIDs())
+                   self.references.getMissingOIDs())
 
     def isFeatureAvailable(self):
         return self.references is not None

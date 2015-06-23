@@ -35,8 +35,8 @@
       />
 
   <page
-      name="zodbbrowser_broken"
-      class=".browser.ZodbBrokenView"
+      name="zodbbrowser_missing"
+      class=".browser.ZodbMissingView"
       for="zope.interface.Interface"
       permission="zope2.ViewManagementScreens"
       />

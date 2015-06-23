@@ -98,7 +98,7 @@ EXCEPT SELECT DISTINCT source_oid FROM links_to_root
         return oids
 
     @connect
-    def getBrokenOIDs(self, connection):
+    def getMissingOIDs(self, connection):
         oids = set([])
         cursor = connection.cursor()
         result = cursor.execute("""
