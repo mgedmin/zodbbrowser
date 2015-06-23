@@ -98,10 +98,9 @@ class ZodbObjectState(object):
                 (self.obj, loadedState, self.requestedTid), IStateInterpreter)
             return
         except HistoryMissingError as error:
-            self.loadError = "Missing history: %s" % \
-                             (error)
+            self.loadError = "Missing history: %s" % (error)
         except POSKeyError as error:
-            self.loadError = "Broken object: %s" % (error)
+            self.loadError = "Missing object: %s" % (error)
         except Exception as error:
             self.loadError = "%s: %s" % (error.__class__.__name__, error)
         self.state = LoadErrorState(self.loadError, self.requestedTid)
@@ -321,4 +320,3 @@ class FallbackState(object):
 
     def asDict(self):
         return dict(self.listAttributes())
-
