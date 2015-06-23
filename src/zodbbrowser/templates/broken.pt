@@ -39,7 +39,7 @@
           </ul>
           <p>
             To refresh this list, you need to re-run the zodbcheck
-            script and restart zodbupdate with the newly generated
+            script and restart zodbbrowser with the newly generated
             reference database.
           </p>
         </div>
