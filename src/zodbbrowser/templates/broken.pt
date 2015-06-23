@@ -23,10 +23,10 @@
       <tal:available tal:condition="available">
         <div tal:define="broken view/getBrokenObjects">
           <p tal:condition="not: broken">
-            Felicitations ! There is no broken objects in your site.
+            Felicitations! There are no broken objects in your site.
           </p>
           <p tal:condition="broken">
-            You are doomed ! There are broken objects !
+            You are doomed! There are broken objects!
           </p>
           <ul tal:condition="broken">
             <li tal:repeat="reference broken">
@@ -54,4 +54,3 @@
 
   </metal:block>
 </metal:block>
-
