@@ -91,7 +91,7 @@
          tal:condition="references/backward">
       <h3 class="expander">
         <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
-             alt="collapse" />&nbsp;Referred by  (<span tal:replace="python: len(references['backward'])"></span>)
+             alt="collapse" />&nbsp;Referred by (<span tal:replace="python: len(references['backward'])"></span>)
       </h3>
       <ul class="collapsible">
         <li tal:repeat="reference references/backward"
