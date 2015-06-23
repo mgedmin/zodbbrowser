@@ -30,7 +30,7 @@ def connect(callback):
 class ReferencesDatabase(object):
     implements(IReferencesDatabase)
 
-    def __init__(self, db_name=':memory:'):
+    def __init__(self, db_name):
         self.db_name = db_name
 
     @connect
@@ -66,8 +66,6 @@ CREATE INDEX IF NOT EXISTS target_oid_index ON links (target_oid)
     def checkDatabase(self, connection):
         """Connect to the database and test it presence.
         """
-        if self.db_name == ':memory:':
-            return False
         cursor = connection.cursor()
         try:
             result = cursor.execute("SELECT count(*) FROM links")
