@@ -19,9 +19,8 @@ def connect(callback):
             raise ValueError('impossible to open references database')
         try:
             result = callback(self, connection, *args, **kwargs)
-        except:
+        finally:
             connection.close()
-            raise
         return result
 
     return wrapper
