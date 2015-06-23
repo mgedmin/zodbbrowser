@@ -140,7 +140,7 @@ class VeryCarefulView(BrowserView):
         try:
             obj = self.findObjectFromOID(oid, tid)
         except POSKeyError:
-            info = '<b>Broken object at {0}</b>'.format(formatted_oid)
+            info = '<b>Missing object at {0}</b>'.format(formatted_oid)
         else:
             if self.supportsVersions:
                 rendered_tid = tid
