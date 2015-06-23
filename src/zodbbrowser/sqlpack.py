@@ -30,7 +30,8 @@ def main(args=None):
     parser = optparse.OptionParser(
         'usage: %prog [options]',
         prog='sqlpack',
-        description='Generate an SQL file with delete statements.')
+        description='Generate an SQL file with delete statements to remove '
+            'unused objects.')
     parser.add_option('--references', metavar='FILE.DB', dest='refsdb',
                       help='reference information computed by zodbcheck')
     parser.add_option('--blobs', metavar='BLOBS', dest='blobs',

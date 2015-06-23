@@ -179,9 +179,9 @@ def monkeypatch_error_formatting():
 def open_database(opts):
     if opts.db and opts.zeo:
         raise ValueError('you specified both ZEO and FileStorage; pick one')
-    if opts.db and opts.zconfig:
+    if opts.db and opts.config:
         raise ValueError('you specified both ZConfig and FileStorage; pick one')
-    if opts.zconfig and opts.zeo:
+    if opts.config and opts.zeo:
         raise ValueError('you specified both ZConfig and ZEO; pick one')
     if opts.storage and not opts.zeo:
         raise ValueError('a ZEO storage was specified without ZEO connection')
@@ -216,8 +216,8 @@ def open_database(opts):
             zeo_storage = '1'
         db = DB(ClientStorage(
             zeo_address, storage=zeo_storage, read_only=opts.readonly))
-    elif opts.zconfig:
-        db = databaseFromFile(open(opts.zconfig))
+    elif opts.config:
+        db = databaseFromFile(open(opts.config))
     else:
         raise ValueError('please specify a database')
 
@@ -233,10 +233,10 @@ def main(args=None, start_serving=True):
         args = args + sys.argv[1:]
 
     parser = optparse.OptionParser(
-        'usage: %prog [options] [FILENAME | --zeo ADDRESS | --zconfig FILE]',
+        'usage: %prog [options] [FILENAME | --zeo ADDRESS | --config FILE]',
         prog='zodbbrowser',
         description='Open a ZODB database and start a web-based browser app.')
-    parser.add_option('--zconfig', metavar='FILE',
+    parser.add_option('--config', metavar='FILE',
                       help='use a ZConfig file to specify database')
     parser.add_option('--zeo', metavar='ADDRESS',
                       help='connect to ZEO server instead'

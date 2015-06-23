@@ -64,10 +64,11 @@ def main(args=None):
         args = args + sys.argv[1:]
 
     parser = optparse.OptionParser(
-        'usage: %prog [options] [--db DATA.FS | --zeo ADDRESS | --zconfig FILE]',
-        prog='zodbbrowser',
-        description='Open a ZODB database and start a web-based browser app.')
-    parser.add_option('--zconfig', metavar='FILE',
+        'usage: %prog [options] [--db DATA.FS | --zeo ADDRESS | --config FILE]',
+        prog='zodbsearch',
+        description='Search if one or multiple Python class are used in '
+            'a database.')
+    parser.add_option('--config', metavar='FILE',
                       help='use a ZConfig file to specify database')
     parser.add_option('--zeo', metavar='ADDRESS',
                       help='connect to ZEO server instead'
