@@ -136,7 +136,7 @@ class VeryCarefulView(BrowserView):
         formatted_oid = hex(oid)
         rendered_tid = tid = None
         if self.state:
-            tid =  self.state.tid
+            tid = self.state.tid
         try:
             obj = self.findObjectFromOID(oid, tid)
         except POSKeyError:
