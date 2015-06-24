@@ -74,14 +74,11 @@ class TestLoadState(RealDatabaseTest):
         self.assertEquals(state, dict(laptop='ThinkPad T23'))
 
     def test_error_handling(self):
+        from zodbbrowser.interfaces import HistoryMissingError
+
         tid = ZodbObjectHistory(self.adam)[-1]['tid']
         history = ZodbObjectHistory(self.eve)
-        try:
-            history.loadState(tid)
-        except KeyError, e:
-            self.assertTrue("did not exist in or before" in str(e))
-        else:
-            self.fail("did not raise")
+        self.assertRaises(HistoryMissingError, history.loadState, tid)
 
     def test_rollback_does_nothing(self):
         history = ZodbObjectHistory(self.adam)
@@ -99,4 +96,3 @@ class TestLoadState(RealDatabaseTest):
 def test_suite():
     this = sys.modules[__name__]
     return unittest.defaultTestLoader.loadTestsFromModule(this)
-

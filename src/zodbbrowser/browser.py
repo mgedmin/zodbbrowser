@@ -17,19 +17,24 @@ from ZODB.interfaces import IDatabase
 from ZODB.POSException import POSKeyError
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
-import transaction
+import pkg_resources
 import simplejson
+import transaction
 
-from zodbbrowser import __version__, __homepage__
+
+from zodbbrowser import __homepage__
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.interfaces import IDatabaseHistory
+from zodbbrowser.interfaces import IReferencesDatabase
 from zodbbrowser.state import ZodbObjectState
 from zodbbrowser.diff import compareDictsHTML
 from zodbbrowser.value import pruneTruncations, TRUNCATIONS
 
 
 log = logging.getLogger("zodbbrowser")
+
+__version__ = pkg_resources.get_distribution('zodbbrowser').version
 
 
 class ZodbHelpView(BrowserView):
@@ -68,7 +73,26 @@ class ZodbObjectAttribute(object):
 
 class VeryCarefulView(BrowserView):
 
+    version = __version__
+    homepage = __homepage__
     made_changes = False
+    state = None
+
+    @Lazy
+    def references(self):
+        return queryUtility(IReferencesDatabase)
+
+    @Lazy
+    def supportsUndo(self):
+        if self.jar is None:
+            # This happens in tests.
+            return True
+        db = self.jar.db()
+        try:
+            support = db.storage.supportsUndo
+        except AttributeError:
+            return True
+        return support()
 
     @Lazy
     def jar(self):
@@ -85,9 +109,46 @@ class VeryCarefulView(BrowserView):
                 raise Exception("ZODB connection not available for this request")
             return obj._p_jar
 
-    @property
+    @Lazy
     def readonly(self):
         return self.jar.isReadOnly()
+
+    def findObjectFromOID(self, oid, tid=None):
+        p_oid = p64(oid)
+        try:
+            return self.jar.get(p_oid)
+        except POSKeyError as error:
+            if self.references is not None:
+                for referred in self.references.getBackwardReferences(p_oid):
+                    try:
+                        # This will access the original object and
+                        # create a ghost.
+                        ZodbObjectState(self.jar.get(p64(referred)), tid)
+                    except POSKeyError:
+                        continue
+                    # We loaded a referrer. Maybe we can try to load
+                    # the object again.
+                    try:
+                        return self.jar.get(p_oid)
+                    except POSKeyError:
+                        pass
+            raise error
+
+    def getOIDRenderedValue(self, oid):
+        formatted_oid = hex(oid)
+        rendered_tid = tid = None
+        if self.state:
+            tid = self.state.tid
+        try:
+            obj = self.findObjectFromOID(oid, tid)
+        except POSKeyError:
+            info = '<b>Missing object at {0}</b>'.format(formatted_oid)
+        else:
+            if self.supportsUndo:
+                rendered_tid = tid
+            info = IValueRenderer(obj).render(rendered_tid, can_link=True)
+        return {'info': info,
+                'oid': formatted_oid}
 
     def __call__(self):
         try:
@@ -107,6 +168,26 @@ class VeryCarefulView(BrowserView):
                 transaction.abort()
 
 
+class ZodbMissingView(VeryCarefulView):
+    """Zodb browser missing objects view"""
+
+    adapts(Interface, IBrowserRequest)
+
+    template = ViewPageTemplateFile('templates/zodbmissing.pt')
+
+    def getMissingObjects(self):
+        if self.references is None:
+            return []
+        return map(self.getOIDRenderedValue,
+                   self.references.getMissingOIDs())
+
+    def isFeatureAvailable(self):
+        return self.references is not None
+
+    def render(self):
+        return self.template()
+
+
 class ZodbInfoView(VeryCarefulView):
     """Zodb browser view"""
 
@@ -114,9 +195,6 @@ class ZodbInfoView(VeryCarefulView):
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
     confirmation_template = ViewPageTemplateFile('templates/confirm_rollback.pt')
-
-    version = __version__
-    homepage = __homepage__
 
     def render(self):
         self._started = time.time()
@@ -129,7 +207,8 @@ class ZodbInfoView(VeryCarefulView):
             self.state = ZodbObjectState(self.obj,
                                          p64(int(self.request['tid'], 0)),
                                          _history=self.history)
-            self.latest = False
+            # We display the tid only if we find one.
+            self.latest = self.state.tid is None
         else:
             self.state = ZodbObjectState(self.obj, _history=self.history)
 
@@ -177,7 +256,7 @@ class ZodbInfoView(VeryCarefulView):
             else:
                 oid = self.getRootOid()
             try:
-                obj = self.jar.get(p64(oid))
+                obj = self.findObjectFromOID(oid)
             except POSKeyError:
                 raise UserError('There is no object with OID 0x%x' % oid)
         return obj
@@ -190,6 +269,17 @@ class ZodbInfoView(VeryCarefulView):
             except AttributeError:
                 return None
         return obj
+
+    def getReferences(self):
+        if self.references is None:
+            return None
+        return {
+            'forward': map(
+                self.getOIDRenderedValue,
+                self.references.getForwardReferences(self.obj._p_oid)),
+            'backward': map(
+                self.getOIDRenderedValue,
+                self.references.getBackwardReferences(self.obj._p_oid))}
 
     def getRequestedTid(self):
         if 'tid' in self.request:
@@ -301,10 +391,11 @@ class ZodbInfoView(VeryCarefulView):
         if oid is None:
             oid = self.getObjectId()
         url = "@@zodbbrowser?oid=0x%x" % oid
-        if tid is None and 'tid' in self.request:
-            url += "&tid=" + self.request['tid']
-        elif tid is not None:
-            url += "&tid=0x%x" % tid
+        if self.supportsUndo:
+            if tid is None and 'tid' in self.request:
+                url += "&tid=" + self.request['tid']
+            elif tid is not None:
+                url += "&tid=0x%x" % tid
         return url
 
     def getBreadcrumbs(self):
@@ -396,7 +487,10 @@ class ZodbInfoView(VeryCarefulView):
                        self.state.requestedTid is not None)
             curState = state[n]['state']
             oldState = state[n + 1]['state']
-            diff = compareDictsHTML(curState, oldState, d['tid'])
+            tid = None
+            if self.supportsUndo:
+                tid = d['tid']
+            diff = compareDictsHTML(curState, oldState, tid)
 
             results.append(dict(utid=u64(d['tid']),
                                 href=url, current=current,
@@ -424,10 +518,6 @@ class ZodbHistoryView(VeryCarefulView):
     adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbhistory.pt')
-
-    version = __version__
-    homepage = __homepage__
-
     page_size = 5
 
     def render(self):
@@ -455,10 +545,11 @@ class ZodbHistoryView(VeryCarefulView):
 
     def getUrl(self, tid=None):
         url = "@@zodbbrowser_history"
-        if tid is None and 'tid' in self.request:
-            url += "?tid=" + self.request['tid']
-        elif tid is not None:
-            url += "?tid=0x%x" % tid
+        if self.supportsUndo:
+            if tid is None and 'tid' in self.request:
+                url += "?tid=" + self.request['tid']
+            elif tid is not None:
+                url += "?tid=0x%x" % tid
         return url
 
     def findPage(self, tid):
@@ -572,4 +663,3 @@ def getObjectPath(obj, tid):
                 path.append('/')
             break
     return ''.join(path[::-1])
-

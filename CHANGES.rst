@@ -4,6 +4,17 @@ Changes
 0.12.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- Add a script to check a database to see if a class is used as a
+  persistent object in it or not or if it is missing.
+- Add script to check a database for broken records and cache the
+  object references information in a sqlite database file. This allows
+  for displaying forward and backward object references as well as
+  providing an overview of currently broken objects and by which
+  objects they are referred to.
+- Add support for a ZConfig configuration file to specify the
+  database. This bring support for RelStorage and other non-default
+  storage.
+
 
 0.12.0 (2015-02-25)
 ~~~~~~~~~~~~~~~~~~~

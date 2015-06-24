@@ -16,6 +16,7 @@ import errno
 import traceback
 
 from ZEO.ClientStorage import ClientStorage
+from ZODB.config import databaseFromFile
 from ZODB.DB import DB
 from ZODB.MappingStorage import MappingStorage
 from ZODB.FileStorage.FileStorage import FileStorage
@@ -28,7 +29,32 @@ from zope.event import notify
 from zope.exceptions import exceptionformatter
 import zope.app.component.hooks
 
-from zodbbrowser.state import install_provides_hack
+from zodbbrowser.state import monkeypatch_provides
+from zodbbrowser.references import ReferencesDatabase
+from zodbbrowser.interfaces import IReferencesDatabase
+
+log = logging.getLogger("zodbbrowser")
+
+SCHEMA_XML = """
+<schema>
+  <import package="ZODB"/>
+  <multisection type="ZODB.database" name="*" required="yes"
+           attribute="databases">
+    <description>
+
+      Application database.
+
+      At least one database must be specified.  The first will be used
+      as the main database.  At most one of the databases can be unnamed.
+
+      All of the databases specified will be part of a multi-database.
+      See the ZODB documentation of multi-databases for details of how
+      this is useful.
+
+    </description>
+  </multisection>
+</schema>
+"""
 
 
 class Options(object):
@@ -150,6 +176,54 @@ def monkeypatch_error_formatting():
     traceback.print_exception = exceptionformatter.print_exception
 
 
+def open_database(opts):
+    if opts.db and opts.zeo:
+        raise ValueError('you specified both ZEO and FileStorage; pick one')
+    if opts.db and opts.config:
+        raise ValueError('you specified both ZConfig and FileStorage; pick one')
+    if opts.config and opts.zeo:
+        raise ValueError('you specified both ZConfig and ZEO; pick one')
+    if opts.storage and not opts.zeo:
+        raise ValueError('a ZEO storage was specified without ZEO connection')
+
+    if opts.db:
+        filename = opts.db
+        db = DB(FileStorage(filename, read_only=opts.readonly))
+    elif opts.zeo:
+        if ':' in opts.zeo:
+            # remote hostname:port ZEO connection
+            zeo_address = opts.zeo.split(':', 1)
+            try:
+                zeo_address[1] = int(zeo_address[1])
+            except ValueError:
+                raise ValueError('specified ZEO port must be an integer')
+            zeo_address = tuple(zeo_address)
+        else:
+            # socket filename
+            zeo_address = opts.zeo
+            if os.path.exists(zeo_address):
+                # try ZEO connection through UNIX socket
+                mode = os.stat(zeo_address)
+                if not stat.S_ISSOCK(mode.st_mode):
+                    raise ValueError(
+                        'specified file is not a valid UNIX socket')
+            else:
+                # remote ZEO connection
+                zeo_address = (zeo_address, 8100)
+        if opts.storage:
+            zeo_storage = opts.storage
+        else:
+            zeo_storage = '1'
+        db = DB(ClientStorage(
+            zeo_address, storage=zeo_storage, read_only=opts.readonly))
+    elif opts.config:
+        db = databaseFromFile(open(opts.config))
+    else:
+        raise ValueError('please specify a database')
+
+    return db
+
+
 def main(args=None, start_serving=True):
     logging.basicConfig(format="%(message)s")
 
@@ -157,9 +231,11 @@ def main(args=None, start_serving=True):
         args = sys.argv[1:]
 
     parser = optparse.OptionParser(
-        'usage: %prog [options] [FILENAME | --zeo ADDRESS]',
+        'usage: %prog [options] [FILENAME | --zeo ADDRESS | --config FILE]',
         prog='zodbbrowser',
         description='Open a ZODB database and start a web-based browser app.')
+    parser.add_option('--config', metavar='FILE',
+                      help='use a ZConfig file to specify database')
     parser.add_option('--zeo', metavar='ADDRESS',
                       help='connect to ZEO server instead'
                       ' (host:port or socket name)')
@@ -168,6 +244,8 @@ def main(args=None, start_serving=True):
     parser.add_option('--listen', metavar='ADDRESS',
                       help='specify port (or host:port) to listen on',
                       default='localhost:8070')
+    parser.add_option('--load-references', metavar='FILE.DB', dest='load',
+                      help='load reference information computed by zodbcheck')
     parser.add_option('-q', '--quiet', action='store_false', dest='verbose',
                       default=True,
                       help='be quiet')
@@ -199,58 +277,36 @@ def main(args=None, start_serving=True):
     else:
         opts.db = None
 
-    if opts.db and opts.zeo:
-        parser.error('you specified both ZEO and FileStorage; pick one')
-
-    if opts.storage and not opts.zeo:
-        parser.error('a ZEO storage was specified without ZEO connection')
-
+    # Install various patches
     monkeypatch_error_formatting()
+    monkeypatch_provides()
 
-    if opts.db:
-        filename = opts.db
-        db = DB(FileStorage(filename, read_only=opts.readonly))
-    elif opts.zeo:
-        if ':' in opts.zeo:
-            # remote hostname:port ZEO connection
-            zeo_address = opts.zeo.split(':', 1)
-            try:
-                zeo_address[1] = int(zeo_address[1])
-            except ValueError:
-                parser.error('specified ZEO port must be an integer')
-            zeo_address = tuple(zeo_address)
-        else:
-            # socket filename
-            zeo_address = opts.zeo
-            if os.path.exists(zeo_address):
-                # try ZEO connection through UNIX socket
-                mode = os.stat(zeo_address)
-                if not stat.S_ISSOCK(mode.st_mode):
-                    parser.error('specified file is not a valid UNIX socket')
-            else:
-                # remote ZEO connection
-                zeo_address = (zeo_address, 8100)
-        if opts.storage:
-            zeo_storage = opts.storage
-        else:
-            zeo_storage = '1'
-        db = DB(ClientStorage(zeo_address, storage=zeo_storage, read_only=opts.readonly))
-    else:
-        parser.error('please specify a database')
-
-    internal_db = DB(MappingStorage())
-
+    # Configure application
     configure(options)
 
+    # Open database to browse
+    try:
+        db = open_database(opts)
+    except ValueError as error:
+        parser.error(error.args[0])
     provideUtility(db, IDatabase, name='<target>')
 
+    # Optionaly load references
+    if opts.load:
+        try:
+            references = ReferencesDatabase(opts.load)
+        except ValueError as error:
+            parser.error(error.args[0])
+        if references.checkDatabase():
+            provideUtility(references, IReferencesDatabase)
+        else:
+            log.error("Reference database not initialized, skipping it.")
+
+    # Get the server started
+    internal_db = DB(MappingStorage())
     notify(zope.app.appsetup.interfaces.DatabaseOpened(internal_db))
-
     start_server(options, internal_db)
-
     notify(zope.app.appsetup.interfaces.ProcessStarting())
-
-    install_provides_hack()
 
     if start_serving:
         serve_forever()

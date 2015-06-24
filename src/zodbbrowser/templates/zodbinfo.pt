@@ -84,6 +84,37 @@
     </div>
   </div>
 
+  <tal:references
+     tal:define="references view/getReferences"
+     tal:condition="references">
+    <div class="referred-by"
+         tal:condition="references/backward">
+      <h3 class="expander">
+        <img tal:attributes="src context/++resource++zodbbrowser/collapse.png"
+             alt="collapse" />&nbsp;Referred by (<span tal:replace="python: len(references['backward'])"></span>)
+      </h3>
+      <ul class="collapsible">
+        <li tal:repeat="reference references/backward"
+            tal:content="structure reference/info">
+            OID
+        </li>
+      </ul>
+    </div>
+    <div class="references"
+         tal:condition="references/forward">
+      <h3 class="expander">
+        <img tal:attributes="src context/++resource++zodbbrowser/expand.png"
+             alt="collapse" />&nbsp;References (<span tal:replace="python: len(references['forward'])"></span>)
+      </h3>
+      <ul class="collapsible" style="display: none;">
+        <li tal:repeat="reference references/forward"
+            tal:content="structure reference/info">
+          OID
+        </li>
+      </ul>
+    </div>
+  </tal:references>
+
   <div class="history"
        tal:define="history view/listHistory"
        tal:condition="history">
@@ -136,7 +167,8 @@
 </div>
 
 <div class="footer">
-  <span tal:replace="view/renderingTime"></span>
+  <a href="@@zodbbrowser_missing">Missing objects</a>
+  | <span tal:replace="view/renderingTime"></span>
   <a tal:attributes="href view/homepage">zodb browser</a>
   v<span tal:replace="view/version" />
   | <a href="@@zodbbrowser_help">help</a>

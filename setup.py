@@ -5,13 +5,13 @@ import re
 from setuptools import setup, find_packages
 
 
-def get_version_and_homepage():
+def get_homepage():
     # extracts it from src/zodbbrowser/__init__.py
     here = os.path.dirname(__file__)
     zodbbrowser = os.path.join(here, 'src', 'zodbbrowser', '__init__.py')
     d = {}
     execfile(zodbbrowser, d)
-    return d['__version__'], d['__homepage__']
+    return d['__homepage__']
 
 
 class UltraMagicString(object):
@@ -61,7 +61,7 @@ def get_long_description():
     )
 
 
-version, homepage = get_version_and_homepage()
+homepage = get_homepage()
 long_description = get_long_description()
 
 setup(
@@ -71,7 +71,7 @@ setup(
     maintainer_email="marius@pov.lt",
     description="ZODB browser",
     long_description=long_description,
-    version=version,
+    version='0.12.1-md.dev0',
     url=homepage,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -87,6 +87,7 @@ setup(
     package_dir={'': 'src'},
     install_requires=[
         "ZODB3",
+        "ZConfig",
         "zope.app.pagetemplate",
         "zope.app.publication",
         "zope.component",
@@ -109,7 +110,7 @@ setup(
         "zope.app.component",
         "zope.securitypolicy",
         "zope.app.server",
-        "zope.app.session", # purely BBB for old Data.fs'es
+        "zope.app.session",  # purely BBB for old Data.fs'es
         "zope.app.zcmlfiles",
         "zope.server",
         "zope.error",
@@ -129,6 +130,9 @@ setup(
     entry_points={
         'console_scripts': [
             'zodbbrowser = zodbbrowser.standalone:main',
+            'zodbcheck = zodbbrowser.check:main',
+            'zodbsearch = zodbbrowser.search:main',
+            'sqlpack = zodbbrowser.sqlpack:main',
         ],
         'z3c.autoinclude.plugin': [
             'target = plone',

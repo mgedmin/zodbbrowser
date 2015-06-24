@@ -10,6 +10,7 @@ from zope.interface.interface import InterfaceClass
 from zope.proxy import removeAllProxies
 from zope.traversing.interfaces import IContainmentRoot
 from ZODB.utils import u64
+from ZODB.POSException import POSKeyError
 
 import zope.interface.declarations
 
@@ -28,6 +29,7 @@ except ImportError:
     from zope.app.container.contained import ContainedProxy # BBB
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+from zodbbrowser.interfaces import HistoryMissingError
 
 
 log = logging.getLogger(__name__)
@@ -36,7 +38,7 @@ log = logging.getLogger(__name__)
 real_Provides = zope.interface.declarations.Provides
 
 
-def install_provides_hack():
+def monkeypatch_provides():
     """Monkey-patch zope.interface.Provides with a more lenient version.
 
     A common result of missing modules in sys.path is that you cannot
@@ -88,17 +90,20 @@ class ZodbObjectState(object):
         self._load()
 
     def _load(self):
-        self.tid = self.history.lastChange(self.requestedTid)
         try:
+            self.tid = self.history.lastChange(self.requestedTid)
             self.pickledState = self.history.loadStatePickle(self.tid)
             loadedState = self.history.loadState(self.tid)
-        except Exception, e:
-            self.loadError = "%s: %s" % (e.__class__.__name__, e)
-            self.state = LoadErrorState(self.loadError, self.requestedTid)
-        else:
-            self.state = getMultiAdapter((self.obj, loadedState,
-                                         self.requestedTid),
-                                         IStateInterpreter)
+            self.state = getMultiAdapter(
+                (self.obj, loadedState, self.requestedTid), IStateInterpreter)
+            return
+        except HistoryMissingError as error:
+            self.loadError = "Missing history: %s" % (error)
+        except POSKeyError as error:
+            self.loadError = "Missing object: %s" % (error)
+        except Exception as error:
+            self.loadError = "%s: %s" % (error.__class__.__name__, error)
+        self.state = LoadErrorState(self.loadError, self.requestedTid)
 
     def getError(self):
         return self.loadError
@@ -315,4 +320,3 @@ class FallbackState(object):
 
     def asDict(self):
         return dict(self.listAttributes())
-

@@ -75,6 +75,52 @@ virtualenv, if you use virtualenvs).  This way your application (or Zope's)
 nice __repr__ will also be used.
 
 
+Other scripts
+-------------
+
+zodbcheck
+~~~~~~~~~
+
+Script to scan and build a database containing the relationships
+between object stored in the ZODB. By doing so it will count POSKey
+errors: those are links to objects in the ZODB that are no longer
+there.
+
+You can use this database with zodbbrowser after: it will contain
+additional information to browse objects using this reference
+information.
+
+In addition to this, a page will list all missing objects (that
+triggers the errors) and the objects that referring to them.
+
+
+This script only works on history free databases at the moment.
+
+zodbsearch
+~~~~~~~~~~
+
+Script to search quickly trough a database to see if a Python class is
+still used in it.
+
+To have accurate results you must pack your databases before, as it
+could be that the reported class is used in objects that got removed
+from the ZODB or are present in older versions of the available
+objects.
+
+sqlpack
+~~~~~~~
+
+Script to pack Relstorage history free databases. It will use the
+result computed by zodbcheck in order to find which object to remove
+from the SQL database and generate an SQL file with delete statement
+in order to remove them. If you store your blobs outside of the SQL
+database, it can generate a shell script to remove those as well.
+
+The advantage of this solution, is, mostly is speed, and the fact that
+you do not need to execute it on your production database: you can run
+both zodbcheck and sqlpack on a backup of your main database and after
+execute the two scripts you obtain on the production one.
+
 Online help
 -----------
 
