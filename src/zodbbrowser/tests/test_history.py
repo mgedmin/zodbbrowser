@@ -78,10 +78,7 @@ class TestLoadState(RealDatabaseTest):
 
         tid = ZodbObjectHistory(self.adam)[-1]['tid']
         history = ZodbObjectHistory(self.eve)
-        with self.assertRaises(HistoryMissingError) as error:
-            history.loadState(tid)
-        self.assertIsInstance(error.exception, HistoryMissingError)
-        self.assertIn("did not exist in or before", str(error.exception))
+        self.assertRaises(HistoryMissingError, history.loadState, tid)
 
     def test_rollback_does_nothing(self):
         history = ZodbObjectHistory(self.adam)
