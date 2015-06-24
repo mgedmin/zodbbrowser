@@ -82,12 +82,13 @@ class VeryCarefulView(BrowserView):
         return queryUtility(IReferencesDatabase)
 
     @Lazy
-    def supportsVersions(self):
-        db = queryUtility(IDatabase, name='<target>')
-        if db is None:
-            return True         # Assume we can, this only happens in tests.
+    def supportsUndo(self):
+        if self.jar is None:
+            # This happens in tests.
+            return True
+        db = self.jar.db()
         try:
-            support = db.storage.supportsVersions
+            support = db.storage.supportsUndo
         except AttributeError:
             return True
         return support()
@@ -142,7 +143,7 @@ class VeryCarefulView(BrowserView):
         except POSKeyError:
             info = '<b>Missing object at {0}</b>'.format(formatted_oid)
         else:
-            if self.supportsVersions:
+            if self.supportsUndo:
                 rendered_tid = tid
             info = IValueRenderer(obj).render(rendered_tid, can_link=True)
         return {'info': info,
@@ -389,7 +390,7 @@ class ZodbInfoView(VeryCarefulView):
         if oid is None:
             oid = self.getObjectId()
         url = "@@zodbbrowser?oid=0x%x" % oid
-        if self.supportsVersions:
+        if self.supportsUndo:
             if tid is None and 'tid' in self.request:
                 url += "&tid=" + self.request['tid']
             elif tid is not None:
@@ -486,7 +487,7 @@ class ZodbInfoView(VeryCarefulView):
             curState = state[n]['state']
             oldState = state[n + 1]['state']
             tid = None
-            if self.supportsVersions:
+            if self.supportsUndo:
                 tid = d['tid']
             diff = compareDictsHTML(curState, oldState, tid)
 
@@ -543,7 +544,7 @@ class ZodbHistoryView(VeryCarefulView):
 
     def getUrl(self, tid=None):
         url = "@@zodbbrowser_history"
-        if self.supportsVersions:
+        if self.supportsUndo:
             if tid is None and 'tid' in self.request:
                 url += "?tid=" + self.request['tid']
             elif tid is not None:

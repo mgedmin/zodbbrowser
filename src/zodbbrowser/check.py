@@ -52,11 +52,11 @@ def main(args=None):
         parser.error(error.args[0])
 
     try:
-        support = db.storage.supportsVersions()
+        support = db.storage.supportsUndo()
     except AttributeError:
         support = True
     if support:
-        parser.error('only supports non-versionned databases')
+        parser.error('only supports history free databases')
 
     database_file = opts.save
     if not database_file:
