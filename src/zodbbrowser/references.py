@@ -43,8 +43,8 @@ class ReferencesDatabase(object):
             for referred_oid in referred_oids or [-1]:
                 cursor.execute("""
 INSERT INTO links (source_oid, target_oid) VALUES
-({0}, {1})
-            """.format(current_oid, referred_oid))
+(?, ?)
+            """, (current_oid, referred_oid))
         connection.commit()
 
     @connect
@@ -113,8 +113,8 @@ WHERE a.target_oid > -1 AND b.source_oid IS NULL
         cursor = connection.cursor()
         result = cursor.execute("""
 SELECT target_oid FROM links
-WHERE source_oid = {0} AND target_oid > -1
-        """.format(u64(oid)))
+WHERE source_oid = ? AND target_oid > -1
+        """, (u64(oid), ))
         for oid in result.fetchall():
             oids.add(oid[0])
         return oids
@@ -125,8 +125,8 @@ WHERE source_oid = {0} AND target_oid > -1
         cursor = connection.cursor()
         result = cursor.execute("""
 SELECT source_oid FROM links
-WHERE target_oid = {0}
-        """.format(u64(oid)))
+WHERE target_oid = ?
+        """, (u64(oid), ))
         for oid in result.fetchall():
             oids.add(oid[0])
         return oids
