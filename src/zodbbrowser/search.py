@@ -10,8 +10,7 @@ from zodbbrowser.standalone import open_database
 
 
 def is_broken(symb):
-    """Return true if the given symbol is broken.
-    """
+    """Return True if the given symbol is broken."""
     return (isinstance(symb, types.TypeType) and
             ZODB.broken.Broken in symb.__mro__)
 

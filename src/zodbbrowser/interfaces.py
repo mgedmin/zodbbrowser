@@ -8,24 +8,26 @@ class HistoryMissingError(ValueError):
 class IReferencesDatabase(Interface):
 
     def createDatabase():
-        """Prepare the database.
-        """
+        """Prepare the database."""
 
     def checkDatabase():
-        """Return true if the database is usable and ready.
+        """Return true if the database is usable and ready."""
+
+    def getUnUsedOIDs():
+        """Return a set of unused OIDs present in the database that are no
+        longer referenced from the root object
         """
 
-    def getBrokenOIDs():
-        """Return a set of broken references.
+    def getMissingOIDs():
+        """Return a set of OIDs referenced in the database but missing from
+        it.
         """
 
     def getForwardReferences(oid):
-        """Return a set of forward references.
-        """
+        """Return a set of forward references."""
 
     def getBackwardReferences(oid):
-        """Return a set of backward references.
-        """
+        """Return a set of backward references."""
 
 
 class IObjectHistory(Interface):
@@ -150,4 +152,3 @@ class IStateInterpreter(Interface):
         a complete picture for the purpose of comparing these dictionaries
         while looking for changes.
         """
-

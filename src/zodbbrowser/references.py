@@ -9,8 +9,7 @@ from zodbbrowser.interfaces import IReferencesDatabase
 
 
 def connect(callback):
-    """Decorator for the reference database to access the sqlite DB.
-    """
+    """Decorator for the reference database to access the sqlite DB."""
 
     def wrapper(self, *args, **kwargs):
         try:
@@ -65,8 +64,6 @@ CREATE INDEX IF NOT EXISTS target_oid_index ON links (target_oid)
 
     @connect
     def checkDatabase(self, connection):
-        """Connect to the database and test it presence.
-        """
         cursor = connection.cursor()
         try:
             result = cursor.execute("SELECT count(*) FROM links")

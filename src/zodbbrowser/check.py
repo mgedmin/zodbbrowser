@@ -10,8 +10,7 @@ from zodbbrowser.references import ReferencesDatabase
 
 
 def iter_database(db):
-    """Iter over records located inside the database.
-    """
+    """Iter over records located inside the database."""
     for transaction in db.storage.iterator():
         for record in transaction:
             yield record

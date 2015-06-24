@@ -1,6 +1,5 @@
 import time
 import logging
-import pkg_resources
 from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
@@ -18,8 +17,10 @@ from ZODB.interfaces import IDatabase
 from ZODB.POSException import POSKeyError
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
-import transaction
+import pkg_resources
 import simplejson
+import transaction
+
 
 from zodbbrowser import __homepage__
 from zodbbrowser.history import ZodbObjectHistory

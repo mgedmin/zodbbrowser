@@ -7,6 +7,7 @@ import ZODB.blob
 import ZODB.utils
 from zodbbrowser.references import ReferencesDatabase
 
+
 def list_all_blobs_in(base_dir):
     blobs = set()
     if not base_dir:
@@ -52,7 +53,7 @@ def main(args=None):
     count_blobs = 0
     with open(opts.outputsh, 'w') as shell:
         shell.write('#!/usr/bin/env bash\n')
-        with open(opts.outputsql, 'w')  as sql:
+        with open(opts.outputsql, 'w') as sql:
             sql.write('BEGIN;\n')
             for oid in refs.getUnUsedOIDs():
                 count_oid += 1
