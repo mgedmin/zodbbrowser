@@ -5,5 +5,5 @@ include Makefile
 include *.rst
 include *.txt
 include tox.ini
-include .travis.yml
+include *.yml
 recursive-include src *.zcml *.pt *.js *.css *.png *.txt
