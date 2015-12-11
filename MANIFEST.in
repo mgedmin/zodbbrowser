@@ -6,4 +6,5 @@ include *.rst
 include *.txt
 include tox.ini
 include *.yml
+include .coveragerc
 recursive-include src *.zcml *.pt *.js *.css *.png *.txt
