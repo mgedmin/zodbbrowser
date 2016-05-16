@@ -1,8 +1,11 @@
 Changes
 -------
 
-0.12.1 (unreleased)
+0.13.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
+
+- Dropped Python 2.6 support (because ZODB---more specifically BTrees---dropped
+  it).
 
 
 0.12.0 (2015-02-25)

@@ -16,7 +16,7 @@ def get_version_and_homepage():
 
 class UltraMagicString(object):
     # Catch-22:
-    # - if I return Unicode, python setup.py --long-description ad well
+    # - if I return Unicode, python setup.py --long-description as well
     #   as python setup.py upload fail with a UnicodeEncodeError
     # - if I return UTF-8 string, python setup.py sdist register
     #   fails with an UnicodeDecodeError
@@ -78,7 +78,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
     ],
     packages=find_packages('src'),
