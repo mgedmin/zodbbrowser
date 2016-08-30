@@ -4,6 +4,11 @@ environment:
   global:
     # At the moment PyPI has no wheels of ZODB and zope.*.
     PIP_FIND_LINKS: "https://debesis.gedmin.as/wheels/"
+    # At the moment PyPI has no Windows wheels for lxml, and the Zope
+    # wineggbuilder only builds older lxml eggs (that I then convert to wheels)
+    # for some reason.  Ask pip to use binary wheels I've available of older
+    # lxml versions in preference to building the latest lxml from source.
+    PIP_ONLY_BINARY: "lxml"
   matrix:
     # http://www.appveyor.com/docs/installed-software#python lists available
     # versions
