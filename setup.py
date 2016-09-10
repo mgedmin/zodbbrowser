@@ -86,7 +86,7 @@ setup(
     package_dir={'': 'src'},
     install_requires=[
         "ZODB3",
-        "ZEO < 5.0.0a0",
+        "ZEO",
         "zope.app.pagetemplate",
         "zope.app.publication",
         "zope.component",
