@@ -10,8 +10,8 @@ import unittest
 import threading
 from cgi import escape
 from cStringIO import StringIO
+from urllib2 import HTTPError
 
-import mechanize
 import transaction
 from lxml.html import fromstring, tostring
 from persistent import Persistent
@@ -58,7 +58,7 @@ class Browser(_Browser):
         try:
             logger.setLevel(self.log_level)
             return super(Browser, self).open(url)
-        except mechanize.HTTPError as e:
+        except HTTPError as e:
             if e.code == 500:
                 raise InternalServerError(url, buffer.getvalue())
             else:
