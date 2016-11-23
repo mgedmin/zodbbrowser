@@ -142,7 +142,7 @@ class ZodbInfoView(VeryCarefulView):
             self.requestedState = self._tidToTimestamp(rtid)
             if self.request.get('confirmed') == '1':
                 self.history.rollback(rtid)
-                transaction.get().note('Rollback to old state %s'
+                transaction.get().note(u'Rollback to old state %s'
                                        % self.requestedState)
                 self.made_changes = True
                 self._redirectToSelf()
