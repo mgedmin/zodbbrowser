@@ -72,7 +72,7 @@ checkzope2: dist python/bin/python
 	bin/test -s zodbbrowser
 
 .PHONY: distcheck
-distcheck: check checkzope2 dist
+distcheck: check dist
 	version=`$(PYTHON) setup.py --version` && \
 	rm -rf $(TMPDIR) && \
 	mkdir $(TMPDIR) && \
