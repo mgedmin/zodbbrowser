@@ -1,11 +1,14 @@
 Changes
 -------
 
-0.13.0 (unreleased)
+0.13.0 (2016-11-24)
 ~~~~~~~~~~~~~~~~~~~
 
 - Dropped Python 2.6 support (because ZODB---more specifically BTrees---dropped
   it).
+
+- Fixed rollback to work with ``transaction`` >= 2.0 (transaction notes must be
+  Unicode now).
 
 
 0.12.0 (2015-02-25)
