@@ -3,17 +3,18 @@ import sys
 
 from ZODB.utils import p64
 from persistent import Persistent
+from persistent.dict import PersistentDict
 from zope.app.testing import setup
 from zope.interface.verify import verifyObject
 from zope.interface import implements, alsoProvides, Interface
 from zope.component import adapts, provideAdapter
 
 from zodbbrowser.interfaces import IValueRenderer
-from zodbbrowser.value import (GenericValue, TupleValue, ListValue, DictValue,
-                               PersistentValue, ProvidesValue, StringValue,
-                               MAX_CACHE_SIZE,
-                               TRUNCATIONS, TRUNCATIONS_IN_ORDER, truncate,
-                               resetTruncations, pruneTruncations)
+from zodbbrowser.value import (
+    GenericValue, TupleValue, ListValue, DictValue, PersistentValue,
+    PersistentDictValue, ProvidesValue, StringValue, MAX_CACHE_SIZE,
+    TRUNCATIONS, TRUNCATIONS_IN_ORDER, truncate, resetTruncations,
+    pruneTruncations)
 
 
 class OldStyle:
@@ -411,6 +412,7 @@ class TestPersistentValue(unittest.TestCase):
     def setUp(self):
         setup.placelessSetUp()
         provideAdapter(GenericValue)
+        provideAdapter(PersistentValue)
 
     def tearDown(self):
         setup.placelessTearDown()
@@ -428,6 +430,30 @@ class TestPersistentValue(unittest.TestCase):
         self.assertEquals(renderer.render(tid=p64(42)),
                   '<a class="objlink" href="@@zodbbrowser?oid=0x17&amp;tid=42">'
                           '&lt;PersistentFrob&gt;</a>')
+
+    def test_rendering_no_nested_links(self):
+        self.assertEqual(
+            PersistentValue(PersistentFrob()).render(can_link=False),
+            '&lt;PersistentFrob&gt;')
+
+
+class TestPersistentDictValue(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(GenericValue)
+        provideAdapter(PersistentValue)
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_rendering_no_nested_links(self):
+        obj = PersistentDict({1: PersistentFrob()})
+        obj._p_oid = p64(0x18)
+        self.assertEqual(
+            PersistentDictValue(obj).render(),
+            '<a class="objlink" href="@@zodbbrowser?oid=0x18">'
+            '{1: &lt;PersistentFrob&gt;}</a>')
 
 
 class TestProvidesValue(unittest.TestCase):
