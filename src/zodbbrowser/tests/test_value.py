@@ -45,6 +45,17 @@ class ExplodingLen(object):
         raise UnexpectedArbitraryError
 
 
+class ExplodingRepr(object):
+
+    def __repr__(self):
+        raise UnexpectedArbitraryError
+
+
+class ExplodingClassNameRepr(ExplodingRepr):
+
+    __class__ = ExplodingRepr()
+
+
 class PersistentFrob(Persistent):
     _p_oid = p64(23)
 
@@ -156,6 +167,14 @@ class TestGenericValue(unittest.TestCase):
         self.assertEqual(GenericValue(PersistentFrobNoRepr()).render(),
                          '&lt;zodbbrowser.tests.test_value.PersistentFrobNoRepr'
                          ' with oid 0x17&gt;')
+
+    def test_no_crashes(self):
+        self.assertEqual(GenericValue(ExplodingRepr()).render(),
+                         '&lt;unrepresentable ExplodingRepr&gt;')
+
+    def test_srsly_no_crashes(self):
+        self.assertEqual(GenericValue(ExplodingClassNameRepr()).render(),
+                         '&lt;unrepresentable&gt;')
 
 
 class TestStringValue(unittest.TestCase):
