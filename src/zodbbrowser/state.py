@@ -220,7 +220,7 @@ if PersistentMapping is PersistentDict:
         """Decoy to avoid ZCML errors while supporting both ZODB 3.8 and 3.9."""
         adapts(DecoyPersistentDict, dict, None)
 
-else:
+else:  # pragma: nocover
     class PersistentDictState(PersistentMappingState):
         """Convenient access to a persistent dict's items."""
         adapts(PersistentDict, dict, None)

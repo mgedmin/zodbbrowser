@@ -50,7 +50,8 @@ class ZodbObjectHistory(object):
         # FileStorage in ZODB 3.9 doesn't accept a 'version' argument at all.
         # This check is ugly, but I see no other options if I want to support
         # both ZODB versions :(
-        if 'version' in inspect.getargspec(self._storage.history)[0]:
+        old_zodb = 'version' in inspect.getargspec(self._storage.history)[0]
+        if old_zodb:  # pragma: nocover
             version = None
             self._history = self._storage.history(self._oid, version, size)
         else:

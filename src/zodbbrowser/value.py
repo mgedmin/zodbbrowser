@@ -270,7 +270,7 @@ if PersistentMapping is PersistentDict:
         adapts(DecoyPersistentDict)
         delegate_to = DictValue
 
-else:
+else:  # pragma: nocover
     class PersistentDictValue(PersistentValue):
         adapts(PersistentDict)
         delegate_to = DictValue
