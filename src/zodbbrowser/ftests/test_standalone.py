@@ -229,10 +229,14 @@ class TestCanCreateEmptyDataFs(unittest.TestCase):
         self.assertTrue('persistent.mapping.PersistentMapping' in browser.contents)
 
     def test_cannot_start_in_read_only_mode(self):
-        self.assertRaises(ReadOnlyError, self.server.run, self.empty_fs)
-        # Due to a bug in ZODB, the new database *is* created, it just
-        # has no objects in it
-        # self.assertTrue(not os.path.exists(self.empty_fs))
+        with self.assertRaises((IOError, ReadOnlyError)) as cm:
+            self.server.run(self.empty_fs)
+        if isinstance(cm.exception, ReadOnlyError):  # pragma: nocover
+            # Due to a bug in older versions of ZODB, the new database *was*
+            # created, it just had no objects in it.
+            pass
+        else:
+            self.assertTrue(not os.path.exists(self.empty_fs))
 
 
 def printXPath(html, xpath, pretty_print=True):
