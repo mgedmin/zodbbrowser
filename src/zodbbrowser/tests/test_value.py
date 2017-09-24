@@ -9,7 +9,7 @@ from zope.interface.verify import verifyObject
 from zope.interface import implements, alsoProvides, Interface
 from zope.component import adapts, provideAdapter
 
-from zodbbrowser.interfaces import IValueRenderer
+from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
 from zodbbrowser.value import (
     GenericValue, TupleValue, ListValue, DictValue, PersistentValue,
     PersistentDictValue, ProvidesValue, StringValue, MAX_CACHE_SIZE,
@@ -66,6 +66,27 @@ class PersistentFrob(Persistent):
 
 class PersistentFrobNoRepr(Persistent):
     _p_oid = p64(23)
+
+
+class PersistentThing(Persistent):
+    _p_oid = p64(29)
+
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return '<PersistentThing: %s>' % self.value
+
+
+class FakeObjectHistory(object):
+    adapts(PersistentThing)
+    implements(IObjectHistory)
+
+    def __init__(self, context):
+        pass
+
+    def loadState(self, tid):
+        return {'value': 'old'}
 
 
 class Struct(object):
@@ -424,6 +445,13 @@ class TestPersistentValue(unittest.TestCase):
         self.assertEquals(PersistentValue(PersistentFrob()).render(),
                   '<a class="objlink" href="@@zodbbrowser?oid=0x17">'
                           '&lt;PersistentFrob&gt;</a>')
+
+    def test_old_value(self):
+        provideAdapter(FakeObjectHistory)
+        renderer = PersistentValue(PersistentThing('new'))
+        self.assertEquals(renderer.render(tid=p64(42)),
+                  '<a class="objlink" href="@@zodbbrowser?oid=0x1d&amp;tid=42">'
+                          '&lt;PersistentThing: old&gt;</a>')
 
     def test_tid_is_preserved(self):
         renderer = PersistentValue(PersistentFrob())
