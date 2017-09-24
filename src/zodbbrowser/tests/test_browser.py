@@ -1,6 +1,5 @@
 import unittest
 import transaction
-import sys
 import gc
 import json
 
@@ -465,9 +464,3 @@ class TestHelperFunctions(unittest.TestCase):
                          'NonpersistentStub')
         self.assertEqual(getObjectTypeShort(ProxyFactory(NonpersistentStub())),
                          '_Proxy - NonpersistentStub')
-
-
-def test_suite():
-    this = sys.modules[__name__]
-    return unittest.TestSuite([
-        unittest.defaultTestLoader.loadTestsFromModule(this)])

@@ -12,6 +12,3 @@ class TestCache(unittest.TestCase):
         self.assertFalse(expired({'last_update': now - 1}, 5 * MINUTES))
         self.assertTrue(expired({'last_update': now - 1 - 5 * MINUTES}, 5 * MINUTES))
 
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)

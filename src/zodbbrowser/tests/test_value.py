@@ -1,5 +1,4 @@
 import unittest2 as unittest
-import sys
 
 from ZODB.utils import p64
 from persistent import Persistent
@@ -514,9 +513,4 @@ class TestProvidesValue(unittest.TestCase):
         self.assertEquals(renderer.render(limit=42),
             '&lt;Provides: zodbbrowser.tests.test_value.IS'
             '<span id="tr1" class="truncated">...</span>')
-
-
-def test_suite():
-    this = sys.modules[__name__]
-    return unittest.defaultTestLoader.loadTestsFromModule(this)
 

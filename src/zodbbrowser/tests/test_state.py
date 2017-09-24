@@ -1,5 +1,4 @@
 import unittest
-import sys
 
 import transaction
 from persistent import Persistent
@@ -278,9 +277,4 @@ class TestFallbackState(unittest.TestCase):
     def test_asDict(self):
         self.assertEquals(self.state.asDict(),
                           {'pickled state': self.state.state})
-
-
-def test_suite():
-    this = sys.modules[__name__]
-    return unittest.defaultTestLoader.loadTestsFromModule(this)
 

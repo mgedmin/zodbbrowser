@@ -1,5 +1,4 @@
 import unittest
-import sys
 
 import transaction
 from persistent import Persistent
@@ -94,9 +93,4 @@ class TestLoadState(RealDatabaseTest):
         history.rollback(history[-2]['tid'])
         self.assertEquals(self.adam.laptop, 'ThinkPad T23')
         self.assertTrue(self.adam._p_changed)
-
-
-def test_suite():
-    this = sys.modules[__name__]
-    return unittest.defaultTestLoader.loadTestsFromModule(this)
 
