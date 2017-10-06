@@ -15,7 +15,6 @@ from zope.traversing.interfaces import IContainmentRoot
 from zope.security.proxy import Proxy
 from zope.security.checker import ProxyFactory
 
-from zodbbrowser.compat import long
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
 from zodbbrowser.browser import getObjectType, getObjectTypeShort
@@ -63,7 +62,7 @@ class TestZodbObjectAttribute(unittest.TestCase):
     def setUp(self):
         setup.placelessSetUp()
         provideAdapter(SimpleValueRenderer)
-        self.attribute = ZodbObjectAttribute('foo', long(42), 't565')
+        self.attribute = ZodbObjectAttribute('foo', 42, 't565')
 
     def tearDown(self):
         setup.placelessTearDown()
@@ -74,29 +73,29 @@ class TestZodbObjectAttribute(unittest.TestCase):
 
     def test_rendered_value(self):
         self.assertEqual(self.attribute.rendered_value(),
-                         "42L [tid=t565]")
+                         "42 [tid=t565]")
 
     def test_repr(self):
         self.assertEqual(repr(self.attribute),
-                         "ZodbObjectAttribute('foo', 42L, 't565')")
+                         "ZodbObjectAttribute('foo', 42, 't565')")
 
     def test_equality(self):
         self.assertEqual(self.attribute,
-                         ZodbObjectAttribute('foo', long(42), 't565'))
+                         ZodbObjectAttribute('foo', 42, 't565'))
 
     def test_inequality(self):
         self.assertNotEqual(self.attribute,
-                            ZodbObjectAttribute('foo', long(42), 't575'))
+                            ZodbObjectAttribute('foo', 42, 't575'))
         self.assertNotEqual(self.attribute,
-                            ZodbObjectAttribute('foo', long(43), 't565'))
+                            ZodbObjectAttribute('foo', 43, 't565'))
         self.assertNotEqual(self.attribute,
-                            ZodbObjectAttribute('fox', long(42), 't565'))
+                            ZodbObjectAttribute('fox', 42, 't565'))
         self.assertNotEqual(self.attribute,
                             object())
 
     def test_not_equals(self):
         self.assertFalse(self.attribute !=
-                         ZodbObjectAttribute('foo', long(42), 't565'))
+                         ZodbObjectAttribute('foo', 42, 't565'))
         self.assertTrue(self.attribute != object())
 
 

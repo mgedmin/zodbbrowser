@@ -5,12 +5,6 @@ except NameError:
     basestring = str
 
 try:
-    long = long
-except NameError:
-    # Python 3
-    long = int
-
-try:
     from cStringIO import StringIO
 except ImportError:
     # Python 3
