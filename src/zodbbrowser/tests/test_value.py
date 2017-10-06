@@ -149,7 +149,7 @@ class TestGenericValue(unittest.TestCase):
         verifyObject(IValueRenderer, GenericValue(None))
 
     def test_simple_repr(self):
-        for s in [None, '', 'xyzzy', '\x17', u'\u1234']:
+        for s in [None, '', 'xyzzy', b'\x17', u'\u1234']:
             self.assertEqual(GenericValue(s).render(), repr(s))
 
     def test_no_dunder_repr(self):
@@ -217,7 +217,7 @@ class TestStringValue(unittest.TestCase):
                          """'x"y\\'z\\\\z&lt;y&amp;'""")
 
     def test_short_string_control_char(self):
-        self.assertEqual(StringValue('\x17').render(),
+        self.assertEqual(StringValue(b'\x17').render(),
                          """'\\x17'""")
 
     def test_short_string_unicode(self):
@@ -255,11 +255,11 @@ class TestStringValue(unittest.TestCase):
                          'line5\'</span>')
 
     def test_long_string_non_ascii(self):
-        self.assertEqual(StringValue('line1\n'
-                                     'line2\n'
-                                     'line3 \xff\n'
-                                     'line4\n'
-                                     'line5\n').render(),
+        self.assertEqual(StringValue(b'line1\n'
+                                     b'line2\n'
+                                     b'line3 \xff\n'
+                                     b'line4\n'
+                                     b'line5\n').render(),
                          '\'<span class="struct">line1<br />'
                          'line2<br />'
                          'line3 \\xff<br />'
