@@ -84,7 +84,7 @@ class GenericValue(object):
                 escape(text[:limit]), id)
         else:
             text = escape(text)
-        if not isinstance(self.context, basestring):
+        if not isinstance(self.context, (basestring, bytes)):
             try:
                 n = len(self.context)
             except Exception:
