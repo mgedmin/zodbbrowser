@@ -127,7 +127,7 @@ class StringValue(GenericValue):
             return GenericValue.render(self, tid, can_link=can_link,
                                        limit=limit)
         else:
-            if isinstance(self.context, unicode):
+            if not isinstance(self.context, bytes):
                 prefix = 'u'
                 context = self.context
             else:
