@@ -54,8 +54,8 @@ class OOBTreeHistory(ZodbObjectHistory):
         for h in history_of.values():
             for d in h:
                 by_tid.setdefault(d['tid'], d)
-        self._history = by_tid.values()
-        self._history.sort(key=lambda d: d['tid'], reverse=True)
+        self._history = sorted(by_tid.values(),
+                               key=lambda d: d['tid'], reverse=True)
         self._index_by_tid()
 
     def _lastRealChange(self, tid=None):
