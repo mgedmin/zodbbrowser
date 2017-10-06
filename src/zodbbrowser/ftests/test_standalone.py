@@ -7,7 +7,6 @@ import tempfile
 import shutil
 import doctest
 import unittest
-import urllib2
 import threading
 from cgi import escape
 from cStringIO import StringIO
@@ -19,7 +18,7 @@ from ZODB.POSException import ReadOnlyError
 from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.DB import DB
 from zope.testing.renormalizing import RENormalizing
-from zope.testbrowser.browser import Browser as _Browser
+from zope.testbrowser.browser import Browser as _Browser, HTTPError
 from zope.testbrowser.interfaces import IBrowser
 from zope.app.testing import setup
 from zope.app.publication.zopepublication import ZopePublication
@@ -31,18 +30,6 @@ from zope.interface import Interface, implementer_only
 from zodbbrowser.standalone import main, serve_forever, stop_serving
 from zodbbrowser.compat import basestring
 from zodbbrowser import standalone
-
-
-# zope.testbrowser >= 5.0.0 raises urllib2.HTTPError, older versions raise
-# mechanize.HTTPError.  Let's catch either, they quack the same way.
-HTTP_ERRORS = (urllib2.HTTPError,)
-
-try:
-    import mechanize
-except ImportError:
-    pass
-else:
-    HTTP_ERRORS += (mechanize.HTTPError, )
 
 
 class InternalServerError(Exception):
@@ -71,7 +58,7 @@ class Browser(_Browser):
         try:
             logger.setLevel(self.log_level)
             return super(Browser, self).open(url)
-        except HTTP_ERRORS as e:
+        except HTTPError as e:
             if e.code == 500:
                 raise InternalServerError(url, buffer.getvalue())
             else:

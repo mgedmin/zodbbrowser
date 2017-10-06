@@ -79,7 +79,7 @@ setup(
         # dependencies just for the test suite
         "zope.app.container",
         "zope.app.testing",
-        "zope.testbrowser",
+        "zope.testbrowser >= 5.1",
         "lxml",
         "cssselect",
         "unittest2",
