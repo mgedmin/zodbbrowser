@@ -12,6 +12,7 @@ from zope.component import provideAdapter, getGlobalSiteManager
 from zope.interface import implementer
 from zope.publisher.browser import TestRequest
 from zope.traversing.interfaces import IContainmentRoot
+from zope.security.proxy import Proxy
 from zope.security.checker import ProxyFactory
 
 from zodbbrowser.compat import long
@@ -458,8 +459,8 @@ class TestHelperFunctions(unittest.TestCase):
         self.assertEqual(getObjectType(NonpersistentStub()),
                          "<class 'zodbbrowser.tests.test_browser.NonpersistentStub'>")
         self.assertEqual(getObjectType(ProxyFactory(NonpersistentStub())),
-                         "<type 'zope.security._proxy._Proxy'> -"
-                         " <class 'zodbbrowser.tests.test_browser.NonpersistentStub'>")
+                         str(Proxy) + " - " +
+                         "<class 'zodbbrowser.tests.test_browser.NonpersistentStub'>")
 
     def test_getObjectTypeShort(self):
         self.assertEqual(getObjectTypeShort(NonpersistentStub()),
