@@ -29,6 +29,7 @@ from zope.app.appsetup.bootstrap import bootStrapSubscriber
 from zope.interface import Interface, implementer_only
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
+from zodbbrowser.compat import basestring
 from zodbbrowser import standalone
 
 

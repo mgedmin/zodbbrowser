@@ -1,6 +1,7 @@
 from cgi import escape
 
 from zodbbrowser.interfaces import IValueRenderer
+from zodbbrowser.compat import basestring
 
 
 ADDED = 'added'

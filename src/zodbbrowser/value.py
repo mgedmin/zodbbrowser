@@ -17,6 +17,7 @@ from zope.security.proxy import removeSecurityProxy
 
 from zodbbrowser.interfaces import IValueRenderer
 from zodbbrowser.interfaces import IObjectHistory
+from zodbbrowser.compat import basestring
 
 
 log = logging.getLogger(__name__)
