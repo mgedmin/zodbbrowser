@@ -123,7 +123,8 @@ class StringValue(GenericValue):
         self.context = context
 
     def render(self, tid=None, can_link=True, limit=200, threshold=4):
-        if self.context.count('\n') <= threshold:
+        newline = b'\n' if isinstance(self.context, bytes) else u'\n'
+        if self.context.count(newline) <= threshold:
             return GenericValue.render(self, tid, can_link=can_link,
                                        limit=limit)
         else:
