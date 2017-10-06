@@ -3,6 +3,7 @@ import itertools
 import collections
 import re
 from cgi import escape
+from functools import partial
 
 from ZODB.utils import u64, oid_repr
 from persistent import Persistent
@@ -24,12 +25,12 @@ log = logging.getLogger(__name__)
 MAX_CACHE_SIZE = 1000
 TRUNCATIONS = {}
 TRUNCATIONS_IN_ORDER = collections.deque()
-next_id = itertools.count(1).next
+next_id = partial(next, itertools.count(1))
 
 
 def resetTruncations(): # for tests only!
     global next_id
-    next_id = itertools.count(1).next
+    next_id = partial(next, itertools.count(1))
     TRUNCATIONS.clear()
     TRUNCATIONS_IN_ORDER.clear()
 
