@@ -6,40 +6,18 @@ from setuptools import setup, find_packages
 
 
 def get_version_and_homepage():
-    # extracts it from src/zodbbrowser/__init__.py
-    here = os.path.dirname(__file__)
-    zodbbrowser = os.path.join(here, 'src', 'zodbbrowser', '__init__.py')
     d = {}
-    execfile(zodbbrowser, d)
+    r = re.compile('''^(__[a-z]+__) = ["'](.+)["']$''')
+    for line in read_file('src', 'zodbbrowser', '__init__.py').splitlines():
+        m = r.match(line)
+        if m:
+            d[m.group(1)] = m.group(2)
     return d['__version__'], d['__homepage__']
 
 
-class UltraMagicString(object):
-    # Catch-22:
-    # - if I return Unicode, python setup.py --long-description as well
-    #   as python setup.py upload fail with a UnicodeEncodeError
-    # - if I return UTF-8 string, python setup.py sdist register
-    #   fails with an UnicodeDecodeError
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return self.value
-
-    def __unicode__(self):
-        return self.value.decode('UTF-8')
-
-    def __add__(self, other):
-        return UltraMagicString(self.value + str(other))
-
-    def split(self, *args, **kw):
-        return self.value.split(*args, **kw)
-
-
-def read_file(relative_filename):
+def read_file(*relative_filename):
     here = os.path.dirname(__file__)
-    with open(os.path.join(here, relative_filename)) as f:
+    with open(os.path.join(here, *relative_filename)) as f:
         return f.read()
 
 
@@ -52,12 +30,10 @@ def linkify_bugs(text):
 
 
 def get_long_description():
-    return UltraMagicString(
-        linkify_bugs(
-            read_file('README.rst') +
-            '\n\n' +
-            read_file('CHANGES.rst')
-        )
+    return linkify_bugs(
+        read_file('README.rst') +
+        '\n\n' +
+        read_file('CHANGES.rst')
     )
 
 
