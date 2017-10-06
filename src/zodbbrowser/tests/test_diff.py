@@ -1,4 +1,6 @@
 import doctest
+import textwrap
+import unittest
 
 from zope.app.testing import setup
 from zope.component import provideAdapter
@@ -316,22 +318,38 @@ def doctest_compareDictsHTML_nonstring_keys():
     """
 
 
-def doctest_compareDictsHTML_has_no_unicode_problems():
-    r"""Tests for compareDicts
+class TestCompareDictsHTML(unittest.TestCase):
 
-        >>> old = {u'\N{SNOWMAN}': 1, b'\xFE': 2}
-        >>> new = {u'\N{SNOWMAN}': 2, b'\xFE': 3}
-        >>> print(compareDictsHTML(new, old))
-        <div class="diff">
-          <div class="diffitem changed">
-            <strong>'\xfe'</strong>: changed to 3
-          </div>
-          <div class="diffitem changed">
-            <strong>u'\u2603'</strong>: changed to 2
-          </div>
-        </div>
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(SimpleValueRenderer)
 
-    """
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test_no_unicode_problems(self):
+        old = {u'\N{SNOWMAN}': 1, b'\xFE': 2}
+        new = {u'\N{SNOWMAN}': 2, b'\xFE': 3}
+        diff = compareDictsHTML(new, old)
+        self.assertMultiLineEqual(diff, textwrap.dedent("""\
+            <div class="diff">
+              <div class="diffitem changed">
+                <strong>'\\xfe'</strong>: changed to 3
+              </div>
+              <div class="diffitem changed">
+                <strong>u'\\u2603'</strong>: changed to 2
+              </div>
+            </div>
+        """ if str is bytes else """\
+            <div class="diff">
+              <div class="diffitem changed">
+                <strong>b'\\xfe'</strong>: changed to 3
+              </div>
+              <div class="diffitem changed">
+                <strong>'\u2603'</strong>: changed to 2
+              </div>
+            </div>
+        """))
 
 
 def setUp(test):
@@ -345,6 +363,9 @@ def tearDown(test):
 
 def test_suite():
     optionflags = doctest.REPORT_NDIFF | doctest.NORMALIZE_WHITESPACE
-    return doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
-                                optionflags=optionflags)
+    return unittest.TestSuite([
+        unittest.defaultTestLoader.loadTestsFromName(__name__),
+        doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
+                             optionflags=optionflags),
+    ])
 
