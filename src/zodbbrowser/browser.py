@@ -274,7 +274,7 @@ class ZodbInfoView(VeryCarefulView):
                 continue
             if not here.endswith('/'):
                 here += '/'
-            here += step.encode('utf-8')
+            here += step
             try:
                 child = obj[step]
             except Exception:
