@@ -149,7 +149,7 @@ class TestLargeOOBTreeHistory(RealDatabaseTest):
 
     def test_rollback(self):
         history = OOBTreeHistory(self.tree)
-        tid = history[len(history) / 2]['tid']
+        tid = history[len(history) // 2]['tid']
         history.rollback(tid)
         self.assertEquals(len(self.tree), 50)
         # BTrees play funky games with cached lenghts, make sure the content
