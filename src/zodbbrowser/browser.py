@@ -370,7 +370,7 @@ class ZodbInfoView(VeryCarefulView):
                                          _history=self.history)
                 state = interp.asDict()
                 error = interp.getError()
-            except Exception, e:
+            except Exception as e:
                 state = {}
                 error = '%s: %s' % (e.__class__.__name__, e)
             results.append(dict(state=state, error=error))

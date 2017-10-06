@@ -83,7 +83,7 @@ class TestLoadState(WorkloadMixin, RealDatabaseTest):
         history = ZodbObjectHistory(self.eve)
         try:
             history.loadState(tid)
-        except KeyError, e:
+        except KeyError as e:
             self.assertTrue("did not exist in or before" in str(e))
         else:
             self.fail("did not raise")

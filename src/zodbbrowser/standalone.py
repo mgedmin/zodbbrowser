@@ -112,7 +112,7 @@ def start_server(options, db):
                                     port=port, db=db,
                                     task_dispatcher=task_dispatcher,
                                     verbose=options.verbose)
-    except socket.error, e:
+    except socket.error as e:
         if e.errno == errno.EADDRINUSE:
             sys.exit("Cannot listen on %s:%s: %s" % (host or '0.0.0.0',
                                                      port, e))

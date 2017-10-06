@@ -66,7 +66,7 @@ def flatten_interfaces(args):
 def Provides(cls, *interfaces):
     try:
         return real_Provides(cls, *interfaces)
-    except TypeError, e:
+    except TypeError as e:
         log.warning('Suppressing TypeError while unpickling Provides: %s', e)
         args = flatten_interfaces(interfaces)
         return real_Provides(cls, *args)
@@ -94,7 +94,7 @@ class ZodbObjectState(object):
         try:
             self.pickledState = self.history.loadStatePickle(self.tid)
             loadedState = self.history.loadState(self.tid)
-        except Exception, e:
+        except Exception as e:
             self.loadError = "%s: %s" % (e.__class__.__name__, e)
             self.state = LoadErrorState(self.loadError, self.requestedTid)
         else:
