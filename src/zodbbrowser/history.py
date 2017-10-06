@@ -1,14 +1,20 @@
 import inspect
 
 from ZODB.utils import tid_repr
-from ZODB.interfaces import IConnection
+from ZODB.interfaces import IConnection, IStorageIteration
 from persistent import Persistent
 from zope.proxy import removeAllProxies
-from zope.interface import implements
-from zope.component import adapts
+from zope.interface import implements, implementer
+from zope.component import adapts, adapter
 
 from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
 from zodbbrowser import cache
+
+try:
+    from ZODB.mvccadapter import MVCCAdapterInstance
+except ImportError:  # pragma: no-cover
+    class MVCCAdapterInstance(object):
+        """Placeholder so we can register an adapter that will not be used."""
 
 
 class ZodbObjectHistory(object):
@@ -103,7 +109,7 @@ class ZodbHistory(object):
 
     def __init__(self, connection):
         self._connection = connection
-        self._storage = connection._storage
+        self._storage = IStorageIteration(connection._storage)
         self._tids = cache.getStorageTids(self._storage)
 
     @property
@@ -122,3 +128,8 @@ class ZodbHistory(object):
             return []
         return self._storage.iterator(tids[0], tids[-1])
 
+
+@adapter(MVCCAdapterInstance)
+@implementer(IStorageIteration)
+def getIterableStorage(storage):
+    return storage._storage

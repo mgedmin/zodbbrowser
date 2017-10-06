@@ -56,7 +56,7 @@ class IDatabaseHistory(Interface):
     Adapt a connection object to IObjectHistory.
     """
 
-    def __iter__(n):
+    def __iter__():
         """Return an iterator over the history record.
 
         Records are ordered by age, from oldest (index 0) to newest.

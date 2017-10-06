@@ -5,6 +5,7 @@
 
   <adapter factory=".history.ZodbObjectHistory" />
   <adapter factory=".history.ZodbHistory" />
+  <adapter factory=".history.getIterableStorage" />
 
   <adapter factory=".value.GenericValue" />
   <adapter factory=".value.StringValue" />

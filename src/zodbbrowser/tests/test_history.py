@@ -1,13 +1,13 @@
-import unittest
-
 import transaction
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from zope.interface.verify import verifyObject
+from zope.component import provideAdapter
 
 from zodbbrowser.tests.realdb import RealDatabaseTest
-from zodbbrowser.history import ZodbObjectHistory
-from zodbbrowser.interfaces import IObjectHistory
+from zodbbrowser.history import ZodbObjectHistory, ZodbHistory
+from zodbbrowser.history import getIterableStorage
+from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
 
 
 class PersistentObject(Persistent):
@@ -40,10 +40,9 @@ class TestFileStorage(RealDatabaseTest):
         self.assertEquals(len(history), 11)
 
 
-class TestLoadState(RealDatabaseTest):
+class WorkloadMixin(object):
 
-    def setUp(self):
-        RealDatabaseTest.setUp(self)
+    def commitSomeStuff(self):
         root = self.conn.root()
         self.adam = root['adam'] = PersistentObject()
         transaction.commit()
@@ -57,6 +56,13 @@ class TestLoadState(RealDatabaseTest):
         transaction.commit()
         self.adam.laptop = 'ThinkPad T61'
         transaction.commit()
+
+
+class TestLoadState(WorkloadMixin, RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.commitSomeStuff()
 
     def test_latest_state(self):
         state = ZodbObjectHistory(self.adam).loadState()
@@ -93,4 +99,30 @@ class TestLoadState(RealDatabaseTest):
         history.rollback(history[-2]['tid'])
         self.assertEquals(self.adam.laptop, 'ThinkPad T23')
         self.assertTrue(self.adam._p_changed)
+
+
+class TestZodbHistory(WorkloadMixin, RealDatabaseTest):
+
+    def setUp(self):
+        super(TestZodbHistory, self).setUp()
+        provideAdapter(getIterableStorage)
+
+    def test_no_history(self):
+        history = ZodbHistory(self.conn)
+        verifyObject(IDatabaseHistory, history)
+        self.assertEquals(len(history), 1)
+        self.assertEquals(len(history.tids), 1)
+        self.assertEquals(len(list(history)), 1)
+        self.assertEquals([tr.tid for tr in history],
+                          [tr.tid for tr in history[-5:]])
+        self.assertEquals(history[10:], [])
+
+    def test_some_history(self):
+        self.commitSomeStuff()
+        history = ZodbHistory(self.conn)
+        verifyObject(IDatabaseHistory, history)
+        self.assertEquals(len(history), 7)
+        self.assertEquals(len(list(history)), 7)
+        self.assertEquals([tr.tid for tr in history][-5:],
+                          [tr.tid for tr in history[-5:]])
 

@@ -1,0 +1,12 @@
+Database History
+----------------
+
+There's experimental support for looking at the transaction log of the entire
+database.
+
+    >>> browser = Browser(url)
+    >>> browser.getLink('help').click()
+    >>> browser.getLink('latest 5 transactions').click()
+
+    >>> printCSSPath(browser, 'title')
+    <title> ZODB Transactions, page 1</title>

@@ -4,7 +4,8 @@ Changes
 0.13.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Fixed @@zodbbrowser_history with recent versions of ZODB (AttributeError:
+  MVCCAdapterInstance doesn't have attribute ``iterator``).
 
 
 0.13.0 (2016-11-24)

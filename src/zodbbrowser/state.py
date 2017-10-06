@@ -28,6 +28,7 @@ except ImportError:
     from zope.app.container.contained import ContainedProxy # BBB
 
 from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
+from zodbbrowser.history import ZodbObjectHistory
 
 
 log = logging.getLogger(__name__)
@@ -77,7 +78,8 @@ class ZodbObjectState(object):
     def __init__(self, obj, tid=None, _history=None):
         self.obj = removeAllProxies(obj)
         if _history is None:
-            _history = IObjectHistory(self.obj)
+            # Not using IObjectHistory(self.obj) because LP#1185175
+            _history = ZodbObjectHistory(self.obj)
         else:
             assert _history._obj is self.obj
         self.history = _history
