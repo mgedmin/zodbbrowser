@@ -89,8 +89,8 @@ def compareDictsHTML(new, old, tid=None, indent=''):
     """Compare two state dictionaries, return HTML."""
     html = [indent + '<div class="diff">\n']
     diff = compareDicts(new, old)
-    for key, (action, newvalue, oldvalue) in sorted(diff.items(),
-                                            key=lambda (k, v): (str(type(k)), k)):
+    for key, (action, newvalue, oldvalue) in sorted(
+            diff.items(), key=lambda kv: (str(type(kv[0])), kv[0])):
         what = action.split()[0]
         html.append(indent + '  <div class="diffitem %s">\n' % escape(what))
         if isinstance(key, basestring) and isascii(key):
