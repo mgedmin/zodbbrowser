@@ -290,9 +290,9 @@ def printResults(html, method, arg, pretty_print=True):
                 fixupWhitespace(element)
             value = tostring(element, pretty_print=pretty_print).rstrip()
         if value:
-            print value
+            print(value)
     if not results:
-        print "Not found: %s" % arg
+        print("Not found: %s" % arg)
 
 
 def stripify(s):

@@ -14,8 +14,8 @@ def pprintDict(d):
     pprint.pprint() doesn't cut it: when the dict is too short, it uses
     repr() which has no defined ordering.
     """
-    print '{%s}' % ',\n '.join('%r: %r' % (key, value)
-                               for key, value in sorted(d.items()))
+    print('{%s}' % ',\n '.join('%r: %r' % (key, value)
+                               for key, value in sorted(d.items())))
 
 
 def doctest_compareDicts():
@@ -72,7 +72,7 @@ def doctest_compareTuplesHTML():
 
         >>> old = (1, 2, 3, 5)
         >>> new = (2, 3, 4, 5)
-        >>> print compareTuplesHTML(new, old)
+        >>> print(compareTuplesHTML(new, old))
         <div class="diff">
           <div class="diffitem removed">
             removed 1
@@ -99,7 +99,7 @@ def doctest_compareTuplesHTML():
 
         >>> old = (1, 2, 3, 5, 6, 7)
         >>> new = (1, 3, 4, 5, 6, 7)
-        >>> print compareTuplesHTML(new, old)
+        >>> print(compareTuplesHTML(new, old))
         <div class="diff">
           <div class="diffitem same">
             first item kept the same
@@ -123,7 +123,7 @@ def doctest_compareTuplesHTML():
 
         >>> old = (0, 1, 2, 3, 5)
         >>> new = (0, 1, 3, 4, 6)
-        >>> print compareTuplesHTML(new, old)
+        >>> print(compareTuplesHTML(new, old))
         <div class="diff">
           <div class="diffitem same">
             first 2 items kept the same
@@ -150,7 +150,7 @@ def doctest_compareTuplesHTML():
 
         >>> old = (1, 2, 3, 5)
         >>> new = (2, 3, 4, 6)
-        >>> print compareTuplesHTML(new, old)
+        >>> print(compareTuplesHTML(new, old))
         <div class="diff">
           <div class="diffitem removed">
             removed 1
@@ -186,7 +186,7 @@ def doctest_compareDictsHTML():
 
         >>> old = dict(a=1, b=2, c=3)
         >>> new = dict(a=1, b=3, e=4)
-        >>> print compareDictsHTML(new, old)
+        >>> print(compareDictsHTML(new, old))
         <div class="diff">
           <div class="diffitem changed">
             <strong>b</strong>: changed to 3
@@ -207,7 +207,7 @@ def doctest_compareDictsHTML_recursive():
 
         >>> old = dict(a=1, b=dict(x=2, y=5), c=3, d=42, e=dict(x=42))
         >>> new = dict(a=1, b=dict(x=3, y=5), d=dict(x=42), e=42, f=dict(x=4))
-        >>> print compareDictsHTML(new, old)
+        >>> print(compareDictsHTML(new, old))
         <div class="diff">
           <div class="diffitem changed">
             <strong>b</strong>: dictionary changed:
@@ -233,7 +233,7 @@ def doctest_compareDictsHTML_recursive():
 
         >>> old = dict(a=1, b=(2, 5), c=3, d=42)
         >>> new = dict(a=1, b=(3, 5), d=(42, ), e='x')
-        >>> print compareDictsHTML(new, old)
+        >>> print(compareDictsHTML(new, old))
         <div class="diff">
           <div class="diffitem changed">
             <strong>b</strong>: tuple changed:
@@ -268,7 +268,7 @@ def doctest_compareDictsHTML_tid_is_used():
 
         >>> old = dict(a=1, b=dict(x=2, y=5))
         >>> new = dict(a=2, b=dict(x=3, y=5))
-        >>> print compareDictsHTML(new, old, tid=42)
+        >>> print(compareDictsHTML(new, old, tid=42))
         <div class="diff">
           <div class="diffitem changed">
             <strong>a</strong>: changed to 2 [tid=42]
@@ -291,7 +291,7 @@ def doctest_compareDictsHTML_html_quoting():
 
         >>> old = {}
         >>> new = {'<': 'less than'}
-        >>> print compareDictsHTML(new, old)
+        >>> print(compareDictsHTML(new, old))
         <div class="diff">
           <div class="diffitem added">
             <strong>&lt;</strong>: added 'less than'
@@ -306,7 +306,7 @@ def doctest_compareDictsHTML_nonstring_keys():
 
         >>> old = {1: 2}
         >>> new = {1: 3}
-        >>> print compareDictsHTML(new, old)
+        >>> print(compareDictsHTML(new, old))
         <div class="diff">
           <div class="diffitem changed">
             <strong>1</strong>: changed to 3
@@ -321,7 +321,7 @@ def doctest_compareDictsHTML_has_no_unicode_problems():
 
         >>> old = {u'\N{SNOWMAN}': 1, '\xFE': 2}
         >>> new = {u'\N{SNOWMAN}': 2, '\xFE': 3}
-        >>> print compareDictsHTML(new, old)
+        >>> print(compareDictsHTML(new, old))
         <div class="diff">
           <div class="diffitem changed">
             <strong>'\xfe'</strong>: changed to 3

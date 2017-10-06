@@ -124,8 +124,8 @@ def start_server(options, db):
         port = server.socket.getsockname()[1]
 
     if options.verbose:
-        print "Listening on http://%s:%d/" % (host or socket.gethostname(),
-                                              port)
+        print("Listening on http://%s:%d/"
+              % (host or socket.gethostname(), port))
 
 
 def serve_forever(interval=30.0):
