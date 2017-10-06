@@ -14,6 +14,7 @@ from zope.publisher.browser import TestRequest
 from zope.traversing.interfaces import IContainmentRoot
 from zope.security.checker import ProxyFactory
 
+from zodbbrowser.compat import long
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
 from zodbbrowser.browser import getObjectType, getObjectTypeShort
@@ -61,7 +62,7 @@ class TestZodbObjectAttribute(unittest.TestCase):
     def setUp(self):
         setup.placelessSetUp()
         provideAdapter(SimpleValueRenderer)
-        self.attribute = ZodbObjectAttribute('foo', 42L, 't565')
+        self.attribute = ZodbObjectAttribute('foo', long(42), 't565')
 
     def tearDown(self):
         setup.placelessTearDown()
@@ -80,21 +81,21 @@ class TestZodbObjectAttribute(unittest.TestCase):
 
     def test_equality(self):
         self.assertEquals(self.attribute,
-                          ZodbObjectAttribute('foo', 42L, 't565'))
+                          ZodbObjectAttribute('foo', long(42), 't565'))
 
     def test_inequality(self):
         self.assertNotEquals(self.attribute,
-                             ZodbObjectAttribute('foo', 42L, 't575'))
+                             ZodbObjectAttribute('foo', long(42), 't575'))
         self.assertNotEquals(self.attribute,
-                             ZodbObjectAttribute('foo', 43L, 't565'))
+                             ZodbObjectAttribute('foo', long(43), 't565'))
         self.assertNotEquals(self.attribute,
-                             ZodbObjectAttribute('fox', 42L, 't565'))
+                             ZodbObjectAttribute('fox', long(42), 't565'))
         self.assertNotEquals(self.attribute,
                              object())
 
     def test_not_equals(self):
         self.assertFalse(self.attribute !=
-                         ZodbObjectAttribute('foo', 42L, 't565'))
+                         ZodbObjectAttribute('foo', long(42), 't565'))
         self.assertTrue(self.attribute != object())
 
 
