@@ -128,13 +128,15 @@ class StringValue(GenericValue):
             return GenericValue.render(self, tid, can_link=can_link,
                                        limit=limit)
         else:
-            if not isinstance(self.context, bytes):
-                prefix = 'u'
-                context = self.context
-            else:
-                prefix = ''
+            if isinstance(self.context, bytes):
                 context = self.context.decode('latin-1').encode('ascii',
                                                             'backslashreplace')
+            else:
+                context = self.context
+            if isinstance(self.context, str):
+                prefix = ''
+            else:
+                prefix = 'u'
             lines = [re.sub(r'^[ \t]+',
                             lambda m: '&nbsp;' * len(m.group(0).expandtabs()),
                             escape(line))

@@ -200,6 +200,9 @@ class TestGenericValue(unittest.TestCase):
 
 class TestStringValue(unittest.TestCase):
 
+    # We don't want 'u' prefixes for unicode strings on Python 3.
+    u = 'u' if str is bytes else ''
+
     def tearDown(self):
         resetTruncations()
 
@@ -217,12 +220,12 @@ class TestStringValue(unittest.TestCase):
                          """'x"y\\'z\\\\z&lt;y&amp;'""")
 
     def test_short_string_control_char(self):
-        self.assertEqual(StringValue(b'\x17').render(),
+        self.assertEqual(StringValue('\x17').render(),
                          """'\\x17'""")
 
     def test_short_string_unicode(self):
         self.assertEqual(StringValue(u'\u1234').render(),
-                         """u'\u1234'""")
+                         self.u + "'\u1234'")
 
     def test_short_string_truncation(self):
         self.assertEqual(StringValue('a very long string').render(limit=10),
@@ -254,12 +257,13 @@ class TestStringValue(unittest.TestCase):
                          '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line4<br />'
                          'line5\'</span>')
 
+    @unittest.skipIf(bytes is not str, "Only unicode strings exist on Python 3")
     def test_long_string_non_ascii(self):
-        self.assertEqual(StringValue(b'line1\n'
-                                     b'line2\n'
-                                     b'line3 \xff\n'
-                                     b'line4\n'
-                                     b'line5\n').render(),
+        self.assertEqual(StringValue('line1\n'
+                                     'line2\n'
+                                     'line3 \xff\n'
+                                     'line4\n'
+                                     'line5\n').render(),
                          '\'<span class="struct">line1<br />'
                          'line2<br />'
                          'line3 \\xff<br />'
@@ -272,7 +276,7 @@ class TestStringValue(unittest.TestCase):
                                      u'line3 \xff\n'
                                      u'line4\n'
                                      u'line5\n').render(),
-                         u'u\'<span class="struct">line1<br />'
+                         self.u + u'\'<span class="struct">line1<br />'
                          u'line2<br />'
                          u'line3 \xff<br />'
                          u'line4<br />'
