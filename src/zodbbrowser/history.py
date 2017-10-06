@@ -120,11 +120,16 @@ class ZodbHistory(object):
     def __iter__(self):
         return self._storage.iterator()
 
-    def __getslice__(self, start, stop):
-        tids = self._tids[start:stop]
-        if not tids:
-            return []
-        return self._storage.iterator(tids[0], tids[-1])
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            assert index.step is None or index.step == 1
+            tids = self._tids[index]
+            if not tids:
+                return []
+            return self._storage.iterator(tids[0], tids[-1])
+        else:
+            tid = self._tids[index]
+            return self._storage.iterator(tid, tid).next()
 
 
 @adapter(MVCCAdapterInstance)

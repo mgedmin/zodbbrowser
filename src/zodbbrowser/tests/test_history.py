@@ -116,6 +116,7 @@ class TestZodbHistory(WorkloadMixin, RealDatabaseTest):
         self.assertEqual([tr.tid for tr in history],
                          [tr.tid for tr in history[-5:]])
         self.assertEqual(history[10:], [])
+        self.assertEqual(history[0].tid, history.tids[0])
 
     def test_some_history(self):
         self.commitSomeStuff()
