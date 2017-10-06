@@ -21,7 +21,7 @@ from zodbbrowser.browser import getObjectType, getObjectTypeShort
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 
-from realdb import RealDatabaseTest
+from .realdb import RealDatabaseTest
 
 
 @implementer(IDatabase)
