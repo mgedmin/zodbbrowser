@@ -5,8 +5,8 @@ from persistent import Persistent
 from persistent.dict import PersistentDict
 from zope.app.testing import setup
 from zope.interface.verify import verifyObject
-from zope.interface import implements, alsoProvides, Interface
-from zope.component import adapts, provideAdapter
+from zope.interface import implementer, alsoProvides, Interface
+from zope.component import adapter, provideAdapter
 
 from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
 from zodbbrowser.value import (
@@ -77,9 +77,9 @@ class PersistentThing(Persistent):
         return '<PersistentThing: %s>' % self.value
 
 
+@adapter(PersistentThing)
+@implementer(IObjectHistory)
 class FakeObjectHistory(object):
-    adapts(PersistentThing)
-    implements(IObjectHistory)
 
     def __init__(self, context):
         pass
@@ -92,9 +92,9 @@ class Struct(object):
     pass
 
 
+@adapter(Frob)
+@implementer(IValueRenderer)
 class FrobRenderer(object):
-    adapts(Frob)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context
@@ -106,9 +106,9 @@ class FrobRenderer(object):
             return '<Frob>'
 
 
+@adapter(Struct)
+@implementer(IValueRenderer)
 class StructRenderer(object):
-    adapts(Struct)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context

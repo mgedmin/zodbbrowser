@@ -26,7 +26,7 @@ from zope.app.publication.zopepublication import ZopePublication
 from zope.app.folder.folder import Folder
 from zope.app.appsetup.interfaces import DatabaseOpened
 from zope.app.appsetup.bootstrap import bootStrapSubscriber
-from zope.interface import Interface, implementsOnly
+from zope.interface import Interface, implementer_only
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
 from zodbbrowser import standalone
@@ -131,8 +131,9 @@ class IMyOwnInterface(Interface):
     pass
 
 
+@implementer_only(IMyOwnInterface)
 class PersistentSubclassThatUsesImplementsOnly(Persistent):
-    implementsOnly(IMyOwnInterface)
+    """See https://bugs.launchpad.net/zodbbrowser/+bug/1185175."""
 
 
 class TestsWithServer(object):

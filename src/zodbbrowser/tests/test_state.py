@@ -6,7 +6,7 @@ from persistent.dict import PersistentDict
 from zope.app.container.ordered import OrderedContainer
 from zope.app.container.sample import SampleContainer
 from zope.interface.verify import verifyObject
-from zope.interface import implements
+from zope.interface import implementer
 from zope.traversing.interfaces import IContainmentRoot
 from zope.component import provideAdapter
 from zope.app.testing import setup
@@ -27,8 +27,9 @@ class Frob(object):
     pass
 
 
+@implementer(IContainmentRoot)
 class Root(Persistent, SampleContainer):
-    implements(IContainmentRoot)
+    pass
 
 
 class SampleFolder(Persistent, SampleContainer):

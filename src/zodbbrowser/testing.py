@@ -1,12 +1,12 @@
-from zope.component import adapts
-from zope.interface import implements
+from zope.component import adapter
+from zope.interface import implementer
 
 from zodbbrowser.interfaces import IValueRenderer
 
 
+@adapter(None)
+@implementer(IValueRenderer)
 class SimpleValueRenderer(object):
-    adapts(None)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context

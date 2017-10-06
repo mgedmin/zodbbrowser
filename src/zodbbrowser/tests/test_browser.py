@@ -9,7 +9,7 @@ from zope.app.container.btree import BTreeContainer
 from zope.app.container.interfaces import IContained
 from zope.app.testing import setup
 from zope.component import provideAdapter, getGlobalSiteManager
-from zope.interface import implements
+from zope.interface import implementer
 from zope.publisher.browser import TestRequest
 from zope.traversing.interfaces import IContainmentRoot
 from zope.security.checker import ProxyFactory
@@ -23,8 +23,8 @@ from zodbbrowser.testing import SimpleValueRenderer
 from realdb import RealDatabaseTest
 
 
+@implementer(IDatabase)
 class DatabaseStub(object):
-    implements(IDatabase)
 
     opened = 0
 
@@ -41,16 +41,17 @@ class ConnectionStub(object):
         self.db.opened -= 1
 
 
+@implementer(IContainmentRoot)
 class RootFolderStub(BTreeContainer):
-    implements(IContainmentRoot)
+    pass
 
 
 class PersistentStub(BTreeContainer):
     pass
 
 
+@implementer(IContained)
 class NonpersistentStub(dict):
-    implements(IContained)
 
     __name__ = __parent__ = None
 

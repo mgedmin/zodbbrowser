@@ -9,9 +9,9 @@ from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
-from zope.component import adapts
+from zope.component import adapter
 from zope.interface.declarations import ProvidesClass
-from zope.interface import implements, Interface
+from zope.interface import implementer, Interface
 from zope.security.proxy import removeSecurityProxy
 
 from zodbbrowser.interfaces import IValueRenderer
@@ -46,13 +46,13 @@ def truncate(text):
     return id
 
 
+@adapter(Interface)
+@implementer(IValueRenderer)
 class GenericValue(object):
     """Default value renderer.
 
     Uses the object's __repr__, truncating if too long.
     """
-    adapts(Interface)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context
@@ -112,10 +112,10 @@ def join_with_commas(html, open, close):
     return prefix + '<br />'.join(html) + suffix
 
 
+@adapter(basestring)
+@implementer(IValueRenderer)
 class StringValue(GenericValue):
     """String renderer."""
-    adapts(basestring)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context
@@ -149,10 +149,10 @@ class StringValue(GenericValue):
                         + "'</span>")
 
 
+@adapter(tuple)
+@implementer(IValueRenderer)
 class TupleValue(object):
     """Tuple renderer."""
-    adapts(tuple)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context
@@ -172,10 +172,10 @@ class TupleValue(object):
         return result
 
 
+@adapter(list)
+@implementer(IValueRenderer)
 class ListValue(object):
     """List renderer."""
-    adapts(list)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context
@@ -190,10 +190,10 @@ class ListValue(object):
         return result
 
 
+@adapter(dict)
+@implementer(IValueRenderer)
 class DictValue(object):
     """Dict renderer."""
-    adapts(dict)
-    implements(IValueRenderer)
 
     def __init__(self, context):
         self.context = context
@@ -210,13 +210,13 @@ class DictValue(object):
             return join_with_commas(html, '{', '}')
 
 
+@adapter(Persistent)
+@implementer(IValueRenderer)
 class PersistentValue(object):
     """Persistent object renderer.
 
     Uses __repr__ and makes it a hyperlink to the actual object.
     """
-    adapts(Persistent)
-    implements(IValueRenderer)
 
     view_name = '@@zodbbrowser'
     delegate_to = GenericValue
@@ -245,13 +245,13 @@ class PersistentValue(object):
             return value
 
 
+@adapter(PersistentMapping)
 class PersistentMappingValue(PersistentValue):
-    adapts(PersistentMapping)
     delegate_to = DictValue
 
 
+@adapter(PersistentList)
 class PersistentListValue(PersistentValue):
-    adapts(PersistentList)
     delegate_to = ListValue
 
 
@@ -265,24 +265,24 @@ if PersistentMapping is PersistentDict:
     class DecoyPersistentDict(PersistentMapping):
         """Decoy to avoid ZCML errors while supporting both ZODB 3.8 and 3.9."""
 
+    @adapter(DecoyPersistentDict)
     class PersistentDictValue(PersistentValue):
         """Decoy to avoid ZCML errors while supporting both ZODB 3.8 and 3.9."""
-        adapts(DecoyPersistentDict)
         delegate_to = DictValue
 
 else:  # pragma: nocover
+    @adapter(PersistentDict)
     class PersistentDictValue(PersistentValue):
-        adapts(PersistentDict)
         delegate_to = DictValue
 
 
+@adapter(ProvidesClass)
+@implementer(IValueRenderer)
 class ProvidesValue(GenericValue):
     """zope.interface.Provides object renderer.
 
     The __repr__ of zope.interface.Provides is decidedly unhelpful.
     """
-    adapts(ProvidesClass)
-    implements(IValueRenderer)
 
     def _repr(self):
         return '<Provides: %s>' % ', '.join(i.__identifier__
