@@ -63,16 +63,16 @@ class TestZodbObjectState(RealDatabaseTest):
 
     def testZodbObjectState(self):
         state = ZodbObjectState(self.obj)
-        self.assertEquals(state.listItems(), None)
+        self.assertEqual(state.listItems(), None)
         self.assertEqual(list(state.listAttributes())[0][0],
                          '_SampleContainer__data')
-        self.assertEquals(state.getParent(), None)
-        self.assertEquals(state.getName(), None)
+        self.assertEqual(state.getParent(), None)
+        self.assertEqual(state.getName(), None)
         self.assertTrue('_SampleContainer__data' in state.asDict().keys())
 
     def testNameFromClassAttribute(self):
         state = ZodbObjectState(self.named_obj)
-        self.assertEquals(state.getName(), 'sample_folder')
+        self.assertEqual(state.getName(), 'sample_folder')
 
 
 class TestGenericState(unittest.TestCase):
@@ -88,32 +88,32 @@ class TestGenericState(unittest.TestCase):
         verifyObject(IStateInterpreter, GenericState(Frob(), {}, None))
 
     def test_getName_no_name(self):
-        self.assertEquals(GenericState(Frob(), {}, None).getName(), None)
+        self.assertEqual(GenericState(Frob(), {}, None).getName(), None)
 
     def test_getName_with_name(self):
         state = GenericState(Frob(), {'__name__': 'xyzzy'}, None)
-        self.assertEquals(state.getName(), 'xyzzy')
+        self.assertEqual(state.getName(), 'xyzzy')
 
     def test_getParent_no_parent(self):
-        self.assertEquals(GenericState(Frob(), {}, None).getParent(), None)
+        self.assertEqual(GenericState(Frob(), {}, None).getParent(), None)
 
     def test_getParent_with_parent(self):
         parent = Frob()
         state = GenericState(Frob(), {'__parent__': parent}, None)
-        self.assertEquals(state.getParent(), parent)
+        self.assertEqual(state.getParent(), parent)
 
     def test_listAttributes(self):
         state = GenericState(Frob(), {'foo': 1, 'bar': 2, 'baz': 3}, None)
-        self.assertEquals(sorted(state.listAttributes()),
-                          [('bar', 2), ('baz', 3), ('foo', 1)])
+        self.assertEqual(sorted(state.listAttributes()),
+                         [('bar', 2), ('baz', 3), ('foo', 1)])
 
     def test_listItems(self):
         state = GenericState(Frob(), {'foo': 1, 'bar': 2, 'baz': 3}, None)
-        self.assertEquals(state.listItems(), None)
+        self.assertEqual(state.listItems(), None)
 
     def test_asDict(self):
         state = GenericState(Frob(), {'foo': 1, 'bar': 2, 'baz': 3}, None)
-        self.assertEquals(state.asDict(), {'foo': 1, 'bar': 2, 'baz': 3})
+        self.assertEqual(state.asDict(), {'foo': 1, 'bar': 2, 'baz': 3})
 
 
 class TestGenericStateWithHistory(RealDatabaseTest):
@@ -135,7 +135,7 @@ class TestGenericStateWithHistory(RealDatabaseTest):
 
     def test_getParent_no_tid(self):
         state = GenericState(self.bar, {'__parent__': self.foo}, None)
-        self.assertEquals(state.getParent().__name__, 'new')
+        self.assertEqual(state.getParent().__name__, 'new')
 
     def test_getParent_old_tid(self):
         self.bar._p_activate()
@@ -145,7 +145,7 @@ class TestGenericStateWithHistory(RealDatabaseTest):
         # object to the old state, but that's (a) unnecessary --
         # ZodbObjectState.getParentState() takes care of that -- and (b)
         # very very dangerous: https://launchpad.net/zodbbrowser/+bug/487243
-        self.assertEquals(state.getParent().__name__, 'new')
+        self.assertEqual(state.getParent().__name__, 'new')
 
 
 class TestPersistentDictSate(unittest.TestCase):
@@ -154,14 +154,14 @@ class TestPersistentDictSate(unittest.TestCase):
         state = PersistentDictState(Frob(),
                                     {'data': dict(a=42, b=23, c=17)},
                                     None)
-        self.assertEquals(state.listItems(),
-                          [('a', 42), ('b', 23), ('c', 17)])
+        self.assertEqual(state.listItems(),
+                         [('a', 42), ('b', 23), ('c', 17)])
 
     def test_listItems_no_data(self):
         # shouldn't happen, but let's display what exists in the DB instead
         # of crashing
         state = PersistentDictState(Frob(), {}, None)
-        self.assertEquals(state.listItems(), [])
+        self.assertEqual(state.listItems(), [])
 
 
 class TestPersistentMappingSate(unittest.TestCase):
@@ -170,14 +170,14 @@ class TestPersistentMappingSate(unittest.TestCase):
         state = PersistentMappingState(Frob(),
                                        {'data': dict(a=42, b=23, c=17)},
                                        None)
-        self.assertEquals(state.listItems(),
-                          [('a', 42), ('b', 23), ('c', 17)])
+        self.assertEqual(state.listItems(),
+                         [('a', 42), ('b', 23), ('c', 17)])
 
     def test_listItems_no_data(self):
         # shouldn't happen, but let's display what exists in the DB instead
         # of crashing
         state = PersistentMappingState(Frob(), {}, None)
-        self.assertEquals(state.listItems(), [])
+        self.assertEqual(state.listItems(), [])
 
 
 class TestSampleContainerState(RealDatabaseTest):
@@ -200,13 +200,13 @@ class TestSampleContainerState(RealDatabaseTest):
         setup.placelessTearDown()
 
     def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()),
-                          [('bar', 2), ('foo', 1)])
+        self.assertEqual(list(self.state.listItems()),
+                         [('bar', 2), ('foo', 1)])
 
     def test_listItems_no_data(self):
         state = SampleContainerState(None, SampleFolder().__getstate__(),
                                      None)
-        self.assertEquals(list(state.listItems()), [])
+        self.assertEqual(list(state.listItems()), [])
 
 
 class TestOrderedContainerState(RealDatabaseTest):
@@ -229,18 +229,18 @@ class TestOrderedContainerState(RealDatabaseTest):
         setup.placelessTearDown()
 
     def test_listItems(self):
-        self.assertEquals(list(self.state.listItems()),
-                          [('foo', 1), ('bar', 2)])
+        self.assertEqual(list(self.state.listItems()),
+                         [('foo', 1), ('bar', 2)])
 
     def test_listItems_does_not_change_persistent_objects(self):
         self.container['baz'] = 3
         transaction.commit()
         # State still shows old history
-        self.assertEquals(list(self.state.listItems()),
-                          [('foo', 1), ('bar', 2)])
+        self.assertEqual(list(self.state.listItems()),
+                         [('foo', 1), ('bar', 2)])
         # This doesn't affect any real objects:
-        self.assertEquals(list(self.container.items()),
-                          [('foo', 1), ('bar', 2), ('baz', 3)])
+        self.assertEqual(list(self.container.items()),
+                         [('foo', 1), ('bar', 2), ('baz', 3)])
 
     def test_listItems_nonpersistent_order(self):
         # I once saw a live OrderedContainer that had a plain mutable
@@ -251,8 +251,8 @@ class TestOrderedContainerState(RealDatabaseTest):
         self.state = OrderedContainerState(self.container,
                                            self.container.__getstate__(),
                                            self.tid)
-        self.assertEquals(list(self.state.listItems()),
-                          [('foo', 1), ('bar', 2)])
+        self.assertEqual(list(self.state.listItems()),
+                         [('foo', 1), ('bar', 2)])
 
 
 class TestFallbackState(unittest.TestCase):
@@ -264,19 +264,19 @@ class TestFallbackState(unittest.TestCase):
         verifyObject(IStateInterpreter, self.state)
 
     def test_getName(self):
-        self.assertEquals(self.state.getName(), None)
+        self.assertEqual(self.state.getName(), None)
 
     def test_getParent(self):
-        self.assertEquals(self.state.getParent(), None)
+        self.assertEqual(self.state.getParent(), None)
 
     def test_listAttributes(self):
-        self.assertEquals(self.state.listAttributes(),
-                          [('pickled state', self.state.state)])
+        self.assertEqual(self.state.listAttributes(),
+                         [('pickled state', self.state.state)])
 
     def test_listItems(self):
-        self.assertEquals(self.state.listItems(), None)
+        self.assertEqual(self.state.listItems(), None)
 
     def test_asDict(self):
-        self.assertEquals(self.state.asDict(),
-                          {'pickled state': self.state.state})
+        self.assertEqual(self.state.asDict(),
+                         {'pickled state': self.state.state})
 
