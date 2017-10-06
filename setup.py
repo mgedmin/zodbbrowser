@@ -43,12 +43,15 @@ long_description = get_long_description()
 setup(
     name="zodbbrowser",
     license='ZPL 2.1',
+    author="Marius Gedminas",
+    author_email="marius@pov.lt",
     maintainer="Programmers of Vilnius",
     maintainer_email="marius@pov.lt",
     description="ZODB browser",
     long_description=long_description,
     version=version,
     url=homepage,
+    keywords='ZODB database interactive history browser',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

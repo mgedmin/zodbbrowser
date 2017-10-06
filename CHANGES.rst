@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.13.1 (unreleased)
+0.13.1 (2017-10-06)
 ~~~~~~~~~~~~~~~~~~~
 
 - Fixed @@zodbbrowser_history with recent versions of ZODB (AttributeError:
