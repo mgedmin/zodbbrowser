@@ -20,3 +20,4 @@ python
 *.pyc
 .coverage
 coverage-reports/
+build/

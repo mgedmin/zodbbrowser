@@ -48,7 +48,7 @@ coverage:
 
 .PHONY: dist
 dist:
-	$(PYTHON) setup.py sdist
+	$(PYTHON) setup.py -q sdist bdist_wheel
 
 .PHONY: checkzope2
 checkzope2: dist python/bin/python
@@ -97,7 +97,7 @@ release:
 	@test -z "`$(VCS_STATUS) 2>&1`" || { echo "Your working tree is not clean:" 1>&2; $(VCS_STATUS) 1>&2; exit 1; }
 	make distcheck
 	# I'm chicken so I won't actually do these things yet
-	@echo "Please run rm -rf dist && $(PYTHON) setup.py sdist && twine upload dist/*"
+	@echo "Please run rm -rf dist && $(PYTHON) setup.py -q sdist bdist_wheel && twine upload dist/*"
 	@echo "Please run $(VCS_TAG) `$(PYTHON) setup.py --version`"
 	@echo "Please increment the version number in $(FILE_WITH_VERSION)"
 	@echo "Please add a new empty entry in $(FILE_WITH_CHANGELOG)"
