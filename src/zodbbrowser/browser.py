@@ -412,7 +412,7 @@ class ZodbInfoView(VeryCarefulView):
         return results
 
     def _tidToTimestamp(self, tid):
-        if isinstance(tid, str) and len(tid) == 8:
+        if isinstance(tid, bytes) and len(tid) == 8:
             return str(TimeStamp(tid))
         return tid_repr(tid)
 
