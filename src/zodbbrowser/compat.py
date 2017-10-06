@@ -9,3 +9,9 @@ try:
 except NameError:
     # Python 3
     long = int
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    # Python 3
+    from io import StringIO  # noqa

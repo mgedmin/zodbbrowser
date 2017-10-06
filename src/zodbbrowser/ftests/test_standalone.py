@@ -9,7 +9,6 @@ import doctest
 import unittest
 import threading
 from cgi import escape
-from cStringIO import StringIO
 
 import transaction
 from lxml.html import fromstring, tostring
@@ -28,7 +27,7 @@ from zope.app.appsetup.bootstrap import bootStrapSubscriber
 from zope.interface import Interface, implementer_only
 
 from zodbbrowser.standalone import main, serve_forever, stop_serving
-from zodbbrowser.compat import basestring
+from zodbbrowser.compat import basestring, StringIO
 from zodbbrowser import standalone
 
 
