@@ -11,8 +11,8 @@ code, specifically, BTreeTemplate.c and BucketTemplate.c.
 """
 
 from BTrees.OOBTree import OOBTree, OOBucket
-from zope.component import adapts, getMultiAdapter
-from zope.interface import implements
+from zope.component import adapter, getMultiAdapter
+from zope.interface import implementer
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
@@ -29,9 +29,9 @@ from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.state import GenericState
 
 
+@adapter(OOBTree)
+@implementer(IObjectHistory)
 class OOBTreeHistory(ZodbObjectHistory):
-    adapts(OOBTree)
-    implements(IObjectHistory)
 
     def _load(self):
         # find all objects (tree and buckets) that have ever participated in
@@ -54,8 +54,8 @@ class OOBTreeHistory(ZodbObjectHistory):
         for h in history_of.values():
             for d in h:
                 by_tid.setdefault(d['tid'], d)
-        self._history = by_tid.values()
-        self._history.sort(key=lambda d: d['tid'], reverse=True)
+        self._history = sorted(by_tid.values(),
+                               key=lambda d: d['tid'], reverse=True)
         self._index_by_tid()
 
     def _lastRealChange(self, tid=None):
@@ -92,10 +92,10 @@ class OOBTreeHistory(ZodbObjectHistory):
                 bucket._p_changed = True
 
 
+@adapter(OOBTree, tuple, None)
+@implementer(IStateInterpreter)
 class OOBTreeState(object):
     """Non-empty OOBTrees have a complicated tuple structure."""
-    adapts(OOBTree, tuple, None)
-    implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
         self.btree = OOBTree()
@@ -140,15 +140,15 @@ class OOBTreeState(object):
         return self._dict
 
 
+@adapter(OOBTree, type(None), None)
+@implementer(IStateInterpreter)
 class EmptyOOBTreeState(OOBTreeState):
     """Empty OOBTrees pickle to None."""
-    adapts(OOBTree, type(None), None)
-    implements(IStateInterpreter)
 
 
+@adapter(Folder, dict, None)
 class FolderState(GenericState):
     """Convenient access to a Folder's items"""
-    adapts(Folder, dict, None)
 
     def listItems(self):
         data = self.state.get('data')
@@ -160,9 +160,9 @@ class FolderState(GenericState):
                                IStateInterpreter).listItems()
 
 
+@adapter(BTreeContainer, dict, None)
 class BTreeContainerState(GenericState):
     """Convenient access to a BTreeContainer's items"""
-    adapts(BTreeContainer, dict, None)
 
     def listItems(self):
         # This is not a typo; BTreeContainer really uses
@@ -176,6 +176,8 @@ class BTreeContainerState(GenericState):
                                IStateInterpreter).listItems()
 
 
+@adapter(OOBucket, tuple, None)
+@implementer(IStateInterpreter)
 class OOBucketState(GenericState):
     """A single OOBTree bucket, should you wish to look at the internals
 
@@ -203,8 +205,6 @@ class OOBucketState(GenericState):
 
     OOBucket is a mapping bucket; OOSet is a set bucket.
     """
-    adapts(OOBucket, tuple, None)
-    implements(IStateInterpreter)
 
     def getError(self):
         return None

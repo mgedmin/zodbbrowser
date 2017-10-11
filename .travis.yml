@@ -1,12 +1,18 @@
 language: python
 sudo: false
-python:
-    - 2.7
+env:
+  - TESTS_PATTERN='f?tests'
+matrix:
+  include:
+    - { python: 2.7 }
+    - { python: 3.4, env: TESTS_PATTERN='tests' }
+    - { python: 3.5, env: TESTS_PATTERN='tests' }
+    - { python: 3.6, env: TESTS_PATTERN='tests' }
 install:
     - pip install -e .
     - pip install zope.testrunner coverage coveralls
 script:
-    - coverage run -m zope.testrunner --test-path=src --tests-pattern='^f?tests$' --ignore-new-thread=Dummy
+    - coverage run -m zope.testrunner --test-path=src --tests-pattern="^${TESTS_PATTERN}$" --ignore-new-thread=Dummy
 after_success:
     - coveralls
 notifications:

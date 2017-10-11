@@ -3,8 +3,8 @@ import logging
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
-from zope.component import adapts, getMultiAdapter
-from zope.interface import implements, Interface
+from zope.component import adapter, getMultiAdapter
+from zope.interface import implementer, Interface
 from zope.interface.interfaces import IInterface
 from zope.interface.interface import InterfaceClass
 from zope.proxy import removeAllProxies
@@ -66,14 +66,14 @@ def flatten_interfaces(args):
 def Provides(cls, *interfaces):
     try:
         return real_Provides(cls, *interfaces)
-    except TypeError, e:
+    except TypeError as e:
         log.warning('Suppressing TypeError while unpickling Provides: %s', e)
         args = flatten_interfaces(interfaces)
         return real_Provides(cls, *args)
 
 
+@implementer(IStateInterpreter)
 class ZodbObjectState(object):
-    implements(IStateInterpreter)
 
     def __init__(self, obj, tid=None, _history=None):
         self.obj = removeAllProxies(obj)
@@ -94,7 +94,7 @@ class ZodbObjectState(object):
         try:
             self.pickledState = self.history.loadStatePickle(self.tid)
             loadedState = self.history.loadState(self.tid)
-        except Exception, e:
+        except Exception as e:
             self.loadError = "%s: %s" % (e.__class__.__name__, e)
             self.state = LoadErrorState(self.loadError, self.requestedTid)
         else:
@@ -145,9 +145,9 @@ class ZodbObjectState(object):
             return ZodbObjectState(parent, self.requestedTid)
 
 
+@implementer(IStateInterpreter)
 class LoadErrorState(object):
     """Placeholder for when an object's state could not be loaded"""
-    implements(IStateInterpreter)
 
     def __init__(self, error, tid):
         self.error = error
@@ -172,10 +172,10 @@ class LoadErrorState(object):
         return {}
 
 
+@adapter(Interface, dict, None)
+@implementer(IStateInterpreter)
 class GenericState(object):
     """Most persistent objects represent their state as a dict."""
-    adapts(Interface, dict, None)
-    implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
         self.state = state
@@ -200,9 +200,9 @@ class GenericState(object):
         return self.state
 
 
+@adapter(PersistentMapping, dict, None)
 class PersistentMappingState(GenericState):
     """Convenient access to a persistent mapping's items."""
-    adapts(PersistentMapping, dict, None)
 
     def listItems(self):
         return sorted(self.state.get('data', {}).items())
@@ -218,19 +218,19 @@ if PersistentMapping is PersistentDict:
     class DecoyPersistentDict(PersistentMapping):
         """Decoy to avoid ZCML errors while supporting both ZODB 3.8 and 3.9."""
 
+    @adapter(DecoyPersistentDict, dict, None)
     class PersistentDictState(PersistentMappingState):
         """Decoy to avoid ZCML errors while supporting both ZODB 3.8 and 3.9."""
-        adapts(DecoyPersistentDict, dict, None)
 
 else:  # pragma: nocover
+    @adapter(PersistentDict, dict, None)
     class PersistentDictState(PersistentMappingState):
         """Convenient access to a persistent dict's items."""
-        adapts(PersistentDict, dict, None)
 
 
+@adapter(SampleContainer, dict, None)
 class SampleContainerState(GenericState):
     """Convenient access to a SampleContainer's items"""
-    adapts(SampleContainer, dict, None)
 
     def listItems(self):
         data = self.state.get('_SampleContainer__data')
@@ -245,9 +245,9 @@ class SampleContainerState(GenericState):
                                IStateInterpreter).listItems()
 
 
+@adapter(OrderedContainer, dict, None)
 class OrderedContainerState(GenericState):
     """Convenient access to an OrderedContainer's items"""
-    adapts(OrderedContainer, dict, None)
 
     def listItems(self):
         # Now this is tricky: we want to construct a small object graph using
@@ -267,8 +267,8 @@ class OrderedContainerState(GenericState):
         return container.items()
 
 
+@adapter(ContainedProxy, tuple, None)
 class ContainedProxyState(GenericState):
-    adapts(ContainedProxy, tuple, None)
 
     def __init__(self, proxy, state, tid):
         GenericState.__init__(self, proxy, state, tid)
@@ -292,10 +292,10 @@ class ContainedProxyState(GenericState):
         return dict(self.listAttributes())
 
 
+@adapter(Interface, Interface, None)
+@implementer(IStateInterpreter)
 class FallbackState(object):
     """Fallback when we've got no idea how to interpret the state"""
-    adapts(Interface, Interface, None)
-    implements(IStateInterpreter)
 
     def __init__(self, type, state, tid):
         self.state = state

@@ -4,8 +4,8 @@ from ZODB.utils import tid_repr
 from ZODB.interfaces import IConnection, IStorageIteration
 from persistent import Persistent
 from zope.proxy import removeAllProxies
-from zope.interface import implements, implementer
-from zope.component import adapts, adapter
+from zope.interface import implementer
+from zope.component import adapter
 
 from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
 from zodbbrowser import cache
@@ -17,10 +17,9 @@ except ImportError:  # pragma: no-cover
         """Placeholder so we can register an adapter that will not be used."""
 
 
+@adapter(Persistent)
+@implementer(IObjectHistory)
 class ZodbObjectHistory(object):
-
-    adapts(Persistent)
-    implements(IObjectHistory)
 
     def __init__(self, obj):
         self._obj = removeAllProxies(obj)
@@ -102,10 +101,9 @@ class ZodbObjectHistory(object):
             self._obj._p_changed = True
 
 
+@adapter(IConnection)
+@implementer(IDatabaseHistory)
 class ZodbHistory(object):
-
-    adapts(IConnection)
-    implements(IDatabaseHistory)
 
     def __init__(self, connection):
         self._connection = connection
@@ -122,11 +120,16 @@ class ZodbHistory(object):
     def __iter__(self):
         return self._storage.iterator()
 
-    def __getslice__(self, start, stop):
-        tids = self._tids[start:stop]
-        if not tids:
-            return []
-        return self._storage.iterator(tids[0], tids[-1])
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            assert index.step is None or index.step == 1
+            tids = self._tids[index]
+            if not tids:
+                return []
+            return self._storage.iterator(tids[0], tids[-1])
+        else:
+            tid = self._tids[index]
+            return self._storage.iterator(tid, tid).next()
 
 
 @adapter(MVCCAdapterInstance)

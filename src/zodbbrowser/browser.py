@@ -6,7 +6,7 @@ from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.app.publication.zopepublication import ZopePublication, Cleanup
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.component import adapts, queryUtility
+from zope.component import adapter, queryUtility
 from zope.interface import Interface
 from zope.security.proxy import removeSecurityProxy
 from zope.cachedescriptors.property import Lazy
@@ -107,10 +107,9 @@ class VeryCarefulView(BrowserView):
                 transaction.abort()
 
 
+@adapter(Interface, IBrowserRequest)
 class ZodbInfoView(VeryCarefulView):
     """Zodb browser view"""
-
-    adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
     confirmation_template = ViewPageTemplateFile('templates/confirm_rollback.pt')
@@ -275,7 +274,7 @@ class ZodbInfoView(VeryCarefulView):
                 continue
             if not here.endswith('/'):
                 here += '/'
-            here += step.encode('utf-8')
+            here += step
             try:
                 child = obj[step]
             except Exception:
@@ -370,7 +369,7 @@ class ZodbInfoView(VeryCarefulView):
                                          _history=self.history)
                 state = interp.asDict()
                 error = interp.getError()
-            except Exception, e:
+            except Exception as e:
                 state = {}
                 error = '%s: %s' % (e.__class__.__name__, e)
             results.append(dict(state=state, error=error))
@@ -413,15 +412,14 @@ class ZodbInfoView(VeryCarefulView):
         return results
 
     def _tidToTimestamp(self, tid):
-        if isinstance(tid, str) and len(tid) == 8:
+        if isinstance(tid, bytes) and len(tid) == 8:
             return str(TimeStamp(tid))
         return tid_repr(tid)
 
 
+@adapter(Interface, IBrowserRequest)
 class ZodbHistoryView(VeryCarefulView):
     """Zodb history view"""
-
-    adapts(Interface, IBrowserRequest)
 
     template = ViewPageTemplateFile('templates/zodbhistory.pt')
 

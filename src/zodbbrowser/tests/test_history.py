@@ -25,7 +25,7 @@ class TestFileStorage(RealDatabaseTest):
         obj = self.obj
         history = ZodbObjectHistory(obj)
         verifyObject(IObjectHistory, history)
-        self.assertEquals(len(history), 1)
+        self.assertEqual(len(history), 1)
         self.assertTrue('tid' in history[0])
         self.assertTrue('time' in history[0])
         self.assertTrue('user_name' in history[0])
@@ -37,7 +37,7 @@ class TestFileStorage(RealDatabaseTest):
             obj[n] = n
             transaction.commit()
         history = ZodbObjectHistory(obj)
-        self.assertEquals(len(history), 11)
+        self.assertEqual(len(history), 11)
 
 
 class WorkloadMixin(object):
@@ -66,24 +66,24 @@ class TestLoadState(WorkloadMixin, RealDatabaseTest):
 
     def test_latest_state(self):
         state = ZodbObjectHistory(self.adam).loadState()
-        self.assertEquals(state, dict(laptop='ThinkPad T61'))
+        self.assertEqual(state, dict(laptop='ThinkPad T61'))
 
     def test_exact_state(self):
         tid = ZodbObjectHistory(self.adam)[1]['tid']
         state = ZodbObjectHistory(self.adam).loadState(tid)
-        self.assertEquals(state, dict(laptop='ThinkPad T42'))
+        self.assertEqual(state, dict(laptop='ThinkPad T42'))
 
     def test_earlier_state(self):
         tid = ZodbObjectHistory(self.eve)[0]['tid']
         state = ZodbObjectHistory(self.adam).loadState(tid)
-        self.assertEquals(state, dict(laptop='ThinkPad T23'))
+        self.assertEqual(state, dict(laptop='ThinkPad T23'))
 
     def test_error_handling(self):
         tid = ZodbObjectHistory(self.adam)[-1]['tid']
         history = ZodbObjectHistory(self.eve)
         try:
             history.loadState(tid)
-        except KeyError, e:
+        except KeyError as e:
             self.assertTrue("did not exist in or before" in str(e))
         else:
             self.fail("did not raise")
@@ -91,13 +91,13 @@ class TestLoadState(WorkloadMixin, RealDatabaseTest):
     def test_rollback_does_nothing(self):
         history = ZodbObjectHistory(self.adam)
         history.rollback(history.lastChange())
-        self.assertEquals(self.adam.laptop, 'ThinkPad T61')
+        self.assertEqual(self.adam.laptop, 'ThinkPad T61')
         self.assertFalse(self.adam._p_changed)
 
     def test_rollback(self):
         history = ZodbObjectHistory(self.adam)
         history.rollback(history[-2]['tid'])
-        self.assertEquals(self.adam.laptop, 'ThinkPad T23')
+        self.assertEqual(self.adam.laptop, 'ThinkPad T23')
         self.assertTrue(self.adam._p_changed)
 
 
@@ -110,19 +110,20 @@ class TestZodbHistory(WorkloadMixin, RealDatabaseTest):
     def test_no_history(self):
         history = ZodbHistory(self.conn)
         verifyObject(IDatabaseHistory, history)
-        self.assertEquals(len(history), 1)
-        self.assertEquals(len(history.tids), 1)
-        self.assertEquals(len(list(history)), 1)
-        self.assertEquals([tr.tid for tr in history],
-                          [tr.tid for tr in history[-5:]])
-        self.assertEquals(history[10:], [])
+        self.assertEqual(len(history), 1)
+        self.assertEqual(len(history.tids), 1)
+        self.assertEqual(len(list(history)), 1)
+        self.assertEqual([tr.tid for tr in history],
+                         [tr.tid for tr in history[-5:]])
+        self.assertEqual(history[10:], [])
+        self.assertEqual(history[0].tid, history.tids[0])
 
     def test_some_history(self):
         self.commitSomeStuff()
         history = ZodbHistory(self.conn)
         verifyObject(IDatabaseHistory, history)
-        self.assertEquals(len(history), 7)
-        self.assertEquals(len(list(history)), 7)
-        self.assertEquals([tr.tid for tr in history][-5:],
-                          [tr.tid for tr in history[-5:]])
+        self.assertEqual(len(history), 7)
+        self.assertEqual(len(list(history)), 7)
+        self.assertEqual([tr.tid for tr in history][-5:],
+                         [tr.tid for tr in history[-5:]])
 
