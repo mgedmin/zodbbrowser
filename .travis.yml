@@ -1,8 +1,10 @@
 language: python
 sudo: false
+env:
+  - TESTS_PATTERN='f?tests'
 matrix:
   include:
-    - { python: 2.7, env: TESTS_PATTERN='f?tests' }
+    - { python: 2.7 }
     - { python: 3.4, env: TESTS_PATTERN='tests' }
     - { python: 3.5, env: TESTS_PATTERN='tests' }
     - { python: 3.6, env: TESTS_PATTERN='tests' }
