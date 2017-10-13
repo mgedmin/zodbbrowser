@@ -5,21 +5,26 @@ from persistent import Persistent
 from persistent.dict import PersistentDict
 from zope.app.container.ordered import OrderedContainer
 from zope.app.container.sample import SampleContainer
-from zope.interface.verify import verifyObject
-from zope.interface import implementer
-from zope.traversing.interfaces import IContainmentRoot
-from zope.component import provideAdapter
 from zope.app.testing import setup
+from zope.component import provideAdapter
+from zope.container.contained import ContainedProxy
+from zope.interface import implementer
+from zope.interface.verify import verifyObject
+from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.history import ZodbObjectHistory
-from zodbbrowser.state import (ZodbObjectState,
-                               GenericState,
-                               PersistentDictState,
-                               PersistentMappingState,
-                               SampleContainerState,
-                               OrderedContainerState,
-                               FallbackState)
+from zodbbrowser.state import (
+    ZodbObjectState,
+    LoadErrorState,
+    GenericState,
+    PersistentDictState,
+    PersistentMappingState,
+    SampleContainerState,
+    OrderedContainerState,
+    ContainedProxyState,
+    FallbackState,
+)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 
@@ -46,6 +51,13 @@ class NamedSampleFolder(SampleFolder):
     __name__ = 'sample_folder'
 
 
+class SeriouslyBrokenName(Persistent):
+
+    @property
+    def __name__(self):
+        raise Exception('nobody expects this!')
+
+
 class TestZodbObjectState(RealDatabaseTest):
 
     def setUp(self):
@@ -55,6 +67,8 @@ class TestZodbObjectState(RealDatabaseTest):
         RealDatabaseTest.setUp(self)
         self.obj = self.conn.root()['obj'] = SampleFolder()
         self.named_obj = self.conn.root()['named_obj'] = NamedSampleFolder()
+        self.root = self.conn.root()['application'] = Root()
+        self.child = self.root['child'] = SampleFolder()
         transaction.commit()
 
     def tearDown(self):
@@ -63,16 +77,59 @@ class TestZodbObjectState(RealDatabaseTest):
 
     def testZodbObjectState(self):
         state = ZodbObjectState(self.obj)
+        self.assertEqual(state.getError(), None)
         self.assertEqual(state.listItems(), None)
         self.assertEqual(list(state.listAttributes())[0][0],
                          '_SampleContainer__data')
         self.assertEqual(state.getParent(), None)
+        self.assertEqual(state.getParentState(), None)
         self.assertEqual(state.getName(), None)
         self.assertTrue('_SampleContainer__data' in state.asDict().keys())
 
     def testNameFromClassAttribute(self):
         state = ZodbObjectState(self.named_obj)
         self.assertEqual(state.getName(), 'sample_folder')
+
+    def testRootFolder(self):
+        self.assertTrue(ZodbObjectState(self.root).isRoot())
+        self.assertFalse(ZodbObjectState(self.obj).isRoot())
+
+    def testParentState(self):
+        state = ZodbObjectState(self.child).getParentState()
+        self.assertTrue(state.isRoot())
+
+    def testNameResiliency(self):
+        obj = self.conn.root()['obj'] = SeriouslyBrokenName()
+        transaction.commit()
+        state = ZodbObjectState(obj)
+        self.assertEqual(state.getName(), None)
+
+
+class TestLoadErrorState(unittest.TestCase):
+
+    def setUp(self):
+        self.state = LoadErrorState("Failed: because", None)
+
+    def test_interface_compliance(self):
+        verifyObject(IStateInterpreter, self.state)
+
+    def test_getError(self):
+        self.assertEqual(self.state.getError(), "Failed: because")
+
+    def test_getName(self):
+        self.assertEqual(self.state.getName(), None)
+
+    def test_getParent(self):
+        self.assertEqual(self.state.getParent(), None)
+
+    def test_listAttributes(self):
+        self.assertEqual(self.state.listAttributes(), [])
+
+    def test_listItems(self):
+        self.assertEqual(self.state.listItems(), None)
+
+    def test_asDict(self):
+        self.assertEqual(self.state.asDict(), {})
 
 
 class TestGenericState(unittest.TestCase):
@@ -86,6 +143,9 @@ class TestGenericState(unittest.TestCase):
 
     def test_interface_compliance(self):
         verifyObject(IStateInterpreter, GenericState(Frob(), {}, None))
+
+    def test_getError(self):
+        self.assertEqual(GenericState(Frob(), {}, None).getError(), None)
 
     def test_getName_no_name(self):
         self.assertEqual(GenericState(Frob(), {}, None).getName(), None)
@@ -255,6 +315,53 @@ class TestOrderedContainerState(RealDatabaseTest):
                          [('foo', 1), ('bar', 2)])
 
 
+class TestContainedProxyState(unittest.TestCase):
+
+    def setUp(self):
+        self.parent = SampleFolder()
+        self.frob = Frob()
+        self.proxy = ContainedProxy(self.frob)
+        self.proxy.__parent__ = self.parent
+        self.proxy.__name__ = 'frob'
+        self.state = ContainedProxyState(
+            self.proxy, self.proxy.__getstate__(), None)
+
+    def test_interface_compliance(self):
+        verifyObject(IStateInterpreter, self.state)
+
+    def test_getError(self):
+        self.assertEqual(self.state.getError(), None)
+
+    def test_getName(self):
+        self.assertEqual(self.state.getName(), 'frob')
+
+    def test_getParent(self):
+        self.assertEqual(self.state.getParent(), self.parent)
+
+    def test_listAttributes(self):
+        self.assertEqual(
+            self.state.listAttributes(),
+            [
+                ('__name__', 'frob'),
+                ('__parent__', self.parent),
+                ('proxied_object', self.frob),
+            ]
+        )
+
+    def test_listItems(self):
+        self.assertEqual(self.state.listItems(), [])
+
+    def test_asDict(self):
+        self.assertEqual(
+            self.state.asDict(),
+            {
+                '__name__': 'frob',
+                '__parent__': self.parent,
+                'proxied_object': self.frob,
+            }
+        )
+
+
 class TestFallbackState(unittest.TestCase):
 
     def setUp(self):
@@ -262,6 +369,9 @@ class TestFallbackState(unittest.TestCase):
 
     def test_interface_compliance(self):
         verifyObject(IStateInterpreter, self.state)
+
+    def test_getError(self):
+        self.assertEqual(self.state.getError(), None)
 
     def test_getName(self):
         self.assertEqual(self.state.getName(), None)

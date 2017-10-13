@@ -43,7 +43,7 @@ def install_provides_hack():
     A common result of missing modules in sys.path is that you cannot
     unpickle objects that have been marked with directlyProvides() to
     implement interfaces that aren't currently available.  Those interfaces
-    are replaced by persistent broken placeholders, which aren classes,
+    are replaced by persistent broken placeholders, which are classes,
     not interfaces, and aren't iterable, causing TypeErrors during unpickling.
     """
     zope.interface.declarations.Provides = Provides
