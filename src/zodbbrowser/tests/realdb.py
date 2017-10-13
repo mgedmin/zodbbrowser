@@ -23,3 +23,5 @@ class RealDatabaseTest(unittest.TestCase):
         self.storage.close()
         shutil.rmtree(self.tmpdir)
 
+    def packDatabase(self):
+        self.db.pack()

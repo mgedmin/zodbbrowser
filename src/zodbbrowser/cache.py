@@ -21,11 +21,14 @@ def getStorageTids(storage, cache_for=5 * MINUTES):
     cache_dict = STORAGE_TIDS.setdefault(storage, {})
     if expired(cache_dict, cache_for):
         if cache_dict.get('tids'):
-            first = cache_dict['tids'][-1]
+            first = cache_dict['tids'][0]
             last = cache_dict['tids'][-1]
             try:
-                first_record = storage.iterator().next()
-            except StopIteration:
+                first_record = next(storage.iterator())
+            except StopIteration:  # pragma: nocover
+                # I don't think this is possible -- a database always
+                # has at least one transaction.  But, hey, maybe somebody
+                # truncated the file or something?
                 first_record = None
             if first_record and first_record.tid == first:
                 # okay, look for new transactions appended at the end
