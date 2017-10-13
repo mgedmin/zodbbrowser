@@ -81,6 +81,12 @@ FixedNotAnInterface = InterfaceClass(
     'NotAnInterface', __module__='broken zodbbrowser.nosuchmodule')
 
 
+class CrashOnUnpickling(object):
+
+    def __setstate__(self, state):
+        raise Exception('oops')
+
+
 class TestFlattenInterfaces(unittest.TestCase):
 
     def test(self):
@@ -168,6 +174,13 @@ class TestZodbObjectState(RealDatabaseTest):
         transaction.commit()
         state = ZodbObjectState(obj)
         self.assertEqual(state.getName(), None)
+
+    def testUnpickleErrorHandling(self):
+        obj = self.conn.root()['obj'] = PersistentObject()
+        obj.attribute = CrashOnUnpickling()
+        transaction.commit()
+        state = ZodbObjectState(obj)
+        self.assertEqual(state.getError(), 'Exception: oops')
 
 
 class TestLoadErrorState(unittest.TestCase):
