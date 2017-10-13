@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 import transaction
 from persistent import Persistent
@@ -8,7 +9,8 @@ from zope.app.container.sample import SampleContainer
 from zope.app.testing import setup
 from zope.component import provideAdapter
 from zope.container.contained import ContainedProxy
-from zope.interface import implementer
+from zope.interface import implementer, alsoProvides, Interface
+from zope.interface.interface import InterfaceClass
 from zope.interface.verify import verifyObject
 from zope.traversing.interfaces import IContainmentRoot
 
@@ -24,6 +26,9 @@ from zodbbrowser.state import (
     OrderedContainerState,
     ContainedProxyState,
     FallbackState,
+    install_provides_hack,
+    uninstall_provides_hack,
+    flatten_interfaces,
 )
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
@@ -56,6 +61,66 @@ class SeriouslyBrokenName(Persistent):
     @property
     def __name__(self):
         raise Exception('nobody expects this!')
+
+
+class IMyInterface(Interface):
+    __module__ = 'zodbbrowser.nosuchmodule'
+
+
+class IMyGoodInterface(Interface):
+    pass
+
+
+class NotAnInterface(object):
+    """A stand in for a ZODB Broken object"""
+    __module__ = 'zodbbrowser.nosuchmodule'
+    __name__ = 'NotAnInterface'
+
+
+FixedNotAnInterface = InterfaceClass(
+    'NotAnInterface', __module__='broken zodbbrowser.nosuchmodule')
+
+
+class TestFlattenInterfaces(unittest.TestCase):
+
+    def test(self):
+        self.assertEqual(
+            flatten_interfaces([
+                IMyGoodInterface,
+                NotAnInterface,
+                (NotAnInterface, IMyGoodInterface)
+            ]),
+            [
+                IMyGoodInterface,
+                FixedNotAnInterface,
+                FixedNotAnInterface,
+                IMyGoodInterface,
+            ]
+        )
+
+
+class TestBrokenIntefaces(RealDatabaseTest):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideAdapter(GenericState)
+        RealDatabaseTest.setUp(self)
+        self.obj = self.conn.root()['obj'] = SampleFolder()
+        alsoProvides(self.obj, IMyInterface, IMyGoodInterface)
+        sys.modules['zodbbrowser.nosuchmodule'] = sys.modules[__name__]
+        transaction.commit()
+        sys.modules.pop('zodbbrowser.nosuchmodule', None)
+        install_provides_hack()
+
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
+        sys.modules.pop('zodbbrowser.nosuchmodule', None)
+        uninstall_provides_hack()
+
+    def test(self):
+        state = ZodbObjectState(self.obj)
+        self.assertEqual(state.getError(), None)
 
 
 class TestZodbObjectState(RealDatabaseTest):

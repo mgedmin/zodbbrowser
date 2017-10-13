@@ -49,6 +49,11 @@ def install_provides_hack():
     zope.interface.declarations.Provides = Provides
 
 
+def uninstall_provides_hack():
+    """Undo the monkey-patch installed by install_provides_hack()."""
+    zope.interface.declarations.Provides = real_Provides
+
+
 def flatten_interfaces(args):
     result = []
     for a in args:
