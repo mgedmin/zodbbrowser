@@ -83,6 +83,9 @@ FixedNotAnInterface = InterfaceClass(
 
 class CrashOnUnpickling(object):
 
+    def __getstate__(self):
+        return {}
+
     def __setstate__(self, state):
         raise Exception('oops')
 
