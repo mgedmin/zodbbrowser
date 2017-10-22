@@ -369,6 +369,8 @@ def test_suite():
         # zope.container 4.0.0 made Folder objects inherit from BTreeContainer
         # this adds one new attribute that our tests don't expect to see
         (re.compile(r'<strong>_BTreeContainer__len</strong>'), ''),
+        # Python 3 has unicode strings without u prefixes
+        (re.compile(r"u('.*')"), r'\1'),
     ])
     optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
                    doctest.REPORT_NDIFF | doctest.NORMALIZE_WHITESPACE)
