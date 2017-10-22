@@ -264,7 +264,9 @@ def printResults(html, method, arg, pretty_print=True):
         # it would be nice to extract the charset from the content-type
         # header, but let's assume UTF-8, which is the only charset that
         # we use in our system
-        html = html.contents.decode('UTF-8')
+        html = html.contents
+    if isinstance(html, bytes):
+        html = html.decode('UTF-8')
     # XXX: not the most appropriate place for this.  I cannot do it with
     # a renormalizer since at that point the server URL is not yet known
     html = html.replace(TestsWithServer.url, 'http://localhost/')
@@ -278,6 +280,8 @@ def printResults(html, method, arg, pretty_print=True):
                 fixupWhitespace(element)
             value = tostring(element, pretty_print=pretty_print).rstrip()
         if value:
+            if not isinstance(value, str):
+                value = value.decode('UTF-8')
             print(value)
     if not results:
         print("Not found: %s" % arg)
