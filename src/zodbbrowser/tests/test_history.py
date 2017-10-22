@@ -30,6 +30,8 @@ class TestFileStorage(RealDatabaseTest):
         self.assertTrue('time' in history[0])
         self.assertTrue('user_name' in history[0])
         self.assertTrue('description' in history[0])
+        self.assertNotIsInstance(history[0]['user_name'], bytes)
+        self.assertNotIsInstance(history[0]['description'], bytes)
 
     def test_some_history(self):
         obj = self.obj

@@ -390,6 +390,10 @@ class ZodbInfoView(VeryCarefulView):
             except ValueError:
                 user_location = None
                 user_id = d['user_name']
+            if isinstance(user_location, bytes):
+                user_location = user_location.decode('UTF-8', 'replace')
+            if isinstance(user_id, bytes):
+                user_id = user_id.decode('UTF-8', 'replace')
             url = self.getUrl(tid=u64(d['tid']))
             current = (d['tid'] == self.state.tid and
                        self.state.requestedTid is not None)
@@ -484,6 +488,13 @@ class ZodbHistoryView(VeryCarefulView):
             except ValueError:
                 user_location = None
                 user_id = d.user
+            if isinstance(user_location, bytes):
+                user_location = user_location.decode('UTF-8', 'replace')
+            if isinstance(user_id, bytes):
+                user_id = user_id.decode('UTF-8', 'replace')
+            description = d.description
+            if isinstance(description, bytes):
+                description = description.decode('UTF-8', 'replace')
             try:
                 size = d._tend - d._tpos
             except AttributeError:
@@ -514,7 +525,7 @@ class ZodbHistoryView(VeryCarefulView):
                 local_timestamp=local_timestamp,
                 user_id=user_id,
                 user_location=user_location,
-                description=d.description,
+                description=description,
                 utid=utid,
                 current=(d.tid == requested_tid),
                 href=self.getUrl(tid=utid),

@@ -70,7 +70,12 @@ class ZodbObjectHistory(object):
     def __getitem__(self, item):
         if self._history is None:
             self._load()
-        return self._history[item]
+        d = dict(self._history[item])
+        if isinstance(d['user_name'], bytes):
+            d['user_name'] = d['user_name'].decode('UTF-8', 'replace')
+        if isinstance(d['description'], bytes):
+            d['description'] = d['description'].decode('UTF-8', 'replace')
+        return d
 
     def lastChange(self, tid=None):
         if self._history is None:
