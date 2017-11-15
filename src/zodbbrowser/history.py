@@ -1,5 +1,3 @@
-from contextlib import closing
-
 from ZODB.utils import tid_repr
 from ZODB.interfaces import IConnection, IStorageIteration
 from persistent import Persistent
@@ -102,6 +100,7 @@ class ZodbHistory(object):
         self._connection = connection
         self._storage = IStorageIteration(connection._storage)
         self._tids = cache.getStorageTids(self._storage)
+        self._iterators = []
 
     @property
     def tids(self):
@@ -110,10 +109,17 @@ class ZodbHistory(object):
     def __len__(self):
         return len(self._tids)
 
+    def _addcleanup(self, it):
+        self._iterators.append(it)
+        return it
+
+    def cleanup(self):
+        for it in self._iterators:
+            it.close()
+        self._iterators = []
+
     def __iter__(self):
-        with closing(self._storage.iterator()) as it:
-            for item in it:
-                yield item
+        return self._addcleanup(self._storage.iterator())
 
     def __getitem__(self, index):
         if isinstance(index, slice):
@@ -121,12 +127,10 @@ class ZodbHistory(object):
             tids = self._tids[index]
             if not tids:
                 return []
-            with closing(self._storage.iterator(tids[0], tids[-1])) as it:
-                return list(it)
+            return self._addcleanup(self._storage.iterator(tids[0], tids[-1]))
         else:
             tid = self._tids[index]
-            with closing(self._storage.iterator(tid, tid)) as it:
-                return next(it)
+            return next(self._addcleanup(self._storage.iterator(tid, tid)))
 
 
 @adapter(MVCCAdapterInstance)

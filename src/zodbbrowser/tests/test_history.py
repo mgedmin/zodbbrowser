@@ -111,6 +111,7 @@ class TestZodbHistory(WorkloadMixin, RealDatabaseTest):
 
     def test_no_history(self):
         history = ZodbHistory(self.conn)
+        self.addCleanup(history.cleanup)
         verifyObject(IDatabaseHistory, history)
         self.assertEqual(len(history), 1)
         self.assertEqual(len(history.tids), 1)
@@ -123,6 +124,7 @@ class TestZodbHistory(WorkloadMixin, RealDatabaseTest):
     def test_some_history(self):
         self.commitSomeStuff()
         history = ZodbHistory(self.conn)
+        self.addCleanup(history.cleanup)
         verifyObject(IDatabaseHistory, history)
         self.assertEqual(len(history), 7)
         self.assertEqual(len(list(history)), 7)

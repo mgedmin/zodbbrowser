@@ -438,6 +438,7 @@ class ZodbHistoryView(VeryCarefulView):
         if 'page_size' in self.request:
             self.page_size = max(1, int(self.request['page_size']))
         self.history = IDatabaseHistory(self.jar)
+        self.request.hold(Cleanup(self.history.cleanup))
         if 'page' in self.request:
             self.page = int(self.request['page'])
         elif 'tid' in self.request:
