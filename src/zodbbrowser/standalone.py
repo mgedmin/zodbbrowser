@@ -14,6 +14,7 @@ import optparse
 import logging
 import errno
 import traceback
+import warnings
 
 from ZEO.ClientStorage import ClientStorage
 from ZODB.DB import DB
@@ -91,7 +92,12 @@ def configure(options):
     xmlconfig.registerCommonDirectives(context)
     for feature in options.features:
         context.provideFeature(feature)
-    context = xmlconfig.string(options.site_definition, context=context)
+    with warnings.catch_warnings():
+        # zope.app.security globalmodules.zcml declares security directives for
+        # some modules deprecated in newer versions of Python.
+        warnings.filterwarnings('ignore', category=DeprecationWarning,
+                                message='^the formatter module is deprecated$')
+        context = xmlconfig.string(options.site_definition, context=context)
 
     endInteraction()
 
