@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import io
 import os
 import re
 from setuptools import setup, find_packages
@@ -16,7 +17,7 @@ def get_version_and_homepage():
 
 def read_file(*relative_filename):
     here = os.path.dirname(__file__)
-    with open(os.path.join(here, *relative_filename)) as f:
+    with io.open(os.path.join(here, *relative_filename), encoding='UTF-8') as f:
         return f.read()
 
 
