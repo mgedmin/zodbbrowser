@@ -44,14 +44,15 @@ class TestStorageTids(RealDatabaseTest):
 
     def test_getStorageTids_notices_db_packing(self):
         tids = getStorageTids(self.storage)  # prime the cache
+        time.sleep(0.001)  # hmm, will this help?
         self.packDatabase()
         tids_again = getStorageTids(self.storage, cache_for=-1)
         self.assertEqual(
             len(tids_again), 1,
             'the impossible happened: my code has a bug?  or your clock is ticking backwards?\n'
-            'tids: {tids!r}\n'
+            'tids:       {tids!r}\n'
             'tids_again: {tids_again!r}\n'
-            'should be: {should_be!r}\n'.format(
+            'should be:  {should_be!r}\n'.format(
                 tids=tids,
                 tids_again=tids_again,
                 should_be=[t.tid for t in self.storage.iterator()],
