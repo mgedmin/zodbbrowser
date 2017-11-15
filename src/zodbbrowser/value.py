@@ -2,7 +2,6 @@ import logging
 import itertools
 import collections
 import re
-from cgi import escape
 from functools import partial
 
 from ZODB.utils import u64, oid_repr
@@ -15,9 +14,8 @@ from zope.interface.declarations import ProvidesClass
 from zope.interface import implementer, Interface
 from zope.security.proxy import removeSecurityProxy
 
-from zodbbrowser.interfaces import IValueRenderer
-from zodbbrowser.interfaces import IObjectHistory
-from zodbbrowser.compat import basestring
+from zodbbrowser.compat import basestring, escape
+from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
 
 
 log = logging.getLogger(__name__)
@@ -81,9 +79,9 @@ class GenericValue(object):
         if len(text) > limit:
             id = truncate(text[limit:])
             text = '%s<span id="%s" class="truncated">...</span>' % (
-                escape(text[:limit]), id)
+                escape(text[:limit], False), id)
         else:
-            text = escape(text)
+            text = escape(text, False)
         if not isinstance(self.context, (basestring, bytes)):
             try:
                 n = len(self.context)
@@ -139,7 +137,7 @@ class StringValue(GenericValue):
                 prefix = 'u'
             lines = [re.sub(r'^[ \t]+',
                             lambda m: '&nbsp;' * len(m.group(0).expandtabs()),
-                            escape(line))
+                            escape(line, False))
                      for line in context.splitlines()]
             nl = '<br />' # hm, maybe '\\n<br />'?
             if sum(map(len, lines)) > limit:
@@ -245,7 +243,8 @@ class PersistentValue(object):
                           self.context.__class__, u64(self.context._p_oid))
         value = self.delegate_to(obj).render(tid, can_link=False)
         if can_link:
-            return '<a class="objlink" href="%s">%s</a>' % (escape(url), value)
+            return '<a class="objlink" href="%s">%s</a>' % (escape(url, True),
+                                                            value)
         else:
             return value
 

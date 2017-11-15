@@ -8,7 +8,6 @@ import shutil
 import doctest
 import unittest
 import threading
-from cgi import escape
 
 import transaction
 from lxml.html import fromstring, tostring
@@ -26,9 +25,9 @@ from zope.app.appsetup.interfaces import DatabaseOpened
 from zope.app.appsetup.bootstrap import bootStrapSubscriber
 from zope.interface import Interface, implementer_only
 
-from zodbbrowser.standalone import main, serve_forever, stop_serving
-from zodbbrowser.compat import basestring, StringIO
 from zodbbrowser import standalone
+from zodbbrowser.compat import basestring, StringIO, escape
+from zodbbrowser.standalone import main, serve_forever, stop_serving
 
 
 class InternalServerError(Exception):
@@ -319,7 +318,7 @@ def fixupWhitespace(element, indent=0, step=2, split_if_longer=38):
     element.text = stripify(element.text)
     # heuristic for splitting long elements
     should_split = (len(str(element.attrib)) > split_if_longer or
-                    len(escape(element.text)) > split_if_longer)
+                    len(escape(element.text, False)) > split_if_longer)
     if should_split and element.text:
         element.text = ('\n' + ' ' * (indent + step) + element.text.lstrip())
     if children:
