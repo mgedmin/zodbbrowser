@@ -6,6 +6,8 @@ Changes
 
 - Add support for Python 3.4, 3.5, 3.6.
 
+- Drop support for ZODB 3.8.
+
 
 0.13.1 (2017-10-06)
 ~~~~~~~~~~~~~~~~~~~
