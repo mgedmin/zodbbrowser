@@ -95,8 +95,8 @@ def configure(options):
     with warnings.catch_warnings():
         # zope.app.security globalmodules.zcml declares security directives for
         # some modules deprecated in newer versions of Python.
-        warnings.filterwarnings('ignore', category=DeprecationWarning,
-                                message='^the formatter module is deprecated$')
+        warnings.filterwarnings('ignore',
+                                message='^the formatter module is deprecated')
         context = xmlconfig.string(options.site_definition, context=context)
 
     endInteraction()
