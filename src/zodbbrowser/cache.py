@@ -4,6 +4,8 @@ Ad-hoc caching, because uncached zodbbrowser is slow and sad.
 
 import time
 import weakref
+from contextlib import closing
+
 
 MINUTES = 60
 HOURS = 60 * MINUTES
@@ -24,7 +26,8 @@ def getStorageTids(storage, cache_for=5 * MINUTES):
             first = cache_dict['tids'][0]
             last = cache_dict['tids'][-1]
             try:
-                first_record = next(storage.iterator())
+                with closing(storage.iterator()) as it:
+                    first_record = next(it)
             except StopIteration:  # pragma: nocover
                 # I don't think this is possible -- a database always
                 # has at least one transaction.  But, hey, maybe somebody
@@ -32,15 +35,18 @@ def getStorageTids(storage, cache_for=5 * MINUTES):
                 first_record = None
             if first_record and first_record.tid == first:
                 # okay, look for new transactions appended at the end
-                new = [t.tid for t in storage.iterator(start=last)]
+                with closing(storage.iterator(start=last)) as it:
+                    new = [t.tid for t in it]
                 if new and new[0] == last:
                     del new[0]
                 cache_dict['tids'].extend(new)
             else:
                 # first record changed, we must've packed the DB
-                cache_dict['tids'] = [t.tid for t in storage.iterator()]
+                with closing(storage.iterator()) as it:
+                    cache_dict['tids'] = [t.tid for t in it]
         else:
-            cache_dict['tids'] = [t.tid for t in storage.iterator()]
+            with closing(storage.iterator()) as it:
+                cache_dict['tids'] = [t.tid for t in it]
         cache_dict['last_update'] = time.time()
     return cache_dict['tids']
 

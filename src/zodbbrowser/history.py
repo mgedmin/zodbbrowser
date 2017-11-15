@@ -1,5 +1,3 @@
-import inspect
-
 from ZODB.utils import tid_repr
 from ZODB.interfaces import IConnection, IStorageIteration
 from persistent import Persistent
@@ -48,19 +46,7 @@ class ZodbObjectHistory(object):
         See the 'history' method of ZODB.interfaces.IStorage.
         """
         size = 999999999999 # "all of it"; ought to be sufficient
-        # NB: ClientStorage violates the interface by calling the last
-        # argument 'length' instead of 'size'.  To avoid problems we must
-        # use positional argument syntax here.
-        # NB: FileStorage in ZODB 3.8 has a mandatory second argument 'version'
-        # FileStorage in ZODB 3.9 doesn't accept a 'version' argument at all.
-        # This check is ugly, but I see no other options if I want to support
-        # both ZODB versions :(
-        old_zodb = 'version' in inspect.getargspec(self._storage.history)[0]
-        if old_zodb:  # pragma: nocover
-            version = None
-            self._history = self._storage.history(self._oid, version, size)
-        else:
-            self._history = self._storage.history(self._oid, size=size)
+        self._history = self._storage.history(self._oid, size=size)
         self._index_by_tid()
 
     def _index_by_tid(self):
@@ -114,6 +100,7 @@ class ZodbHistory(object):
         self._connection = connection
         self._storage = IStorageIteration(connection._storage)
         self._tids = cache.getStorageTids(self._storage)
+        self._iterators = []
 
     @property
     def tids(self):
@@ -122,8 +109,17 @@ class ZodbHistory(object):
     def __len__(self):
         return len(self._tids)
 
+    def _addcleanup(self, it):
+        self._iterators.append(it)
+        return it
+
+    def cleanup(self):
+        for it in self._iterators:
+            it.close()
+        self._iterators = []
+
     def __iter__(self):
-        return self._storage.iterator()
+        return self._addcleanup(self._storage.iterator())
 
     def __getitem__(self, index):
         if isinstance(index, slice):
@@ -131,10 +127,10 @@ class ZodbHistory(object):
             tids = self._tids[index]
             if not tids:
                 return []
-            return self._storage.iterator(tids[0], tids[-1])
+            return self._addcleanup(self._storage.iterator(tids[0], tids[-1]))
         else:
             tid = self._tids[index]
-            return self._storage.iterator(tid, tid).next()
+            return next(self._addcleanup(self._storage.iterator(tid, tid)))
 
 
 @adapter(MVCCAdapterInstance)

@@ -1,7 +1,5 @@
-from cgi import escape
-
+from zodbbrowser.compat import basestring, escape
 from zodbbrowser.interfaces import IValueRenderer
-from zodbbrowser.compat import basestring
 
 
 ADDED = 'added'
@@ -93,9 +91,11 @@ def compareDictsHTML(new, old, tid=None, indent=''):
     for key, (action, newvalue, oldvalue) in sorted(
             diff.items(), key=lambda kv: (str(type(kv[0])), kv[0])):
         what = action.split()[0]
-        html.append(indent + '  <div class="diffitem %s">\n' % escape(what))
+        html.append(indent + '  <div class="diffitem %s">\n'
+                    % escape(what, True))
         if isinstance(key, basestring) and isascii(key):
-            html.append(indent + '    <strong>%s</strong>: ' % escape(key))
+            html.append(indent + '    <strong>%s</strong>: '
+                        % escape(key, False))
         else:
             html.append(indent + '    <strong>%s</strong>: '
                         % IValueRenderer(key).render(tid))

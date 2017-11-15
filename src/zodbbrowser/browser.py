@@ -1,6 +1,5 @@
 import time
 import logging
-from cgi import escape
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.app.publication.zopepublication import ZopePublication, Cleanup
@@ -21,11 +20,12 @@ import transaction
 import simplejson
 
 from zodbbrowser import __version__, __homepage__
-from zodbbrowser.history import ZodbObjectHistory
-from zodbbrowser.interfaces import IValueRenderer
-from zodbbrowser.interfaces import IDatabaseHistory
-from zodbbrowser.state import ZodbObjectState
+from zodbbrowser.compat import escape
 from zodbbrowser.diff import compareDictsHTML
+from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IDatabaseHistory
+from zodbbrowser.interfaces import IValueRenderer
+from zodbbrowser.state import ZodbObjectState
 from zodbbrowser.value import pruneTruncations, TRUNCATIONS
 
 
@@ -342,9 +342,9 @@ class ZodbInfoView(VeryCarefulView):
         for name, url in self.getBreadcrumbs():
             if url:
                 html.append('<a href="%s">%s</a>' % (escape(url, True),
-                                                     escape(name)))
+                                                     escape(name, False)))
             else:
-                html.append(escape(name))
+                html.append(escape(name, False))
         return ''.join(html)
 
     def listAttributes(self):
@@ -438,6 +438,7 @@ class ZodbHistoryView(VeryCarefulView):
         if 'page_size' in self.request:
             self.page_size = max(1, int(self.request['page_size']))
         self.history = IDatabaseHistory(self.jar)
+        self.request.hold(Cleanup(self.history.cleanup))
         if 'page' in self.request:
             self.page = int(self.request['page'])
         elif 'tid' in self.request:
