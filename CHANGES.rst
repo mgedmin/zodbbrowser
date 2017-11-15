@@ -1,10 +1,10 @@
 Changes
 -------
 
-0.13.2 (unreleased)
+0.14.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Add support for Python 3.4, 3.5, 3.6.
 
 
 0.13.1 (2017-10-06)
