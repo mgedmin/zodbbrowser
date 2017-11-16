@@ -57,9 +57,19 @@ class GenericValue(object):
     def __init__(self, context):
         self.context = context
 
+    if hasattr(object.__repr__, '__func__'):  # pragma: nocover
+        # PyPy
+        def _has_no_repr(self, obj, _default_repr=object.__repr__.__func__):
+            obj_repr = getattr(obj.__class__, '__repr__', None)
+            return getattr(obj_repr, '__func__', None) is _default_repr
+    else:
+        def _has_no_repr(self, obj):
+            obj_repr = getattr(obj.__class__, '__repr__', None)
+            return obj_repr is object.__repr__
+
     def _repr(self):
         # hook for subclasses
-        if getattr(self.context.__class__, '__repr__', None) is object.__repr__:
+        if self._has_no_repr(self.context):
             # Special-case objects with the default __repr__ (LP#1087138)
             if isinstance(self.context, Persistent):
                 return '<%s.%s with oid %s>' % (
