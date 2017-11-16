@@ -14,8 +14,18 @@ from zope.interface.declarations import ProvidesClass
 from zope.interface import implementer, Interface
 from zope.security.proxy import removeSecurityProxy
 
+
 from zodbbrowser.compat import basestring, escape
 from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
+
+
+CLASSES_WITH_BAD_REPR = (object,)
+try:
+    from BTrees._base import Bucket, Set, Tree, TreeSet
+except ImportError:
+    pass
+else:
+    CLASSES_WITH_BAD_REPR += (Bucket, Set, Tree, TreeSet)
 
 
 log = logging.getLogger(__name__)
@@ -59,13 +69,17 @@ class GenericValue(object):
 
     if hasattr(object.__repr__, '__func__'):  # pragma: nocover
         # PyPy
-        def _has_no_repr(self, obj, _default_repr=object.__repr__.__func__):
-            obj_repr = getattr(obj.__class__, '__repr__', None)
-            return getattr(obj_repr, '__func__', None) is _default_repr
+        def _same_method(self, a, b):
+            return getattr(a, '__func__', None) is b.__func__
     else:
-        def _has_no_repr(self, obj):
-            obj_repr = getattr(obj.__class__, '__repr__', None)
-            return obj_repr is object.__repr__
+        # CPython
+        def _same_method(self, a, b):
+            return a is b
+
+    def _has_no_repr(self, obj):
+        obj_repr = getattr(obj.__class__, '__repr__', None)
+        return any(self._same_method(obj_repr, cls.__repr__)
+                   for cls in CLASSES_WITH_BAD_REPR)
 
     def _repr(self):
         # hook for subclasses
