@@ -1,6 +1,7 @@
 import unittest2 as unittest
 
 from ZODB.utils import p64
+from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from zope.app.testing import setup
@@ -188,6 +189,13 @@ class TestGenericValue(unittest.TestCase):
         self.assertEqual(GenericValue(PersistentFrobNoRepr()).render(),
                          '&lt;zodbbrowser.tests.test_value.PersistentFrobNoRepr'
                          ' with oid 0x17&gt;')
+
+    def test_override_default_repr_of_BTree(self):
+        # The pure-python implementation of BTrees (and buckets, and sets)
+        # helpfully overrides __repr__ to drop the Py suffix from class names.
+        self.assertEqual(GenericValue(OOBTree()).render(),
+                         '&lt;BTrees.OOBTree.OOBTree with oid None&gt;'
+                         ' (0 items)')
 
     def test_no_crashes(self):
         self.assertEqual(GenericValue(ExplodingRepr()).render(),

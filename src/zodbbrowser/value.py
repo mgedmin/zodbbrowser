@@ -14,8 +14,18 @@ from zope.interface.declarations import ProvidesClass
 from zope.interface import implementer, Interface
 from zope.security.proxy import removeSecurityProxy
 
+
 from zodbbrowser.compat import basestring, escape
 from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
+
+
+CLASSES_WITH_BAD_REPR = (object,)
+try:
+    from BTrees._base import Bucket, Set, Tree, TreeSet
+except ImportError:
+    pass
+else:
+    CLASSES_WITH_BAD_REPR += (Bucket, Set, Tree, TreeSet)
 
 
 log = logging.getLogger(__name__)
@@ -57,9 +67,23 @@ class GenericValue(object):
     def __init__(self, context):
         self.context = context
 
+    if hasattr(object.__repr__, '__func__'):  # pragma: nocover
+        # PyPy
+        def _same_method(self, a, b):
+            return getattr(a, '__func__', None) is b.__func__
+    else:
+        # CPython
+        def _same_method(self, a, b):
+            return a is b
+
+    def _has_no_repr(self, obj):
+        obj_repr = getattr(obj.__class__, '__repr__', None)
+        return any(self._same_method(obj_repr, cls.__repr__)
+                   for cls in CLASSES_WITH_BAD_REPR)
+
     def _repr(self):
         # hook for subclasses
-        if getattr(self.context.__class__, '__repr__', None) is object.__repr__:
+        if self._has_no_repr(self.context):
             # Special-case objects with the default __repr__ (LP#1087138)
             if isinstance(self.context, Persistent):
                 return '<%s.%s with oid %s>' % (

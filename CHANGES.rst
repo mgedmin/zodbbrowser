@@ -4,7 +4,7 @@ Changes
 0.14.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Add support for PyPy and PyPy3.
 
 
 0.14.0 (2017-11-15)

@@ -465,4 +465,4 @@ class TestHelperFunctions(unittest.TestCase):
         self.assertEqual(getObjectTypeShort(NonpersistentStub()),
                          'NonpersistentStub')
         self.assertEqual(getObjectTypeShort(ProxyFactory(NonpersistentStub())),
-                         '_Proxy - NonpersistentStub')
+                         Proxy.__name__ + ' - NonpersistentStub')
