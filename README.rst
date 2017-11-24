@@ -120,7 +120,7 @@ Authors
 ZODB Browser was developed by Tautvilas Mečinskas (tautvilas@pov.lt) and
 Marius Gedminas (marius@pov.lt) from `Programmers of Vilnius
 <https://pov.lt/>`_.  It is licenced under the `Zope Public Licence
-<http://www.zope.org/Resources/ZPL>`_.
+<https://opensource.org/licenses/ZPL-2.0>`_.
 
 Please report bugs at https://github.com/mgedmin/zodbbrowser/issues.
 
