@@ -23,7 +23,7 @@ def read_file(*relative_filename):
 
 def linkify_bugs(text):
     text = re.sub(r'\bLP#(\d+)\b',
-                  r'`\g<0> <http://pad.lv/\1>`__', text)
+                  r'`\g<0> <https://pad.lv/\1>`__', text)
     text = re.sub(r'\bGH #(\d+)\b',
                   r'`\g<0> <https://github.com/mgedmin/zodbbrowser/issues/\1>`__', text)
     return text

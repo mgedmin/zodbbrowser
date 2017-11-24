@@ -107,7 +107,7 @@ released to the Python Package Index.
 There's also `dm.historical`__ which provides access to object history from
 an interactive Python shell.
 
-__ http://pypi.python.org/pypi/dm.historical
+__ https://pypi.python.org/pypi/dm.historical
 
 If you're not interested in history or objects that cannot be reached
 through URL traversal, you can use the built-in object inspector that
@@ -119,7 +119,7 @@ Authors
 
 ZODB Browser was developed by Tautvilas Mečinskas (tautvilas@pov.lt) and
 Marius Gedminas (marius@pov.lt) from `Programmers of Vilnius
-<http://pov.lt/>`_.  It is licenced under the `Zope Public Licence
+<https://pov.lt/>`_.  It is licenced under the `Zope Public Licence
 <http://www.zope.org/Resources/ZPL>`_.
 
 Please report bugs at https://github.com/mgedmin/zodbbrowser/issues.
