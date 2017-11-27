@@ -85,6 +85,15 @@ class VeryCarefulView(BrowserView):
                 raise Exception("ZODB connection not available for this request")
             return obj._p_jar
 
+    def findClosestPersistent(self):
+        obj = removeSecurityProxy(self.context)
+        while not isinstance(obj, Persistent):
+            try:
+                obj = obj.__parent__
+            except AttributeError:
+                return None
+        return obj
+
     @property
     def readonly(self):
         return self.jar.isReadOnly()
@@ -179,15 +188,6 @@ class ZodbInfoView(VeryCarefulView):
                 obj = self.jar.get(p64(oid))
             except POSKeyError:
                 raise UserError('There is no object with OID 0x%x' % oid)
-        return obj
-
-    def findClosestPersistent(self):
-        obj = removeSecurityProxy(self.context)
-        while not isinstance(obj, Persistent):
-            try:
-                obj = obj.__parent__
-            except AttributeError:
-                return None
         return obj
 
     def getRequestedTid(self):

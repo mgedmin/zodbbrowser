@@ -3,8 +3,9 @@ import transaction
 import gc
 import json
 
-from ZODB.utils import u64, p64, tid_repr, oid_repr
 from ZODB.interfaces import IDatabase
+from ZODB.utils import u64, p64, tid_repr, oid_repr
+from persistent import Persistent
 from zope.app.container.btree import BTreeContainer
 from zope.app.container.interfaces import IContained
 from zope.app.testing import setup
@@ -16,8 +17,9 @@ from zope.security.proxy import Proxy
 from zope.security.checker import ProxyFactory
 
 from zodbbrowser.state import GenericState, ZodbObjectState
-from zodbbrowser.browser import ZodbObjectAttribute, ZodbInfoView
-from zodbbrowser.browser import getObjectType, getObjectTypeShort
+from zodbbrowser.browser import (
+    ZodbObjectAttribute, VeryCarefulView, ZodbInfoView,
+    getObjectType, getObjectTypeShort)
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 
@@ -97,6 +99,27 @@ class TestZodbObjectAttribute(unittest.TestCase):
         self.assertFalse(self.attribute !=
                          ZodbObjectAttribute('foo', 42, 't565'))
         self.assertTrue(self.attribute != object())
+
+
+class RandomThing(Persistent):
+    pass
+
+
+class SampleCarefulView(VeryCarefulView):
+    def render(self):
+        self.context.attr = 42
+        return 'hi'
+
+
+class TestVeryCarefulView(RealDatabaseTest):
+
+    def test_call_undoes_changes(self):
+        self.root = self.conn.root()
+        self.root['obj'] = obj = RandomThing()
+        transaction.commit()
+        view = SampleCarefulView(obj, None)
+        view()
+        self.assertFalse(hasattr(obj, 'attr'))
 
 
 class TestZodbInfoViewWithRealDb(RealDatabaseTest):
