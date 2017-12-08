@@ -1,13 +1,15 @@
-import os
-import gc
-import re
-import sys
-import logging
-import tempfile
-import shutil
 import doctest
-import unittest
+import gc
+import glob
+import json
+import logging
+import os
+import re
+import shutil
+import sys
+import tempfile
 import threading
+import unittest
 
 import transaction
 from lxml.html import fromstring, tostring
@@ -43,6 +45,10 @@ class Browser(_Browser):
     capture_log = 'SiteError'  # keep '' to capture everything
     log_format = '%(message)s' # '%(name)s %(levelname)s %(message)s' also useful
     log_level = logging.DEBUG
+
+    @property
+    def json(self):
+        return json.loads(self.contents)
 
     # XXX: we should also wrap Form.submit the same way
 
@@ -101,7 +107,6 @@ class ServerController(object):
             self.server_thread = None
             self.url = None
             self.port_number = None
-            # XXX: leaves zserver threads behind
             # XXX: leaves global Zope state, you'll need to run
             #      setup.placelessTearDown()
 
@@ -155,6 +160,7 @@ class TestsWithServer(object):
         cls.createTestDataForRollbacking(root_folder)
         cls.createTestDataForRollbackCanBeCancelled(root_folder)
         cls.createTestDataForImplementsOnly(root_folder)
+        cls.createTestDataForTruncation(root_folder)
         connection.close()
         db.close()
 
@@ -185,6 +191,20 @@ class TestsWithServer(object):
         # set up data that implements-only.txt expects
         root_folder['io'] = Folder()
         root_folder['io'].crash = PersistentSubclassThatUsesImplementsOnly()
+        transaction.commit()
+
+    @classmethod
+    def createTestDataForTruncation(cls, root_folder):
+        # set up data that truncation.txt expects
+        root_folder['longvalue'] = Folder()
+        root_folder['longvalue'].long_attribute = u'''
+            This is an attribute that has a rather long value.
+            Because these happen sometimes in real life, and
+            to display the entire very long string would be
+            rather painful.  So I'm adding some text here, not
+            too much, but enough for the truncation logic to kick
+            in.  Is this enough?  I hope so.
+        '''
         transaction.commit()
 
 
@@ -370,14 +390,13 @@ def test_suite():
         (re.compile(r'<strong>_BTreeContainer__len</strong>'), ''),
         # Python 3 has unicode strings without u prefixes
         (re.compile(r"u('.*')"), r'\1'),
+        (re.compile(r": u'$", re.MULTILINE), ": '"),
     ])
     optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
                    doctest.REPORT_NDIFF | doctest.NORMALIZE_WHITESPACE)
     here = os.path.dirname(__file__)
-    for filename in sorted(os.listdir(here)):
-        if not filename.endswith('.txt') or filename.startswith('.'):
-            continue
-        test = doctest.DocFileSuite(filename,
+    for filename in sorted(glob.glob(os.path.join(here, '*.txt'))):
+        test = doctest.DocFileSuite(os.path.basename(filename),
                                     setUp=setUp,
                                     checker=checker,
                                     optionflags=optionflags)

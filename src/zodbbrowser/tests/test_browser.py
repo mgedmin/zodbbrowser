@@ -401,7 +401,7 @@ class TestZodbInfoView(unittest.TestCase):
         if first != second:
             self.fail('\n%r !=\n%r' % (first, second))
 
-    def testGetJar_uses_explicit_target_db(self):
+    def test_jar_uses_explicit_target_db(self):
         stub_db = DatabaseStub()
         registry = getGlobalSiteManager()
         registry.registerUtility(stub_db, IDatabase, name='<target>')

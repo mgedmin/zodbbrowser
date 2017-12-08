@@ -1,0 +1,40 @@
+Truncation of long values
+-------------------------
+
+We look at an object
+
+    >>> browser = Browser(url)
+    >>> browser.open('@@zodbbrowser_path_to_oid?path=/longvalue')
+    >>> browser.open(browser.json['url'])
+
+and we see the values there
+
+    >>> printXPath(browser,
+    ...     '//span[@class="attr" and ./strong[text()="long_attribute"]]')
+    <span class="attr">
+      <strong>long_attribute</strong>: '
+      <span class="struct">
+        <br>
+        This is an attribute that has a rather long value.
+        <br>
+        Because these happen sometimes in real life, and
+        <br>
+        to display the entire very long string would be
+        <br>
+        rather painful.  So I'm adding some text here, not
+        <br>
+        <span id="tr1" class="truncated">...</span>'
+      </span>
+    </span>
+
+I can click on the <span class="truncated"> and JavaScript will load
+the full text, asynchronously:
+
+    >>> browser.open('@@zodbbrowser_truncated?id=tr1')
+    >>> printXPath('<div>%s</div>' % browser.contents, '.')
+    <div>
+      too much, but enough for the truncation logic to kick
+      <br>
+      in.  Is this enough?  I hope so.
+      <br>
+    </div>
