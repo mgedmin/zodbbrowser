@@ -397,24 +397,15 @@ class TestZodbInfoViewBreadcrumbs(unittest.TestCase):
 class TestZodbInfoView(unittest.TestCase):
 
     def assertEqual(self, first, second):
+        # Align the two values below each other so they're easier to compare.
         if first != second:
             self.fail('\n%r !=\n%r' % (first, second))
-
-    def addCleanUp(self, fn, *args, **kw):
-        self.cleanups.append((fn, args, kw))
-
-    def setUp(self):
-        self.cleanups = []
-
-    def tearDown(self):
-        for fn, args, kw in reversed(self.cleanups):
-            fn(*args, **kw)
 
     def testGetJar_uses_explicit_target_db(self):
         stub_db = DatabaseStub()
         registry = getGlobalSiteManager()
         registry.registerUtility(stub_db, IDatabase, name='<target>')
-        self.addCleanUp(registry.unregisterUtility,
+        self.addCleanup(registry.unregisterUtility,
                         stub_db, IDatabase, name='<target>')
         view = ZodbInfoView(object(), TestRequest())
         self.assertEqual(view.jar.db, stub_db)
