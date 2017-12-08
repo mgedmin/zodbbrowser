@@ -20,7 +20,7 @@ from zope.security.checker import ProxyFactory
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import (
     ZodbObjectAttribute, VeryCarefulView, ZodbInfoView,
-    getObjectType, getObjectTypeShort)
+    getObjectType, getObjectTypeShort, getObjectPath)
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.testing import SimpleValueRenderer
 
@@ -505,3 +505,32 @@ class TestHelperFunctions(unittest.TestCase):
                          'NonpersistentStub')
         self.assertEqual(getObjectTypeShort(ProxyFactory(NonpersistentStub())),
                          Proxy.__name__ + ' - NonpersistentStub')
+
+
+class TestHelperFunctionsWithRealDb(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.root = self.conn.root()
+        self.root['root'] = RootFolderStub()
+        self.root['root']['item'] = PersistentStub()
+        self.root['root']['item']['subitem'] = PersistentStub()
+        self.root['detached_item'] = PersistentStub()
+        self.root['named_detached_item'] = PersistentStub()
+        self.root['named_detached_item'].__name__ = 'named_detached_item'
+        transaction.commit()
+        provideAdapter(GenericState)
+
+    def test_getObjectPath(self):
+        self.assertEqual(
+            getObjectPath(self.root['root']['item']['subitem'], None),
+            '/item/subitem')
+
+    def test_getObjectPath_no_path_no_name(self):
+        oid = u64(self.root['detached_item']._p_oid)
+        self.assertEqual(getObjectPath(self.root['detached_item'], None),
+                         '0x%x' % oid)
+
+    def test_getObjectPath_no_path_to_root(self):
+        self.assertEqual(getObjectPath(self.root['named_detached_item'], None),
+                         '/.../named_detached_item')
