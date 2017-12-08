@@ -108,7 +108,16 @@ class RandomThing(Persistent):
 class SampleCarefulView(VeryCarefulView):
     def render(self):
         self.context.attr = 42
+        transaction.get().join(CustomResource())
         return 'hi'
+
+
+class CustomResource(object):
+    def __repr__(self):
+        return '<CustomResource>'
+
+    def abort(self, txn):
+        pass
 
 
 class TestVeryCarefulView(RealDatabaseTest):
