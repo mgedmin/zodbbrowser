@@ -483,6 +483,14 @@ class TestZodbInfoView(unittest.TestCase):
         view.state.listItems = lambda: None
         self.assertEqual(view.listItems(), None)
 
+    def test_loadHistoricalState(self):
+        view = ZodbInfoView(None, None)
+        view.obj = None
+        view.history = [{}]  # injected fault: KeyError('tid')
+        self.assertEqual(view._loadHistoricalState(),
+                         [{'state': {}, 'error': "KeyError: 'tid'"},
+                          {'state': {}, 'error': None}])
+
     def test_tidToTimestamp(self):
         view = ZodbInfoView(None, None)
         self.assertEqual(view._tidToTimestamp(p64(12345678912345678)),
