@@ -390,10 +390,6 @@ class ZodbInfoView(VeryCarefulView):
             except ValueError:
                 user_location = None
                 user_id = d['user_name']
-            if isinstance(user_location, bytes):
-                user_location = user_location.decode('UTF-8', 'replace')
-            if isinstance(user_id, bytes):
-                user_id = user_id.decode('UTF-8', 'replace')
             url = self.getUrl(tid=u64(d['tid']))
             current = (d['tid'] == self.state.tid and
                        self.state.requestedTid is not None)
