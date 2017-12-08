@@ -10,6 +10,7 @@ from zope.app.container.btree import BTreeContainer
 from zope.app.container.interfaces import IContained
 from zope.app.testing import setup
 from zope.component import provideAdapter, getGlobalSiteManager
+from zope.exceptions.interfaces import UserError
 from zope.interface import implementer
 from zope.publisher.browser import TestRequest
 from zope.traversing.interfaces import IContainmentRoot
@@ -203,6 +204,14 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         hex_oid = hex(oid).rstrip('L')
         view = ZodbInfoView(self.root, TestRequest(form={'oid': hex_oid}))
         self.assertEqual(view.selectObjectToView(), self.root['stub'])
+
+    def testSelectObjectToView_by_oid_bad_format(self):
+        view = ZodbInfoView(self.root, TestRequest(form={'oid': 'dunno'}))
+        self.assertRaises(UserError, view.selectObjectToView)
+
+    def testSelectObjectToView_by_oid_bad_value(self):
+        view = ZodbInfoView(self.root, TestRequest(form={'oid': '0xdeafbeef'}))
+        self.assertRaises(UserError, view.selectObjectToView)
 
     def testFindClosestPersistent(self):
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
