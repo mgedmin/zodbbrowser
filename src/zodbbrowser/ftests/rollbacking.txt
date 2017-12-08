@@ -3,10 +3,9 @@ Reverting to older versions
 
 We look at a folder
 
-    >>> import simplejson
     >>> browser = Browser(url)
     >>> browser.open('@@zodbbrowser_path_to_oid?path=/rollbacking')
-    >>> browser.open(simplejson.loads(browser.contents)['url'])
+    >>> browser.open(browser.json['url'])
 
 The 'History' section shows all the transactions that modified this object.
 

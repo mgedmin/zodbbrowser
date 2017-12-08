@@ -80,7 +80,6 @@ setup(
         "zope.security",
         "zope.traversing",
         "zope.cachedescriptors",
-        "simplejson",
         # dependencies just for the test suite
         "zope.app.container",
         "zope.app.testing",

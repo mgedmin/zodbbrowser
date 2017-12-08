@@ -1,5 +1,6 @@
-import time
+import json
 import logging
+import time
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.app.publication.zopepublication import ZopePublication, Cleanup
@@ -17,7 +18,6 @@ from ZODB.POSException import POSKeyError
 from persistent import Persistent
 from persistent.TimeStamp import TimeStamp
 import transaction
-import simplejson
 
 from zodbbrowser import __version__, __homepage__
 from zodbbrowser.compat import escape
@@ -232,7 +232,7 @@ class ZodbInfoView(VeryCarefulView):
         return u64(root._p_oid)
 
     def locate_json(self, path): # AJAX view
-        return simplejson.dumps(self.locate(path))
+        return json.dumps(self.locate(path))
 
     def truncated_ajax(self, id): # AJAX view
         return TRUNCATIONS.get(id)

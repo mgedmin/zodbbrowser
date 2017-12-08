@@ -3,10 +3,9 @@ Reverting to older versions
 
 We look at a folder
 
-    >>> import simplejson
     >>> browser = Browser(url)
     >>> browser.open('@@zodbbrowser_path_to_oid?path=/rbcbc')
-    >>> browser.open(simplejson.loads(browser.contents)['url'])
+    >>> browser.open(browser.json['url'])
 
 The latest version (i.e. the one we're looking at) has a strange attribute
 

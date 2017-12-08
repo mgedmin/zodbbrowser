@@ -3,17 +3,17 @@ Regression test: classes that use implementsOnly
 
 We look at an object
 
-    >>> import simplejson, re
     >>> browser = Browser(url)
     >>> browser.open('@@zodbbrowser_path_to_oid?path=/io')
-    >>> browser.open(simplejson.loads(browser.contents)['url'])
+    >>> browser.open(browser.json['url'])
 
     >>> #browser.getLink('PersistentSubclassThatUsesImplementsOnly').click()
     >>> #import pdb, webbrowser; webbrowser.open(browser.url); pdb.set_trace()
 
-There's no link to the right object because of a bug (LP#1185175), so
+There's no link to the right object because of a bug (LP: #1185175), so
 we scrape out the OID manually
 
+    >>> import re
     >>> oid = re.findall('PersistentSubclassThatUsesImplementsOnly with oid (0x[0-9a-f]+)', browser.contents)[0]
     >>> browser.open('@@zodbbrowser?oid=%s' % oid)
 

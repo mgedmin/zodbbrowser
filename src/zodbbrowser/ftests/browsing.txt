@@ -31,9 +31,8 @@ type object paths to navigate to them.  This requires JavaScript, which is
 not available for our functional tests, so we simulate that by performing
 the AJAX request directly.
 
-    >>> import simplejson
     >>> browser.open('@@zodbbrowser_path_to_oid?path=/browsing')
-    >>> browser.open(simplejson.loads(browser.contents)['url'])
+    >>> browser.open(browser.json['url'])
     >>> printCSSPath(browser, 'h1#path')
     <h1 id="path">
       <span class="breadcrumbs">
