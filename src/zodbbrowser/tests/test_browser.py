@@ -258,6 +258,13 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
                           "error": "Not found: /stub/nonexistent",
                           "partial_oid": 1})
 
+    def testLocateNoLeadingSlash(self):
+        view = self._zodbInfoView(self.root, TestRequest())
+        jsonResult = json.loads(view.locate_json('stub'))
+        self.assertEqual(jsonResult,
+                         {"url": "@@zodbbrowser?oid=0x1",
+                          "oid": 1})
+
     def testLocateStartWithOID(self):
         view = self._zodbInfoView(self.root, TestRequest())
         jsonResult = json.loads(view.locate_json('0'))
