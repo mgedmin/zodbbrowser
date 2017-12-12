@@ -19,9 +19,9 @@ from zope.security.checker import ProxyFactory
 
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import (
-    ZodbObjectAttribute, VeryCarefulView, ZodbInfoView,
+    ZodbObjectAttribute, VeryCarefulView, ZodbInfoView, ZodbHistoryView,
     getObjectType, getObjectTypeShort, getObjectPath)
-from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.history import ZodbObjectHistory, ZodbHistory, getIterableStorage
 from zodbbrowser.testing import SimpleValueRenderer
 
 from .realdb import RealDatabaseTest
@@ -497,6 +497,47 @@ class TestZodbInfoView(unittest.TestCase):
                          '1905-05-13 03:32:22.050327')
         self.assertEqual(view._tidToTimestamp('something else'),
                          "'something else'")
+
+
+class TestZodbHistoryView(RealDatabaseTest):
+
+    def setUp(self):
+        RealDatabaseTest.setUp(self)
+        self.root = self.conn.root()
+        provideAdapter(ZodbHistory)
+        provideAdapter(getIterableStorage)
+
+    def _makeView(self, **kw):
+        request = TestRequest(**kw)
+        view = ZodbHistoryView(self.root, request)
+        view.template = lambda: ''
+        return view
+
+    def test_render(self):
+        view = self._makeView()
+        view.render()
+        self.assertEqual(view.page_size, 5)
+        self.assertEqual(view.page, 0)
+        self.assertEqual(view.last_page, 0)
+        self.assertEqual(view.last_idx, 1)
+        self.assertEqual(view.first_idx, 0)
+
+    def test_render_custom_page(self):
+        view = self._makeView(form={'page_size': 2, 'page': 3})
+        view.render()
+        self.assertEqual(view.page_size, 2)
+        self.assertEqual(view.page, 0)
+        self.assertEqual(view.last_page, 0)
+        self.assertEqual(view.last_idx, 1)
+        self.assertEqual(view.first_idx, 0)
+
+    def test_render_bad_tid(self):
+        view = self._makeView(form={'tid': '123454321'})
+        view.render()
+        self.assertEqual(view.page, 0)
+        self.assertEqual(view.last_page, 0)
+        self.assertEqual(view.last_idx, 1)
+        self.assertEqual(view.first_idx, 0)
 
 
 class TestHelperFunctions(unittest.TestCase):
