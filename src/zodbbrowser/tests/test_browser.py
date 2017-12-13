@@ -539,6 +539,18 @@ class TestZodbHistoryView(RealDatabaseTest):
         self.assertEqual(view.last_idx, 1)
         self.assertEqual(view.first_idx, 0)
 
+    def test_getUrl(self):
+        view = self._makeView()
+        self.assertEqual(view.getUrl(), '@@zodbbrowser_history')
+        self.assertEqual(view.getUrl(tid=0x456),
+                         '@@zodbbrowser_history?tid=0x456')
+
+    def test_getUrl_preserves_tid(self):
+        view = self._makeView(form={'tid': '123'})
+        self.assertEqual(view.getUrl(), '@@zodbbrowser_history?tid=123')
+        self.assertEqual(view.getUrl(tid=0x456),
+                         '@@zodbbrowser_history?tid=0x456')
+
 
 class TestHelperFunctions(unittest.TestCase):
 
