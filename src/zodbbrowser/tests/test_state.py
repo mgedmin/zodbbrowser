@@ -135,6 +135,9 @@ class TestBrokenIntefaces(RealDatabaseTest):
 
 class TestZodbObjectState(RealDatabaseTest):
 
+    if not hasattr(unittest.TestCase, 'assertRegex'):
+        assertRegex = unittest.TestCase.assertRegexpMatches
+
     def setUp(self):
         setup.placelessSetUp()
         provideAdapter(GenericState)
