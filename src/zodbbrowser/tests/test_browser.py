@@ -17,11 +17,12 @@ from zope.traversing.interfaces import IContainmentRoot
 from zope.security.proxy import Proxy
 from zope.security.checker import ProxyFactory
 
-from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.browser import (
     ZodbObjectAttribute, VeryCarefulView, ZodbInfoView, ZodbHistoryView,
     getObjectType, getObjectTypeShort, getObjectPath)
+from zodbbrowser.btreesupport import EmptyOOBTreeState
 from zodbbrowser.history import ZodbObjectHistory, ZodbHistory, getIterableStorage
+from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.testing import SimpleValueRenderer
 
 from .realdb import RealDatabaseTest
@@ -512,9 +513,14 @@ class TestZodbHistoryView(RealDatabaseTest):
     def setUp(self):
         RealDatabaseTest.setUp(self)
         self.root = self.conn.root()
+        self.root['root'] = RootFolderStub()
+        transaction.get().note(u'test setup')
+        transaction.get().setUser(u'system')
+        transaction.commit()
         provideAdapter(ZodbHistory)
         provideAdapter(getIterableStorage)
         provideAdapter(GenericState)
+        provideAdapter(EmptyOOBTreeState)
         provideAdapter(SimpleValueRenderer)
 
     def _makeView(self, **kw):
@@ -529,7 +535,7 @@ class TestZodbHistoryView(RealDatabaseTest):
         self.assertEqual(view.page_size, 5)
         self.assertEqual(view.page, 0)
         self.assertEqual(view.last_page, 0)
-        self.assertEqual(view.last_idx, 1)
+        self.assertEqual(view.last_idx, 2)
         self.assertEqual(view.first_idx, 0)
 
     def test_render_custom_page(self):
@@ -538,7 +544,7 @@ class TestZodbHistoryView(RealDatabaseTest):
         self.assertEqual(view.page_size, 2)
         self.assertEqual(view.page, 0)
         self.assertEqual(view.last_page, 0)
-        self.assertEqual(view.last_idx, 1)
+        self.assertEqual(view.last_idx, 2)
         self.assertEqual(view.first_idx, 0)
 
     def test_render_bad_tid(self):
@@ -546,7 +552,7 @@ class TestZodbHistoryView(RealDatabaseTest):
         view.render()
         self.assertEqual(view.page, 0)
         self.assertEqual(view.last_page, 0)
-        self.assertEqual(view.last_idx, 1)
+        self.assertEqual(view.last_idx, 2)
         self.assertEqual(view.first_idx, 0)
 
     def test_getUrl(self):
@@ -580,7 +586,10 @@ class TestZodbHistoryView(RealDatabaseTest):
     def test_listHistory(self):
         view = self._makeView(form={'tid': '123'})
         view.update()
-        view.listHistory()
+        prepared_history = view.listHistory()
+        self.assertEqual(prepared_history[0]['description'], 'test setup')
+        self.assertEqual(prepared_history[0]['user_id'], 'system')
+        self.assertEqual(prepared_history[0]['user_location'], '/')
 
 
 class TestHelperFunctions(unittest.TestCase):
