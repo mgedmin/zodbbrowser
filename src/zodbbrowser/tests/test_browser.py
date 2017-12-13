@@ -507,6 +507,24 @@ class HistoryStub(object):
     def __len__(self):
         return len(self.tids)
 
+    def __getitem__(self, idx):
+        if isinstance(idx, slice):
+            return [TransactionRecordStub()
+                    for n in range(*idx.indices(len(self)))]
+        else:
+            return TransactionRecordStub()
+
+
+class TransactionRecordStub(object):
+    tid = p64(0x1234)
+    status = ' '
+    user = b'system /'
+    description = b'stuff changed'
+    extension = {}
+
+    def __iter__(self):
+        return iter(())
+
 
 class TestZodbHistoryView(RealDatabaseTest):
 
@@ -590,6 +608,15 @@ class TestZodbHistoryView(RealDatabaseTest):
         self.assertEqual(prepared_history[0]['description'], 'test setup')
         self.assertEqual(prepared_history[0]['user_id'], 'system')
         self.assertEqual(prepared_history[0]['user_location'], '/')
+
+    def test_listHistory_no_transaction_size(self):
+        view = self._makeView()
+        view.history = HistoryStub(tids=[0x1234])
+        view.first_idx = 0
+        view.last_idx = 1
+        view.page = 0
+        prepared_history = view.listHistory()
+        self.assertEqual(prepared_history[0]['size'], None)
 
 
 class TestHelperFunctions(unittest.TestCase):
