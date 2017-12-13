@@ -190,7 +190,7 @@ class TestZodbObjectState(RealDatabaseTest):
         obj = self.conn.root()['obj'] = Length()
         transaction.commit()
         state = ZodbObjectState(obj)
-        self.assertRegexpMatches(state.getError(), '^ComponentLookupError: ')
+        self.assertRegex(state.getError(), '^ComponentLookupError: ')
 
 
 class TestLoadErrorState(unittest.TestCase):
