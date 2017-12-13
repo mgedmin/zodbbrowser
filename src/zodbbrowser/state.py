@@ -99,13 +99,12 @@ class ZodbObjectState(object):
         try:
             self.pickledState = self.history.loadStatePickle(self.tid)
             loadedState = self.history.loadState(self.tid)
-        except Exception as e:
-            self.loadError = "%s: %s" % (e.__class__.__name__, e)
-            self.state = LoadErrorState(self.loadError, self.requestedTid)
-        else:
             self.state = getMultiAdapter((self.obj, loadedState,
                                          self.requestedTid),
                                          IStateInterpreter)
+        except Exception as e:
+            self.loadError = "%s: %s" % (e.__class__.__name__, e)
+            self.state = LoadErrorState(self.loadError, self.requestedTid)
 
     def getError(self):
         return self.loadError

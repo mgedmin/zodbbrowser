@@ -2,6 +2,7 @@ import unittest
 import sys
 
 import transaction
+from BTrees.Length import Length
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from zope.app.container.ordered import OrderedContainer
@@ -184,6 +185,12 @@ class TestZodbObjectState(RealDatabaseTest):
         transaction.commit()
         state = ZodbObjectState(obj)
         self.assertEqual(state.getError(), 'Exception: oops')
+
+    def testAdapterLookupErrorHandling(self):
+        obj = self.conn.root()['obj'] = Length()
+        transaction.commit()
+        state = ZodbObjectState(obj)
+        self.assertRegexpMatches(state.getError(), '^ComponentLookupError: ')
 
 
 class TestLoadErrorState(unittest.TestCase):
