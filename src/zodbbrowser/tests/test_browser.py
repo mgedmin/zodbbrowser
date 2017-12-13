@@ -514,6 +514,8 @@ class TestZodbHistoryView(RealDatabaseTest):
         self.root = self.conn.root()
         provideAdapter(ZodbHistory)
         provideAdapter(getIterableStorage)
+        provideAdapter(GenericState)
+        provideAdapter(SimpleValueRenderer)
 
     def _makeView(self, **kw):
         request = TestRequest(**kw)
@@ -574,6 +576,11 @@ class TestZodbHistoryView(RealDatabaseTest):
         self.assertEqual(view.findPage(1040), 19)
         self.assertEqual(view.findPage(1000), 19)
         self.assertEqual(view.findPage(1337), 0)
+
+    def test_listHistory(self):
+        view = self._makeView(form={'tid': '123'})
+        view.update()
+        view.listHistory()
 
 
 class TestHelperFunctions(unittest.TestCase):

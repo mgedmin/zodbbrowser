@@ -428,7 +428,7 @@ class ZodbHistoryView(VeryCarefulView):
 
     page_size = 5
 
-    def render(self):
+    def update(self):
         self._started = time.time()
         pruneTruncations()
         if 'page_size' in self.request:
@@ -447,6 +447,9 @@ class ZodbHistoryView(VeryCarefulView):
             self.page = self.last_page
         self.last_idx = max(0, len(self.history) - self.page * self.page_size)
         self.first_idx = max(0, self.last_idx - self.page_size)
+
+    def render(self):
+        self.update()
         return self.template()
 
     def renderingTime(self):
