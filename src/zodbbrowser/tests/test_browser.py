@@ -499,6 +499,14 @@ class TestZodbInfoView(unittest.TestCase):
                          "'something else'")
 
 
+class HistoryStub(object):
+    def __init__(self, tids=()):
+        self.tids = list(tids)
+
+    def __len__(self):
+        return len(self.tids)
+
+
 class TestZodbHistoryView(RealDatabaseTest):
 
     def setUp(self):
@@ -550,6 +558,22 @@ class TestZodbHistoryView(RealDatabaseTest):
         self.assertEqual(view.getUrl(), '@@zodbbrowser_history?tid=123')
         self.assertEqual(view.getUrl(tid=0x456),
                          '@@zodbbrowser_history?tid=0x456')
+
+    def test_findPage(self):
+        view = self._makeView()
+        view.history = HistoryStub(tids=range(1000, 2000, 10))
+        # page 0: [1990, 1980, 1970, 1960, 1950]
+        # page 1: [1940, 1930, 1920, 1910, 1900]
+        # ...
+        # page 18: [1090, 1080, 1070, 1060, 1050]
+        # page 19: [1040, 1030, 1020, 1010, 1000]
+        self.assertEqual(view.findPage(1990), 0)
+        self.assertEqual(view.findPage(1950), 0)
+        self.assertEqual(view.findPage(1940), 1)
+        self.assertEqual(view.findPage(1050), 18)
+        self.assertEqual(view.findPage(1040), 19)
+        self.assertEqual(view.findPage(1000), 19)
+        self.assertEqual(view.findPage(1337), 0)
 
 
 class TestHelperFunctions(unittest.TestCase):
