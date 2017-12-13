@@ -516,7 +516,7 @@ class HistoryStub(object):
 
 
 class TransactionRecordStub(object):
-    tid = p64(0x1234)
+    tid = p64(0x3c41adbde3708aa)
     status = ' '
     user = b'system /'
     description = b'stuff changed'
