@@ -463,14 +463,14 @@ class TestPersistentValue(unittest.TestCase):
         renderer = PersistentValue(PersistentThing('new'))
         self.assertEqual(
             renderer.render(tid=p64(42)),
-            '<a class="objlink" href="@@zodbbrowser?oid=0x1d&amp;tid=42">'
+            '<a class="objlink" href="@@zodbbrowser?oid=0x1d&amp;tid=0x2a">'
             '&lt;PersistentThing: old&gt;</a>')
 
     def test_tid_is_preserved(self):
         renderer = PersistentValue(PersistentFrob())
         self.assertEqual(
             renderer.render(tid=p64(42)),
-            '<a class="objlink" href="@@zodbbrowser?oid=0x17&amp;tid=42">'
+            '<a class="objlink" href="@@zodbbrowser?oid=0x17&amp;tid=0x2a">'
             '&lt;PersistentFrob&gt;</a>')
 
     def test_rendering_no_nested_links(self):

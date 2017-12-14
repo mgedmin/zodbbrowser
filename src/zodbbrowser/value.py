@@ -255,7 +255,7 @@ class PersistentValue(object):
         obj = self.context
         url = '%s?oid=0x%x' % (self.view_name, u64(self.context._p_oid))
         if tid is not None:
-            url += "&tid=%d" % u64(tid)
+            url += "&tid=0x%x" % u64(tid)
             try:
                 oldstate = IObjectHistory(self.context).loadState(tid)
                 clone = self.context.__class__.__new__(self.context.__class__)
