@@ -30,6 +30,7 @@ from zope.interface import Interface, implementer_only
 from zodbbrowser import standalone
 from zodbbrowser.compat import basestring, StringIO, escape
 from zodbbrowser.standalone import main, serve_forever, stop_serving
+from zodbbrowser.value import resetTruncations
 
 
 class InternalServerError(Exception):
@@ -371,6 +372,7 @@ def fixupWhitespace(element, indent=0, step=2, split_if_longer=38):
 
 
 def setUp(test):
+    resetTruncations()
     test.globs['Browser'] = Browser
     test.globs['printXPath'] = printXPath
     test.globs['printCSSPath'] = printCSSPath
