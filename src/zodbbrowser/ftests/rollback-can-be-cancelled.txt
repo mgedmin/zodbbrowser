@@ -30,7 +30,9 @@ The latest version (i.e. the one we're looking at) has a strange attribute
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">
+          createTestDataForRollbackCanBeCancelled (2)
+        </span>
       </a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
@@ -42,7 +44,9 @@ The latest version (i.e. the one we're looking at) has a strange attribute
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">
+          createTestDataForRollbackCanBeCancelled (1)
+        </span>
       </a>
     </h4>
 
@@ -89,7 +93,9 @@ and here we are, unchanged:
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">
+          createTestDataForRollbackCanBeCancelled (2)
+        </span>
       </a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
@@ -101,7 +107,9 @@ and here we are, unchanged:
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">
+          createTestDataForRollbackCanBeCancelled (1)
+        </span>
       </a>
     </h4>
 

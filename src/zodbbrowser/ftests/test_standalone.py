@@ -154,6 +154,8 @@ class TestsWithServer(object):
         connection = db.open()
         root = connection.root()
         root_folder = root[ZopePublication.root_name]
+        transaction.get().note(u"setUp creating root folder")
+        transaction.commit()
         # This is not a great way to set up test fixtures, but it'll do
         # for now
         cls.createTestDataForBrowsing(root_folder)
@@ -168,22 +170,27 @@ class TestsWithServer(object):
     def createTestDataForBrowsing(cls, root_folder):
         # set up data that browsing.txt expects
         root_folder['browsing'] = Folder()
+        transaction.get().note(u"createTestDataForBrowsing")
         transaction.commit()
 
     @classmethod
     def createTestDataForRollbacking(cls, root_folder):
         # set up data that rollbacking.txt expects
         root_folder['rollbacking'] = Folder()
+        transaction.get().note(u"createTestDataForRollbacking (1)")
         transaction.commit()
         root_folder['rollbacking'].random_attribute = 'hey'
+        transaction.get().note(u"createTestDataForRollbacking (2)")
         transaction.commit()
 
     @classmethod
     def createTestDataForRollbackCanBeCancelled(cls, root_folder):
         # set up data that rollback-can-be-cancelled.txt expects
         root_folder['rbcbc'] = Folder()
+        transaction.get().note(u"createTestDataForRollbackCanBeCancelled (1)")
         transaction.commit()
         root_folder['rbcbc'].random_attribute = 'hey'
+        transaction.get().note(u"createTestDataForRollbackCanBeCancelled (2)")
         transaction.commit()
 
     @classmethod
@@ -191,6 +198,7 @@ class TestsWithServer(object):
         # set up data that implements-only.txt expects
         root_folder['io'] = Folder()
         root_folder['io'].crash = PersistentSubclassThatUsesImplementsOnly()
+        transaction.get().note(u"createTestDataForImplementsOnly")
         transaction.commit()
 
     @classmethod
@@ -205,6 +213,7 @@ class TestsWithServer(object):
             too much, but enough for the truncation logic to kick
             in.  Is this enough?  I hope so.
         '''
+        transaction.get().note(u"createTestDataForTruncation")
         transaction.commit()
 
 

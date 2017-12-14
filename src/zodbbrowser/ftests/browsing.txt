@@ -140,7 +140,7 @@ This is a fresh database, so it has only one transaction:
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">createTestDataForBrowsing</span>
       </a>
     </h4>
 

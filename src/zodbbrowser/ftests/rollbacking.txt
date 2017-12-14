@@ -24,7 +24,7 @@ The 'History' section shows all the transactions that modified this object.
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">createTestDataForRollbacking (2)</span>
       </a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
@@ -36,7 +36,7 @@ The 'History' section shows all the transactions that modified this object.
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">createTestDataForRollbacking (1)</span>
       </a>
     </h4>
 
@@ -108,7 +108,7 @@ and here we are:
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">createTestDataForRollbacking (2)</span>
       </a>
     </h4>
     <h4 class="transaction" id="tidXXXXXXXXXXXXXXXXXX">
@@ -120,7 +120,7 @@ and here we are:
         <span class="timestamp" title="UTC">YYYY-MM-DD HH:MM:SS</span>
         <span class="user" title="user from site None"></span>
         <span class="location" title="request type None"></span>
-        <span class="description"></span>
+        <span class="description">createTestDataForRollbacking (1)</span>
       </a>
     </h4>
 
