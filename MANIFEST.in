@@ -9,3 +9,6 @@ include *.yml
 include .coveragerc
 include LICENSE
 recursive-include src *.zcml *.pt *.js *.css *.png *.txt
+
+# added by check_manifest.py
+include *.mk
