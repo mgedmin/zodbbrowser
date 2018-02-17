@@ -103,10 +103,12 @@ setup(
         "zope.hookable",
         "RestrictedPython",
         ],
-    # extras for backwards compatibility only, not to break
-    # people's setups if they depend on zodbbrowser[app]
     extras_require=dict(
-        test=[],
+        test=[
+            'mock',
+        ],
+        # extras for backwards compatibility only, not to break
+        # people's setups if they depend on zodbbrowser[app]
         app=[],
     ),
     entry_points={
