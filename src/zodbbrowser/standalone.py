@@ -33,6 +33,10 @@ from zodbbrowser.state import install_provides_hack
 
 
 class Options(object):
+    db_filename = None
+    zeo_address = None
+    zeo_storage = '1'
+    readonly = True
     listen_on = ('localhost', 8070)
     server_type = 'WSGI-HTTP'
     verbose = True
@@ -156,9 +160,7 @@ def monkeypatch_error_formatting():
     traceback.print_exception = exceptionformatter.print_exception
 
 
-def main(args=None, start_serving=True):
-    logging.basicConfig(format="%(message)s")
-
+def parse_args(args=None):
     if args is None:
         args = sys.argv[1:]
 
@@ -214,8 +216,7 @@ def main(args=None, start_serving=True):
     monkeypatch_error_formatting()
 
     if opts.db:
-        filename = opts.db
-        db = DB(FileStorage(filename, read_only=opts.readonly))
+        options.db_filename = opts.db
     elif opts.zeo:
         if ':' in opts.zeo:
             # remote hostname:port ZEO connection
@@ -240,9 +241,32 @@ def main(args=None, start_serving=True):
             zeo_storage = opts.storage
         else:
             zeo_storage = '1'
-        db = DB(ClientStorage(zeo_address, storage=zeo_storage, read_only=opts.readonly))
+        options.zeo_address = zeo_address
+        options.zeo_storage = zeo_storage
     else:
         parser.error('please specify a database')
+
+    options.readonly = opts.readonly
+
+    return options
+
+
+def open_db(options):
+    if options.db_filename:
+        storage = FileStorage(options.db_filename, read_only=options.readonly)
+    else:
+        storage = ClientStorage(options.zeo_address,
+                                storage=options.zeo_storage,
+                                read_only=options.readonly)
+    return DB(storage)
+
+
+def main(args=None, start_serving=True):
+    logging.basicConfig(format="%(message)s")
+
+    options = parse_args(args)
+
+    db = open_db(options)
 
     internal_db = DB(MappingStorage())
 
