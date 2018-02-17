@@ -70,6 +70,8 @@ class TestParseArgs(unittest.TestCase):
         sock.listen(0)
         return sockfilename
 
+    @unittest.skipUnless(hasattr(socket, 'AF_UNIX'),
+                         "No UNIX domain sockets on this platform")
     def test_zeo_socket(self):
         sockfilename = self.make_socket()
         options = parse_args(['--zeo', sockfilename])
