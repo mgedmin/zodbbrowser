@@ -6,7 +6,7 @@ import unittest
 
 import mock
 
-from zodbbrowser.standalone import parse_args
+from zodbbrowser.standalone import parse_args, serve_forever
 
 
 class TestParseArgs(unittest.TestCase):
@@ -80,3 +80,11 @@ class TestParseArgs(unittest.TestCase):
     def test_bad_zeo_socket(self):
         with self.assertRaises(SystemExit), mock.patch('sys.stderr'):
             parse_args(['--zeo', __file__])
+
+
+class TestServeForever(unittest.TestCase):
+
+    @mock.patch('asyncore.socket_map', {42: None})
+    @mock.patch('asyncore.poll', mock.Mock(side_effect=KeyboardInterrupt))
+    def test(self):
+        serve_forever()
