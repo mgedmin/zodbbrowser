@@ -12,6 +12,7 @@ install:
     - pip install zope.testrunner coverage coveralls
 script:
     - coverage run -m zope.testrunner --test-path=src --tests-pattern="^f?tests$"
+    - coverage report -m --fail-under=100
 after_success:
     - coveralls
 notifications:
