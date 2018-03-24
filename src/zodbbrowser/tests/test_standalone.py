@@ -1,3 +1,4 @@
+import errno
 import os
 import shutil
 import socket
@@ -105,10 +106,14 @@ class TestOpenDb(unittest.TestCase):
 
 @implementer(IServerType)
 class FakeServerType(object):
-    def create(self, *args, **kw):
-        socket = mock.Mock()
-        socket.getsockname.return_value = ('localhost', 8033)
-        return mock.Mock(socket=socket)
+    def create(self, **kw):
+        if kw.get('port') == 80:
+            raise socket.error(errno.EADDRINUSE, "port busy")
+        if kw.get('port') == -1:
+            raise socket.error(errno.EINVAL, "bad port")
+        sock = mock.Mock()
+        sock.getsockname.return_value = ('localhost', 8033)
+        return mock.Mock(socket=sock)
 
 
 class TestStartServer(unittest.TestCase):
@@ -124,12 +129,25 @@ class TestStartServer(unittest.TestCase):
     def tearDown(self):
         setup.placelessTearDown()
 
-    def test(self):
+    def test_prints_clickable_url(self):
         self.options.verbose = True
         with mock.patch('sys.stdout', StringIO()) as mock_stdout:
             start_server(self.options, self.db)
         self.assertEqual(mock_stdout.getvalue(),
                          "Listening on http://localhost:8033/\n")
+
+    def test_socket_error_handling_eaddrinuse(self):
+        self.options.listen_on = ('localhost', 80)
+        with self.assertRaises(SystemExit) as e:
+            start_server(self.options, self.db)
+        self.assertTrue(
+            str(e.exception).startswith("Cannot listen on localhost:80"),
+            str(e.exception))
+
+    def test_socket_error_handling_other_kind_of_error(self):
+        self.options.listen_on = ('localhost', -1)
+        with self.assertRaises(socket.error):
+            start_server(self.options, self.db)
 
 
 class TestServeForever(unittest.TestCase):
