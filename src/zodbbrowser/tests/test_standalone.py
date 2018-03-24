@@ -5,8 +5,10 @@ import tempfile
 import unittest
 
 import mock
+from zope.app.testing import setup
 
-from zodbbrowser.standalone import parse_args, serve_forever
+from zodbbrowser.standalone import parse_args, serve_forever, main
+from zodbbrowser.tests.realdb import RealDatabaseTest
 
 
 class TestParseArgs(unittest.TestCase):
@@ -88,3 +90,21 @@ class TestServeForever(unittest.TestCase):
     @mock.patch('asyncore.poll', mock.Mock(side_effect=KeyboardInterrupt))
     def test(self):
         serve_forever()
+
+
+class TestMain(RealDatabaseTest):
+
+    open_db = False
+
+    def setUp(self):
+        setup.placelessSetUp()
+        RealDatabaseTest.setUp(self)
+
+    def tearDown(self):
+        RealDatabaseTest.tearDown(self)
+        setup.placelessTearDown()
+
+    @mock.patch('logging.basicConfig', mock.Mock())
+    @mock.patch('zodbbrowser.standalone.serve_forever', mock.Mock())
+    def test(self):
+        main(['--quiet', '--listen', '0', '--rw', self.db_filename])
