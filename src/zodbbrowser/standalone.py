@@ -36,6 +36,7 @@ class Options(object):
     db_filename = None
     zeo_address = None
     zeo_storage = '1'
+    zeo_timeout = 30  # seconds
     readonly = True
     listen_on = ('localhost', 8070)
     server_type = 'WSGI-HTTP'
@@ -256,6 +257,7 @@ def open_db(options):
         storage = FileStorage(options.db_filename, read_only=options.readonly)
     else:
         storage = ClientStorage(options.zeo_address,
+                                wait_timeout=options.zeo_timeout,
                                 storage=options.zeo_storage,
                                 read_only=options.readonly)
     return DB(storage)

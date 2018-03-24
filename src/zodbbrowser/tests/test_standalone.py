@@ -6,12 +6,27 @@ import unittest
 
 import mock
 from zope.app.testing import setup
+from ZEO.Exceptions import ClientDisconnected
 
-from zodbbrowser.standalone import parse_args, serve_forever, main
+from zodbbrowser.standalone import (
+    Options, parse_args, serve_forever, main, open_db)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 
-class TestParseArgs(unittest.TestCase):
+class SocketMixin(object):
+
+    def make_socket(self):
+        tempdir = tempfile.mkdtemp(prefix='test-zodbbrowser-')
+        self.addCleanup(shutil.rmtree, tempdir)
+        sockfilename = os.path.join(tempdir, 'zeosock')
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.addCleanup(sock.close)
+        sock.bind(sockfilename)
+        sock.listen(0)
+        return sockfilename
+
+
+class TestParseArgs(SocketMixin, unittest.TestCase):
 
     def test_sys_argv(self):
         with mock.patch('sys.argv', ['zodbbrowser', '/dev/null']):
@@ -62,16 +77,6 @@ class TestParseArgs(unittest.TestCase):
         options = parse_args(['--zeo', 'localhost', '--storage', '2'])
         self.assertEqual(options.zeo_storage, '2')
 
-    def make_socket(self):
-        tempdir = tempfile.mkdtemp(prefix='test-zodbbrowser-')
-        self.addCleanup(shutil.rmtree, tempdir)
-        sockfilename = os.path.join(tempdir, 'zeosock')
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.addCleanup(sock.close)
-        sock.bind(sockfilename)
-        sock.listen(0)
-        return sockfilename
-
     @unittest.skipUnless(hasattr(socket, 'AF_UNIX'),
                          "No UNIX domain sockets on this platform")
     def test_zeo_socket(self):
@@ -82,6 +87,16 @@ class TestParseArgs(unittest.TestCase):
     def test_bad_zeo_socket(self):
         with self.assertRaises(SystemExit), mock.patch('sys.stderr'):
             parse_args(['--zeo', __file__])
+
+
+class TestOpenDb(unittest.TestCase):
+
+    def test_zeo(self):
+        options = Options()
+        options.zeo_address = '/no/such/zeo/socket'
+        options.zeo_timeout = 0.001
+        with self.assertRaises(ClientDisconnected):
+            open_db(options)
 
 
 class TestServeForever(unittest.TestCase):
