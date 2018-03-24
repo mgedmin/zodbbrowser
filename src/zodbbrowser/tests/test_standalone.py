@@ -5,11 +5,15 @@ import tempfile
 import unittest
 
 import mock
+from zope.app.server.servertype import IServerType
 from zope.app.testing import setup
+from zope.component import provideUtility
+from zope.interface import implementer
 from ZEO.Exceptions import ClientDisconnected
 
+from zodbbrowser.compat import StringIO
 from zodbbrowser.standalone import (
-    Options, parse_args, serve_forever, main, open_db)
+    Options, parse_args, start_server, serve_forever, main, open_db)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 
@@ -97,6 +101,35 @@ class TestOpenDb(unittest.TestCase):
         options.zeo_timeout = 0.001
         with self.assertRaises(ClientDisconnected):
             open_db(options)
+
+
+@implementer(IServerType)
+class FakeServerType(object):
+    def create(self, *args, **kw):
+        socket = mock.Mock()
+        socket.getsockname.return_value = ('localhost', 8033)
+        return mock.Mock(socket=socket)
+
+
+class TestStartServer(unittest.TestCase):
+
+    def setUp(self):
+        setup.placelessSetUp()
+        provideUtility(FakeServerType(), name='FAKE')
+        self.options = Options()
+        self.options.server_type = 'FAKE'
+        self.options.verbose = False
+        self.db = None
+
+    def tearDown(self):
+        setup.placelessTearDown()
+
+    def test(self):
+        self.options.verbose = True
+        with mock.patch('sys.stdout', StringIO()) as mock_stdout:
+            start_server(self.options, self.db)
+        self.assertEqual(mock_stdout.getvalue(),
+                         "Listening on http://localhost:8033/\n")
 
 
 class TestServeForever(unittest.TestCase):
