@@ -3,7 +3,6 @@ import shutil
 import socket
 import tempfile
 import unittest
-import sys
 
 import mock
 from zope.app.testing import setup
@@ -120,8 +119,10 @@ class TestMain(RealDatabaseTest):
         RealDatabaseTest.tearDown(self)
         setup.placelessTearDown()
 
-    @unittest.skipIf(sys.version_info >= (3, ), "Breaks the test suite on Python 3")
     @mock.patch('logging.basicConfig', mock.Mock())
+    @mock.patch('zodbbrowser.standalone.open_db', mock.Mock())
+    @mock.patch('zodbbrowser.standalone.configure', mock.Mock())
+    @mock.patch('zodbbrowser.standalone.start_server', mock.Mock())
     @mock.patch('zodbbrowser.standalone.serve_forever', mock.Mock())
     def test(self):
         main(['--quiet', '--listen', '0', '--rw', self.db_filename])
