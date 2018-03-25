@@ -4,6 +4,7 @@ import shutil
 import socket
 import tempfile
 import unittest
+import sys
 
 import mock
 from zope.app.server.servertype import IServerType
@@ -96,6 +97,7 @@ class TestParseArgs(SocketMixin, unittest.TestCase):
 
 class TestOpenDb(unittest.TestCase):
 
+    @unittest.skipIf(sys.platform == 'win32', "This test hangs on Windows")
     def test_zeo(self):
         options = Options()
         options.zeo_address = '/no/such/zeo/socket'
