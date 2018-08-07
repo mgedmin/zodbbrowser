@@ -4,6 +4,8 @@ Changes
 0.14.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- Add support for Python 3.7.
+
 - Add support for PyPy and PyPy3.
 
 
