@@ -19,7 +19,10 @@ from zodbbrowser.compat import basestring, escape
 from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
 
 
-CLASSES_WITH_BAD_REPR = (object,)
+# Persistent has a __repr__ now that shows the OID, but it's shown poorly
+# (as a Python string full of backslash escapes) and includes lots of
+# irrelevant details (in-memory object address, repr of the Connection object).
+CLASSES_WITH_BAD_REPR = (object, Persistent)
 try:
     from BTrees._base import Bucket, Set, Tree, TreeSet
 except ImportError:
