@@ -8,6 +8,14 @@ Changes
 
 - Add support for PyPy and PyPy3.
 
+- Support zope.security proxies in PURE_PYTHON mode.
+
+- Use our custom __repr__ instead of the new persistent one.
+
+- Transaction IDs in generated URLs are now in hex.
+
+- 100% test coverage.
+
 
 0.14.0 (2017-11-15)
 ~~~~~~~~~~~~~~~~~~~
