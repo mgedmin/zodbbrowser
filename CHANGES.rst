@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.14.1 (unreleased)
+0.15.0 (2019-04-02)
 ~~~~~~~~~~~~~~~~~~~
 
 - Add support for Python 3.7.
