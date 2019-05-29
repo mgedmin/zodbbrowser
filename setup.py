@@ -80,13 +80,6 @@ setup(
         "zope.security",
         "zope.traversing",
         "zope.cachedescriptors",
-        # dependencies just for the test suite
-        "zope.app.container",
-        "zope.app.testing",
-        "zope.testbrowser >= 5.1",
-        "lxml",
-        "cssselect",
-        "unittest2",
         # dependencies just for the standalone app
         "zope.app.authentication",
         "zope.app.component",
@@ -106,6 +99,12 @@ setup(
     extras_require=dict(
         test=[
             'mock',
+            "zope.app.folder",
+            "zope.app.container",
+            "zope.app.testing",
+            "zope.testbrowser >= 5.1",
+            "lxml",
+            "cssselect",
         ],
         # extras for backwards compatibility only, not to break
         # people's setups if they depend on zodbbrowser[app]

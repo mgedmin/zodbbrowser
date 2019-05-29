@@ -1,4 +1,4 @@
-import unittest2 as unittest
+import unittest
 
 from ZODB.utils import p64
 from BTrees.OOBTree import OOBTree
