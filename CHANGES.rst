@@ -4,7 +4,8 @@ Changes
 0.15.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Stop depending on the obsolete ZODB3 metapackage from 2012.  Instead
+  depend directly on persistent, BTrees, ZODB, and ZEO.
 
 
 0.15.1 (2019-04-23)

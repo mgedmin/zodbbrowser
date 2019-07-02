@@ -69,8 +69,11 @@ setup(
     zip_safe=False,
     package_dir={'': 'src'},
     install_requires=[
-        "ZODB3",
+        "BTrees",
+        "ZODB",
         "ZEO",
+        "persistent",
+        "transaction",
         "zope.app.pagetemplate",
         "zope.app.publication",
         "zope.component",
