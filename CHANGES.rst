@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.15.2 (unreleased)
+0.15.2 (2019-07-11)
 ~~~~~~~~~~~~~~~~~~~
 
 - Stop depending on the obsolete ZODB3 metapackage from 2012.  Instead
