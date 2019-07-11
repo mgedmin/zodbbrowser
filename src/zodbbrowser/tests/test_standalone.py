@@ -15,7 +15,8 @@ from ZEO.Exceptions import ClientDisconnected
 
 from zodbbrowser.compat import StringIO
 from zodbbrowser.standalone import (
-    Options, parse_args, start_server, serve_forever, main, open_db)
+    Options, parse_args, start_server, serve_forever, main, open_db,
+    stop_serving)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 
@@ -129,6 +130,7 @@ class TestStartServer(unittest.TestCase):
         self.db = None
 
     def tearDown(self):
+        stop_serving()
         setup.placelessTearDown()
 
     def test_prints_clickable_url(self):

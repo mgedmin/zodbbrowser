@@ -23,7 +23,7 @@ from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.interfaces import IDatabase
 from zope.app.server.servertype import IServerType
 from zope.app.appsetup.appsetup import SystemConfigurationParticipation
-from zope.component import getUtility, provideUtility
+from zope.component import getUtility, queryUtility, provideUtility
 from zope.server.taskthreads import ThreadedTaskDispatcher
 from zope.event import notify
 from zope.exceptions import exceptionformatter
@@ -152,7 +152,9 @@ def stop_serving():
     task_dispatcher.shutdown(False)
     task_dispatcher = None
     asyncore.close_all()
-    getUtility(IDatabase, '<target>').close()
+    db = queryUtility(IDatabase, '<target>')
+    if db:
+        db.close()
 
 
 def monkeypatch_error_formatting():
