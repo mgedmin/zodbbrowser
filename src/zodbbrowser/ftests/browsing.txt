@@ -53,6 +53,10 @@ After that we have three sections: Attributes, Items and History
       Items (0)
     </h3>
     <h3 class="expander">
+      <img alt="expand" src="http://localhost/@@/zodbbrowser/expand.png">
+      Raw pickle data
+    </h3>
+    <h3 class="expander">
       <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
       History
     </h3>

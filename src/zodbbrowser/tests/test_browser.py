@@ -438,6 +438,16 @@ class TestZodbInfoView(unittest.TestCase):
                          '<a href="so&quot;there">foo&gt;</a>'
                          '/bar&lt;baz')
 
+    def test_getDisassembledPickleData(self):
+        view = ZodbInfoView(None, None)
+        view.state = ZodbObjectStateStub(PersistentStub())
+        view.state.pickledState = b''
+        self.assertEqual(
+            view.getDisassembledPickleData(),
+            'ValueError: pickle exhausted before seeing STOP\n\n'
+            'ValueError: pickle exhausted before seeing STOP\n'
+        )
+
     def test_listAttributes(self):
         view = ZodbInfoView(None, None)
         view.state = ZodbObjectStateStub(PersistentStub())

@@ -1,6 +1,8 @@
 import json
 import logging
+import pickletools
 import time
+import traceback
 
 from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
 from zope.app.publication.zopepublication import ZopePublication, Cleanup
@@ -20,7 +22,7 @@ from persistent.TimeStamp import TimeStamp
 import transaction
 
 from zodbbrowser import __version__, __homepage__
-from zodbbrowser.compat import escape
+from zodbbrowser.compat import escape, StringIO, BytesIO
 from zodbbrowser.diff import compareDictsHTML
 from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.interfaces import IDatabaseHistory
@@ -346,6 +348,23 @@ class ZodbInfoView(VeryCarefulView):
             else:
                 html.append(escape(name, False))
         return ''.join(html)
+
+    def getDisassembledPickleData(self):
+        pickle = BytesIO(self.state.pickledState)
+        out = StringIO()
+        memo = {}
+        # 1st pickle: the class
+        try:
+            pickletools.dis(pickle, out, memo)
+        except Exception as e:
+            out.write(''.join(traceback.format_exception_only(type(e), e)))
+        # 2st pickle: actual instance data
+        out.write('\n')
+        try:
+            pickletools.dis(pickle, out, memo)
+        except Exception as e:
+            out.write(''.join(traceback.format_exception_only(type(e), e)))
+        return out.getvalue()
 
     def listAttributes(self):
         attrs = self.state.listAttributes()

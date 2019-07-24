@@ -110,6 +110,11 @@ h5.expander:hover {
   background: #f8fff8;
 }
 
+div.pickle pre {
+  font-family: monospace;
+  margin-left: 2em;
+  padding: 4px;
+}
 
 div.transaction {
   margin: 0;

@@ -1,10 +1,10 @@
 Changes
 -------
 
-0.15.3 (unreleased)
+0.16.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- You can now view disassembled raw pickle data.
 
 
 0.15.2 (2019-07-11)

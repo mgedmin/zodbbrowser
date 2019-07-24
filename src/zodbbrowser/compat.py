@@ -6,9 +6,10 @@ except NameError:
 
 try:
     from cStringIO import StringIO
+    BytesIO = StringIO
 except ImportError:
     # Python 3
-    from io import StringIO  # noqa
+    from io import StringIO, BytesIO  # noqa
 
 try:
     from html import escape
