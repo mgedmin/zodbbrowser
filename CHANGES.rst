@@ -1,10 +1,11 @@
 Changes
 -------
 
-0.16.1 (unreleased)
+0.16.1 (2019-07-30)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Fix system error when an object refers to another object that was
+  added in a newer transaction (GH #29).
 
 
 0.16.0 (2019-07-24)
