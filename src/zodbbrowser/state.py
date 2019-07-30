@@ -95,8 +95,8 @@ class ZodbObjectState(object):
         self._load()
 
     def _load(self):
-        self.tid = self.history.lastChange(self.requestedTid)
         try:
+            self.tid = self.history.lastChange(self.requestedTid)
             self.pickledState = self.history.loadStatePickle(self.tid)
             loadedState = self.history.loadState(self.tid)
             self.state = getMultiAdapter((self.obj, loadedState,
