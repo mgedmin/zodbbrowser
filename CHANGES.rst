@@ -4,7 +4,7 @@ Changes
 0.16.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Add support for Python 3.8.
 
 
 0.16.1 (2019-07-30)
