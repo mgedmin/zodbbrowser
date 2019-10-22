@@ -1,14 +1,6 @@
 version: build-{build}-{branch}
 
 environment:
-  global:
-    # At the moment PyPI has no wheels of ZODB and zope.*.
-    PIP_FIND_LINKS: "https://debesis.gedmin.as/wheels/"
-    # At the moment PyPI has no Windows wheels for lxml, and the Zope
-    # wineggbuilder only builds older lxml eggs (that I then convert to wheels)
-    # for some reason.  Ask pip to use binary wheels I've available of older
-    # lxml versions in preference to building the latest lxml from source.
-    PIP_ONLY_BINARY: "lxml"
   matrix:
     # https://www.appveyor.com/docs/installed-software#python lists available
     # versions
@@ -16,12 +8,17 @@ environment:
     - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python36"
     - PYTHON: "C:\\Python37"
-##  - PYTHON: "C:\\Python38"
+    - PYTHON: "C:\\Python38"
 
 init:
   - "echo %PYTHON%"
 
 install:
+  - ps: |
+      if (-not (Test-Path $env:PYTHON)) {
+        curl -o install_python.ps1 https://raw.githubusercontent.com/matthew-brett/multibuild/11a389d78892cf90addac8f69433d5e22bfa422a/install_python.ps1
+        .\install_python.ps1
+      }
   - ps: if (-not (Test-Path $env:PYTHON)) { throw "No $env:PYTHON" }
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python --version
