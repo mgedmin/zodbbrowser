@@ -53,7 +53,7 @@ class Browser(_Browser):
 
     # XXX: we should also wrap Form.submit the same way
 
-    def open(self, url):
+    def open(self, url, *args, **kwargs):
         buffer = StringIO()
         logger = logging.getLogger(self.capture_log)
         handler = logging.StreamHandler(buffer)
@@ -62,7 +62,7 @@ class Browser(_Browser):
         logger.addHandler(handler)
         try:
             logger.setLevel(self.log_level)
-            return super(Browser, self).open(url)
+            return super(Browser, self).open(url, *args, **kwargs)
         except HTTPError as e:
             if e.code == 500:
                 raise InternalServerError(url, buffer.getvalue())
