@@ -22,13 +22,9 @@ FILE_WITH_CHANGELOG = CHANGES.rst
 .PHONY: all
 all: $(scripts)
 
-.PHONY: test
-test: bin/test
-	bin/test -s zodbbrowser --auto-color -v1
-
-.PHONY: check
-check:
-	tox
+.PHONY: test check
+test check:
+	tox -p auto
 
 # test with pager
 .PHONY: testp

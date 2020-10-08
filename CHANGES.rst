@@ -6,6 +6,8 @@ Changes
 
 - Add support for Python 3.8.
 
+- Drop support for Python 3.5.
+
 
 0.16.1 (2019-07-30)
 ~~~~~~~~~~~~~~~~~~~
