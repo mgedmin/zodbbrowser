@@ -1,22 +1,30 @@
 language: python
-dist: xenial
+cache: pip
 python:
-    - 2.7
-    - 3.6
-    - 3.7
-    - 3.8
-    - 3.9
-    - pypy
-    - pypy3
+  - 2.7
+  - 3.6
+  - 3.7
+  - 3.8
+  - 3.9
+  - pypy
+  - pypy3
 install:
-    - pip install -e .[test]
-    - pip install zope.testrunner coverage coveralls
+  - pip install -e .[test]
+  - pip install zope.testrunner coverage coveralls
 script:
-    - coverage run -m zope.testrunner --test-path=src --tests-pattern="^f?tests$"
-    - if [ "$TRAVIS_PYTHON_VERSION" = 2.7 ]; then
-        coverage report -m --fail-under=100;
-      fi
+  - coverage run -m zope.testrunner --test-path=src --tests-pattern="^f?tests$"
+  - if [ "$TRAVIS_PYTHON_VERSION" = 2.7 ]; then
+      coverage report -m --fail-under=100;
+    fi
 after_success:
-    - coveralls
+  - coveralls
+
 notifications:
-    email: false
+  irc:
+    channels:
+      - "chat.freenode.net##mgedmin"
+    on_success: change
+    on_failure: always
+    template:
+      # ping my nick so I get a pushbullet notification on my phone
+      - "mgedmin: %{repository_name} (%{branch}) build %{result}: %{build_url}"
