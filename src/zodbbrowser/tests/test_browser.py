@@ -22,6 +22,7 @@ from zodbbrowser.browser import (
     ZodbHistoryView,
     ZodbInfoView,
     ZodbObjectAttribute,
+    formatSize,
     formatTime,
     getObjectPath,
     getObjectType,
@@ -659,6 +660,15 @@ class TestHelperFunctions(unittest.TestCase):
         self.assertEqual(formatTime(0), '0.000s')
         self.assertEqual(formatTime(1.5), '1.500s')
         self.assertEqual(formatTime(60.25), '1m 0.250s')
+
+    def test_formatSize(self):
+        self.assertEqual(formatSize(None), 'n/a bytes')
+        self.assertEqual(formatSize(0), '0 bytes')
+        self.assertEqual(formatSize(15), '15 bytes')
+        self.assertEqual(formatSize(1024), '1.0 KiB')
+        self.assertEqual(formatSize(1024**2), '1.0 MiB')
+        self.assertEqual(formatSize(1024**3), '1.0 GiB')
+
 
 class TestHelperFunctionsWithRealDb(RealDatabaseTest):
 

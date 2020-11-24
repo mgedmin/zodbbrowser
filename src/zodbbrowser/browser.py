@@ -536,7 +536,7 @@ class ZodbHistoryView(VeryCarefulView):
             else:
                 summary = '%d object records' % len(objects)
             if size is not None:
-                summary += ' (%d bytes)' % size
+                summary += ' (%s)' % formatSize(size)
             results.append(dict(
                 index=(self.first_idx + n + 1),
                 utc_timestamp=utc_timestamp,
@@ -607,3 +607,15 @@ def formatTime(seconds):
         return '%dm %.3fs' % (int(min), sec)
     else:
         return '%.3fs' % seconds
+
+
+def formatSize(size):
+    if size is None:
+        return 'n/a bytes'
+    format_string = '%.0f %s'
+    for units in 'bytes', 'KiB', 'MiB', 'GiB':
+        if size < 1024:
+            break
+        size = size / 1024.
+        format_string = '%.1f %s'
+    return format_string % (size, units)
