@@ -4,6 +4,8 @@ Changes
 0.16.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
+- Fix @@zodbbrowser_history when using ZEO, broken since 0.12 (GH #31).
+
 - Add support for Python 3.8 and 3.9.
 
 - Drop support for Python 3.5.

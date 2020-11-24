@@ -4,7 +4,7 @@ Ad-hoc caching, because uncached zodbbrowser is slow and sad.
 
 import time
 import weakref
-from contextlib import closing
+from contextlib import contextmanager
 
 
 MINUTES = 60
@@ -19,6 +19,14 @@ def expired(cache_dict, cache_for):
     return time.time() > cache_dict['last_update'] + cache_for
 
 
+@contextmanager
+def maybe_closing(thing):
+    yield thing
+    # FileStorage's FileIterator has a close(), ZEO's TransactionIterator doesn't
+    if hasattr(thing, 'close'):
+        thing.close()
+
+
 def getStorageTids(storage, cache_for=5 * MINUTES):
     cache_dict = STORAGE_TIDS.setdefault(storage, {})
     if expired(cache_dict, cache_for):
@@ -26,7 +34,7 @@ def getStorageTids(storage, cache_for=5 * MINUTES):
             first = cache_dict['tids'][0]
             last = cache_dict['tids'][-1]
             try:
-                with closing(storage.iterator()) as it:
+                with maybe_closing(storage.iterator()) as it:
                     first_record = next(it)
             except StopIteration:  # pragma: nocover
                 # I don't think this is possible -- a database always
@@ -35,17 +43,17 @@ def getStorageTids(storage, cache_for=5 * MINUTES):
                 first_record = None
             if first_record and first_record.tid == first:
                 # okay, look for new transactions appended at the end
-                with closing(storage.iterator(start=last)) as it:
+                with maybe_closing(storage.iterator(start=last)) as it:
                     new = [t.tid for t in it]
                 if new and new[0] == last:
                     del new[0]
                 cache_dict['tids'].extend(new)
             else:
                 # first record changed, we must've packed the DB
-                with closing(storage.iterator()) as it:
+                with maybe_closing(storage.iterator()) as it:
                     cache_dict['tids'] = [t.tid for t in it]
         else:
-            with closing(storage.iterator()) as it:
+            with maybe_closing(storage.iterator()) as it:
                 cache_dict['tids'] = [t.tid for t in it]
         cache_dict['last_update'] = time.time()
     return cache_dict['tids']
