@@ -389,6 +389,7 @@ def test_suite():
         (re.compile(r'\btid=[0-9xA-Fa-f]+'), 'tid=XXXXXXXXXXXXXXXXXX'),
         (re.compile(r'\boid=[0-9xA-Fa-f]+'), 'oid=XX'),
         (re.compile(r'\boid [0-9xA-Fa-f]+'), 'oid XX'),
+        (re.compile(r'\b0x[0-9xA-Fa-f]+$', re.MULTILINE), '0xXX'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d[.]\d\d\d\d\d\d'),
             'YYYY-MM-DD HH:MM:SS.SSSSSS'),
         (re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d'),
@@ -403,6 +404,10 @@ def test_suite():
         # Python 3 has unicode strings without u prefixes
         (re.compile(r"u('.*')"), r'\1'),
         (re.compile(r": u'$", re.MULTILINE), ": '"),
+        # Python 2 says <type '...'>, Python 3 says '<class ...>'
+        (re.compile(r"&lt;type 'BTrees\.OOBTree\.OOBTree'&gt;"),
+         "&lt;class 'BTrees.OOBTree.OOBTree'&gt;"),
+
     ])
     optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
                    doctest.REPORT_NDIFF | doctest.NORMALIZE_WHITESPACE)

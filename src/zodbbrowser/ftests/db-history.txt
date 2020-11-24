@@ -10,3 +10,39 @@ database.
 
     >>> printCSSPath(browser, 'title')
     <title> ZODB Transactions, page 1</title>
+
+Sometimes it's slow so we can ask for fast mode that lists only object OIDs,
+but no types/paths/reprs
+
+    >>> url = browser.url
+    >>> browser.open(url + '?fast=1')
+    >>> printCSSPath(browser, 'title')
+    <title> ZODB Transactions, page 1</title>
+
+    >>> printCSSPath(browser, '.diff li')  # doctest: +ELLIPSIS
+    <li>
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        0x4
+      </a>
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        (view object)
+      </a>
+    </li>
+    ...
+
+This mode kicks in automatically when rendering takes more than 10 seconds,
+if you'd rather wait to see the full information, you can ask for that too
+
+    >>> browser.open(url + '?full=1')
+    >>> printCSSPath(browser, '.diff li')  # doctest: +ELLIPSIS
+    <li>
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        0xXX
+      </a>
+      &lt;class 'BTrees.OOBTree.OOBTree'&gt;
+      <a href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX"></a>
+      <a class="objlink" href="@@zodbbrowser?oid=XX&amp;tid=XXXXXXXXXXXXXXXXXX">
+        &lt;BTrees.OOBTree.OOBTree with oid XX&gt; (5 items)
+      </a>
+    </li>
+    ...

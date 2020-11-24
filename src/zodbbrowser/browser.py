@@ -32,6 +32,8 @@ from zodbbrowser.value import TRUNCATIONS, pruneTruncations
 
 log = logging.getLogger("zodbbrowser")
 
+DEBUG = False
+
 
 class ZodbHelpView(BrowserView):
     """Zodb help view"""
@@ -446,17 +448,25 @@ class ZodbHistoryView(VeryCarefulView):
 
     page_size = 5
 
+    def debug_mark(self, mark):
+        if DEBUG:  # pragma: nocover
+            now = time.time()
+            self._last_mark, interval = now, now - self._last_mark
+            print('%-14s %s' % (formatTime(interval), mark))
+
     def update(self):
-        self._started = time.time()
+        self._started = self._last_mark = time.time()
         pruneTruncations()
         if 'page_size' in self.request:
             self.page_size = max(1, int(self.request['page_size']))
+        self.debug_mark('Loading history')
         self.history = IDatabaseHistory(self.jar)
         self.request.hold(Cleanup(self.history.cleanup))
         if 'page' in self.request:
             self.page = int(self.request['page'])
         elif 'tid' in self.request:
             tid = int(self.request['tid'], 0)
+            self.debug_mark('- finding transaction page')
             self.page = self.findPage(p64(tid))
         else:
             self.page = 0
@@ -468,10 +478,16 @@ class ZodbHistoryView(VeryCarefulView):
 
     def render(self):
         self.update()
-        return self.template()
+        try:
+            return self.template()
+        finally:
+            self.debug_mark('- done')
 
     def renderingTime(self):
         return formatTime(time.time() - self._started) + ' |'
+
+    def time_elapsed(self):
+        return time.time() - self._started
 
     def getUrl(self, tid=None):
         url = "@@zodbbrowser_history"
@@ -490,6 +506,7 @@ class ZodbHistoryView(VeryCarefulView):
             return (len(self.history) - pos - 1) // self.page_size
 
     def listHistory(self):
+        self.debug_mark('- listing history')
         if 'tid' in self.request:
             requested_tid = p64(int(self.request['tid'], 0))
         else:
@@ -517,20 +534,34 @@ class ZodbHistoryView(VeryCarefulView):
                 size = d._tend - d._tpos
             except AttributeError:
                 size = None
+            self.debug_mark('- listing 0x%x (%s)' % (utid, formatSize(size)))
             ext = d.extension if isinstance(d.extension, dict) else {}
             objects = []
-            for record in d:
-                obj = self.jar.get(record.oid)
+            for idx, record in enumerate(d):
                 url = "@@zodbbrowser?oid=0x%x&tid=0x%x" % (u64(record.oid),
                                                            utid)
-                objects.append(dict(
-                    oid=u64(record.oid),
-                    path=getObjectPath(obj, d.tid),
-                    oid_repr=oid_repr(record.oid),
-                    class_repr=getObjectType(obj),
-                    url=url,
-                    repr=IValueRenderer(obj).render(d.tid),
-                ))
+                if 'fast' in self.request or (
+                        self.time_elapsed() > 10
+                        and idx > 10
+                        and 'full' not in self.request):
+                    objects.append(dict(
+                        oid=u64(record.oid),
+                        path='0x%x' % u64(record.oid),
+                        oid_repr=oid_repr(record.oid),
+                        class_repr='',
+                        url=url,
+                        repr='(view object)',
+                    ))
+                else:
+                    obj = self.jar.get(record.oid)
+                    objects.append(dict(
+                        oid=u64(record.oid),
+                        path=getObjectPath(obj, d.tid),
+                        oid_repr=oid_repr(record.oid),
+                        class_repr=getObjectType(obj),
+                        url=url,
+                        repr=IValueRenderer(obj).render(d.tid),
+                    ))
             if len(objects) == 1:
                 summary = '1 object record'
             else:
@@ -555,6 +586,7 @@ class ZodbHistoryView(VeryCarefulView):
             ))
         if results and not requested_tid and self.page == 0:
             results[-1]['current'] = True
+        self.debug_mark('- back to rendering')
         return results[::-1]
 
 

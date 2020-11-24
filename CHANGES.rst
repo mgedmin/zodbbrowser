@@ -14,6 +14,11 @@ Changes
 - Fix TypeError for SampleContainer subclasses that use a non-persistent
   ``__data`` attribute (GH: #18) 
 
+- Make @@zodbbrowser_history give up rendering all the details if it takes
+  too long (more than 10 seconds); you can force fast mode by adding ``fast``
+  to the query parameters, and you can force full mode by adding ``full`` to
+  the query parameters.
+
 
 0.16.2 (2020-11-24)
 ~~~~~~~~~~~~~~~~~~~
