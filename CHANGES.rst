@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.16.2 (unreleased)
+0.16.2 (2020-11-24)
 ~~~~~~~~~~~~~~~~~~~
 
 - Fix @@zodbbrowser_history when using ZEO, broken since 0.12 (GH #31).

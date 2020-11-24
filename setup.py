@@ -49,6 +49,7 @@ setup(
     maintainer_email="marius@pov.lt",
     description="ZODB browser",
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     version=version,
     url=homepage,
     keywords='ZODB database interactive history browser',
