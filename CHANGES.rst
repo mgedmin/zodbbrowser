@@ -1,8 +1,8 @@
 Changes
 -------
 
-0.16.3 (unreleased)
-~~~~~~~~~~~~~~~~~~~
+0.17 (2020-11-24)
+~~~~~~~~~~~~~~~~~
 
 - Fix @@zodbbrowser_history when using ZEO (AttributeError:
   'TransactionIterator' object has no attribute 'close', GH #31).
