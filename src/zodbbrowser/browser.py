@@ -1,6 +1,7 @@
 import json
 import logging
 import pickletools
+import threading
 import time
 import traceback
 
@@ -31,8 +32,6 @@ from zodbbrowser.value import TRUNCATIONS, pruneTruncations
 
 
 log = logging.getLogger("zodbbrowser")
-
-DEBUG = False
 
 
 class ZodbHelpView(BrowserView):
@@ -119,8 +118,35 @@ class VeryCarefulView(BrowserView):
                 transaction.abort()
 
 
+class TimedMixin:
+
+    _started = _last_mark = None
+
+    def reset_mark(self, message=None):
+        self._started = self._last_mark = time.time()
+        if message:
+            log.debug('%s %-14s %s' % (self.thread_tag(), '-' * 14, message))
+
+    def time_elapsed(self):
+        return time.time() - self._started
+
+    def thread_tag(self):
+        return '[%s]' % threading.current_thread().name
+
+    def debug_mark(self, mark):
+        now = time.time()
+        if self._last_mark is None:
+            self._last_mark, interval = now, 0
+        else:
+            self._last_mark, interval = now, now - self._last_mark
+        log.debug('%s %-14s %s' % (self.thread_tag(), formatTime(interval), mark))
+
+    def renderingTime(self):
+        return formatTime(self.time_elapsed()) + ' |'
+
+
 @adapter(Interface, IBrowserRequest)
-class ZodbInfoView(VeryCarefulView):
+class ZodbInfoView(TimedMixin, VeryCarefulView):
     """Zodb browser view"""
 
     template = ViewPageTemplateFile('templates/zodbinfo.pt')
@@ -130,12 +156,14 @@ class ZodbInfoView(VeryCarefulView):
     homepage = __homepage__
 
     def render(self):
-        self._started = time.time()
+        self.reset_mark(getFullRequestUrl(self.request))
         pruneTruncations()
         self.obj = self.selectObjectToView()
+        self.debug_mark('- loading object history')
         # Not using IObjectHistory(self.obj) because LP: #1185175
         self.history = getObjectHistory(self.obj)
         self.latest = True
+        self.debug_mark('- loading object state')
         if self.request.get('tid'):
             self.state = ZodbObjectState(self.obj,
                                          p64(int(self.request['tid'], 0)),
@@ -161,10 +189,11 @@ class ZodbInfoView(VeryCarefulView):
             # will show confirmation prompt
             return self.confirmation_template()
 
-        return self.template()
-
-    def renderingTime(self):
-        return formatTime(time.time() - self._started) + ' |'
+        self.debug_mark('- rendering')
+        try:
+            return self.template()
+        finally:
+            self.debug_mark('- done (%s)' % formatTime(self.time_elapsed()))
 
     def _redirectToSelf(self):
         self.request.response.redirect(self.getUrl())
@@ -310,6 +339,7 @@ class ZodbInfoView(VeryCarefulView):
         return url
 
     def getBreadcrumbs(self):
+        self.debug_mark('- rendering breadcrumbs')
         breadcrumbs = []
         state = self.state
         seen_root = False
@@ -351,6 +381,7 @@ class ZodbInfoView(VeryCarefulView):
         return ''.join(html)
 
     def getDisassembledPickleData(self):
+        self.debug_mark('- rendering pickle')
         pickle = BytesIO(self.state.pickledState)
         out = StringIO()
         memo = {}
@@ -368,6 +399,7 @@ class ZodbInfoView(VeryCarefulView):
         return out.getvalue()
 
     def listAttributes(self):
+        self.debug_mark('- rendering attributes')
         attrs = self.state.listAttributes()
         if attrs is None:
             return None
@@ -375,6 +407,7 @@ class ZodbInfoView(VeryCarefulView):
                 for name, value in sorted(attrs)]
 
     def listItems(self):
+        self.debug_mark('- rendering items')
         items = self.state.listItems()
         if items is None:
             return None
@@ -398,9 +431,11 @@ class ZodbInfoView(VeryCarefulView):
 
     def listHistory(self):
         """List transactions that modified a persistent object."""
+        self.debug_mark('- rendering history')
         state = self._loadHistoricalState()
         results = []
         for n, d in enumerate(self.history):
+            self.debug_mark('- rendering history #%s' % n)
             utc_timestamp = str(time.strftime('%Y-%m-%d %H:%M:%S',
                                               time.gmtime(d['time'])))
             local_timestamp = str(time.strftime('%Y-%m-%d %H:%M:%S',
@@ -438,7 +473,7 @@ class ZodbInfoView(VeryCarefulView):
 
 
 @adapter(Interface, IBrowserRequest)
-class ZodbHistoryView(VeryCarefulView):
+class ZodbHistoryView(TimedMixin, VeryCarefulView):
     """Zodb history view"""
 
     template = ViewPageTemplateFile('templates/zodbhistory.pt')
@@ -448,14 +483,7 @@ class ZodbHistoryView(VeryCarefulView):
 
     page_size = 5
 
-    def debug_mark(self, mark):
-        if DEBUG:  # pragma: nocover
-            now = time.time()
-            self._last_mark, interval = now, now - self._last_mark
-            print('%-14s %s' % (formatTime(interval), mark))
-
     def update(self):
-        self._started = self._last_mark = time.time()
         pruneTruncations()
         if 'page_size' in self.request:
             self.page_size = max(1, int(self.request['page_size']))
@@ -477,17 +505,12 @@ class ZodbHistoryView(VeryCarefulView):
         self.first_idx = max(0, self.last_idx - self.page_size)
 
     def render(self):
+        self.reset_mark(getFullRequestUrl(self.request))
         self.update()
         try:
             return self.template()
         finally:
-            self.debug_mark('- done')
-
-    def renderingTime(self):
-        return formatTime(time.time() - self._started) + ' |'
-
-    def time_elapsed(self):
-        return time.time() - self._started
+            self.debug_mark('- done (%s)' % formatTime(self.time_elapsed()))
 
     def getUrl(self, tid=None):
         url = "@@zodbbrowser_history"
@@ -651,3 +674,11 @@ def formatSize(size):
         size = size / 1024.
         format_string = '%.1f %s'
     return format_string % (size, units)
+
+
+def getFullRequestUrl(request):
+    qs = request.environment.get('QUERY_STRING', '')
+    if qs:
+        return '%s?%s' % (request.URL, qs)
+    else:
+        return str(request.URL)

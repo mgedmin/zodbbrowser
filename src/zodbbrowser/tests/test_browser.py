@@ -567,6 +567,7 @@ class TestZodbHistoryView(RealDatabaseTest):
         request = TestRequest(**kw)
         view = ZodbHistoryView(self.root, request)
         view.template = lambda: ''
+        view.time_elapsed = lambda: 0
         return view
 
     def test_render(self):

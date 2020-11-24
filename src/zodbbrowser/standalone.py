@@ -182,10 +182,16 @@ def parse_args(args=None):
     parser.add_option('-q', '--quiet', action='store_false', dest='verbose',
                       default=True,
                       help='be quiet')
+    parser.add_option('--debug', action='store_true', dest='debug',
+                      default=False,
+                      help='enable debug logging')
     parser.add_option('--rw', action='store_false', dest='readonly',
                       default=True,
                       help='open the database read-write (default: read-only)')
     opts, args = parser.parse_args(args)
+
+    if opts.debug:  # pragma: nocover
+        logging.getLogger('zodbbrowser').setLevel(logging.DEBUG)
 
     options = Options()
     options.verbose = opts.verbose
