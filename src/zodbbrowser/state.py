@@ -1,6 +1,7 @@
 import logging
 
 import zope.interface.declarations
+from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
@@ -243,9 +244,15 @@ class SampleContainerState(GenericState):
         # OOBTree -- SampleContainer itself uses a plain Python dict, but
         # subclasses are supposed to overwrite the _newContainerData() method
         # and use something persistent.
-        loadedstate = getObjectHistory(data).loadState(self.tid)
-        return getMultiAdapter((data, loadedstate, self.tid),
-                               IStateInterpreter).listItems()
+        if isinstance(data, Persistent):
+            loadedstate = getObjectHistory(data).loadState(self.tid)
+            return getMultiAdapter((data, loadedstate, self.tid),
+                                IStateInterpreter).listItems()
+        else:
+            # haha of course there are SampleContainer subclasses out there
+            # that don't bother overriding _newContainerData() and use a
+            # non-persistent dict!
+            return list(data.items())
 
 
 @adapter(OrderedContainer, dict, None)

@@ -43,6 +43,10 @@ class Root(Persistent, SampleContainer):
     pass
 
 
+class SillyContainer(Persistent, SampleContainer):
+    pass
+
+
 class SampleFolder(Persistent, SampleContainer):
 
     def _newContainerData(self):
@@ -358,6 +362,12 @@ class TestSampleContainerState(RealDatabaseTest):
         state = SampleContainerState(None, SampleFolder().__getstate__(),
                                      None)
         self.assertEqual(list(state.listItems()), [])
+
+    def test_listItems_nonpersistent_data(self):
+        container = SillyContainer()
+        container['foo'] = 1
+        state = SampleContainerState(None, container.__getstate__(), None)
+        self.assertEqual(list(state.listItems()), [('foo', 1)])
 
 
 class TestOrderedContainerState(RealDatabaseTest):
