@@ -1,13 +1,16 @@
 import transaction
 from persistent import Persistent
 from persistent.dict import PersistentDict
-from zope.interface.verify import verifyObject
 from zope.component import provideAdapter
+from zope.interface.verify import verifyObject
 
+from zodbbrowser.history import (
+    ZodbHistory,
+    ZodbObjectHistory,
+    getIterableStorage,
+)
+from zodbbrowser.interfaces import IDatabaseHistory, IObjectHistory
 from zodbbrowser.tests.realdb import RealDatabaseTest
-from zodbbrowser.history import ZodbObjectHistory, ZodbHistory
-from zodbbrowser.history import getIterableStorage
-from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
 
 
 class PersistentObject(Persistent):

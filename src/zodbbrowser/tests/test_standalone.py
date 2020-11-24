@@ -2,21 +2,27 @@ import errno
 import os
 import shutil
 import socket
+import sys
 import tempfile
 import unittest
-import sys
 
 import mock
+from ZEO.Exceptions import ClientDisconnected
 from zope.app.server.servertype import IServerType
 from zope.app.testing import setup
 from zope.component import provideUtility
 from zope.interface import implementer
-from ZEO.Exceptions import ClientDisconnected
 
 from zodbbrowser.compat import StringIO
 from zodbbrowser.standalone import (
-    Options, parse_args, start_server, serve_forever, main, open_db,
-    stop_serving)
+    Options,
+    main,
+    open_db,
+    parse_args,
+    serve_forever,
+    start_server,
+    stop_serving,
+)
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 

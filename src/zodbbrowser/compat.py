@@ -9,7 +9,7 @@ try:
     BytesIO = StringIO
 except ImportError:
     # Python 3
-    from io import StringIO, BytesIO  # noqa
+    from io import BytesIO, StringIO  # noqa
 
 try:
     from html import escape

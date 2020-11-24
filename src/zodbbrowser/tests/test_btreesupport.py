@@ -2,22 +2,22 @@ import unittest
 
 import transaction
 from BTrees.OOBTree import OOBTree, OOBucket
-from zope.interface.verify import verifyObject
-from zope.component import provideAdapter
-from zope.app.folder import Folder
 from zope.app.container.btree import BTreeContainer
+from zope.app.folder import Folder
 from zope.app.testing import setup
+from zope.component import provideAdapter
+from zope.interface.verify import verifyObject
 
-from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
-from zodbbrowser.history import ZodbObjectHistory
 from zodbbrowser.btreesupport import (
-    OOBTreeHistory,
-    OOBTreeState,
+    BTreeContainerState,
     EmptyOOBTreeState,
     FolderState,
-    BTreeContainerState,
+    OOBTreeHistory,
+    OOBTreeState,
     OOBucketState,
 )
+from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IObjectHistory, IStateInterpreter
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 

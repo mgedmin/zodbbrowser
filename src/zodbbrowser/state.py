@@ -13,6 +13,7 @@ from zope.interface.interfaces import IInterface
 from zope.proxy import removeAllProxies
 from zope.traversing.interfaces import IContainmentRoot
 
+
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
     from zope.container.sample import SampleContainer

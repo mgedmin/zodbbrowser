@@ -1,9 +1,9 @@
-import unittest
 import time
+import unittest
 
 import transaction
 
-from zodbbrowser.cache import expired, MINUTES, getStorageTids
+from zodbbrowser.cache import MINUTES, expired, getStorageTids
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
 

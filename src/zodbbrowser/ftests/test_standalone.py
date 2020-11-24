@@ -14,21 +14,22 @@ import unittest
 import transaction
 from lxml.html import fromstring, tostring
 from persistent import Persistent
-from ZODB.POSException import ReadOnlyError
-from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.DB import DB
-from zope.testing.renormalizing import RENormalizing
-from zope.testbrowser.browser import Browser as _Browser, HTTPError
-from zope.testbrowser.interfaces import IBrowser
-from zope.app.testing import setup
-from zope.app.publication.zopepublication import ZopePublication
-from zope.app.folder.folder import Folder
-from zope.app.appsetup.interfaces import DatabaseOpened
+from ZODB.FileStorage.FileStorage import FileStorage
+from ZODB.POSException import ReadOnlyError
 from zope.app.appsetup.bootstrap import bootStrapSubscriber
+from zope.app.appsetup.interfaces import DatabaseOpened
+from zope.app.folder.folder import Folder
+from zope.app.publication.zopepublication import ZopePublication
+from zope.app.testing import setup
 from zope.interface import Interface, implementer_only
+from zope.testbrowser.browser import Browser as _Browser
+from zope.testbrowser.browser import HTTPError
+from zope.testbrowser.interfaces import IBrowser
+from zope.testing.renormalizing import RENormalizing
 
 from zodbbrowser import standalone
-from zodbbrowser.compat import basestring, StringIO, escape
+from zodbbrowser.compat import StringIO, basestring, escape
 from zodbbrowser.standalone import main, serve_forever, stop_serving
 from zodbbrowser.value import resetTruncations
 

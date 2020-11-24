@@ -1,11 +1,11 @@
-import unittest
-import tempfile
-import shutil
 import os
-import transaction
+import shutil
+import tempfile
+import unittest
 
-from ZODB.FileStorage.FileStorage import FileStorage
+import transaction
 from ZODB.DB import DB
+from ZODB.FileStorage.FileStorage import FileStorage
 
 
 class RealDatabaseTest(unittest.TestCase):

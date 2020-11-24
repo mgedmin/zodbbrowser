@@ -14,18 +14,19 @@ from BTrees.OOBTree import OOBTree, OOBucket
 from zope.component import adapter, getMultiAdapter
 from zope.interface import implementer
 
+
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
     from zope.container.folder import Folder
 except ImportError:
-    from zope.app.folder import Folder # BBB
+    from zope.app.folder import Folder  # BBB
 try:
     from zope.container.btree import BTreeContainer
 except ImportError:
     from zope.app.container.btree import BTreeContainer # BBB
 
-from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
 from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IObjectHistory, IStateInterpreter
 from zodbbrowser.state import GenericState
 
 

@@ -5,8 +5,12 @@ import unittest
 from zope.app.testing import setup
 from zope.component import provideAdapter
 
-from zodbbrowser.diff import compareDicts, compareDictsHTML
-from zodbbrowser.diff import compareTuples, compareTuplesHTML
+from zodbbrowser.diff import (
+    compareDicts,
+    compareDictsHTML,
+    compareTuples,
+    compareTuplesHTML,
+)
 from zodbbrowser.testing import SimpleValueRenderer
 
 

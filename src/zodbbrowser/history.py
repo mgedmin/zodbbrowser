@@ -1,12 +1,13 @@
-from ZODB.utils import tid_repr
-from ZODB.interfaces import IConnection, IStorageIteration
 from persistent import Persistent
-from zope.proxy import removeAllProxies
-from zope.interface import implementer
+from ZODB.interfaces import IConnection, IStorageIteration
+from ZODB.utils import tid_repr
 from zope.component import adapter
+from zope.interface import implementer
+from zope.proxy import removeAllProxies
 
-from zodbbrowser.interfaces import IObjectHistory, IDatabaseHistory
 from zodbbrowser import cache
+from zodbbrowser.interfaces import IDatabaseHistory, IObjectHistory
+
 
 try:
     from ZODB.mvccadapter import MVCCAdapterInstance

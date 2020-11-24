@@ -1,20 +1,31 @@
 import unittest
 
-from ZODB.utils import p64
 from BTrees.OOBTree import OOBTree
 from persistent import Persistent
 from persistent.dict import PersistentDict
+from ZODB.utils import p64
 from zope.app.testing import setup
-from zope.interface.verify import verifyObject
-from zope.interface import implementer, alsoProvides, Interface
 from zope.component import adapter, provideAdapter
+from zope.interface import Interface, alsoProvides, implementer
+from zope.interface.verify import verifyObject
 
-from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
+from zodbbrowser.interfaces import IObjectHistory, IValueRenderer
 from zodbbrowser.value import (
-    GenericValue, TupleValue, ListValue, DictValue, PersistentValue,
-    PersistentDictValue, ProvidesValue, StringValue, MAX_CACHE_SIZE,
-    TRUNCATIONS, TRUNCATIONS_IN_ORDER, truncate, resetTruncations,
-    pruneTruncations)
+    MAX_CACHE_SIZE,
+    TRUNCATIONS,
+    TRUNCATIONS_IN_ORDER,
+    DictValue,
+    GenericValue,
+    ListValue,
+    PersistentDictValue,
+    PersistentValue,
+    ProvidesValue,
+    StringValue,
+    TupleValue,
+    pruneTruncations,
+    resetTruncations,
+    truncate,
+)
 
 
 class OldStyle:

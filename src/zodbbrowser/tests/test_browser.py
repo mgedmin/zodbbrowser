@@ -1,27 +1,37 @@
-import unittest
-import transaction
 import gc
 import json
+import unittest
 
-from ZODB.interfaces import IDatabase
-from ZODB.utils import u64, p64, tid_repr, oid_repr
+import transaction
 from persistent import Persistent
+from ZODB.interfaces import IDatabase
+from ZODB.utils import oid_repr, p64, tid_repr, u64
 from zope.app.container.btree import BTreeContainer
 from zope.app.container.interfaces import IContained
 from zope.app.testing import setup
-from zope.component import provideAdapter, getGlobalSiteManager
+from zope.component import getGlobalSiteManager, provideAdapter
 from zope.exceptions.interfaces import UserError
 from zope.interface import implementer
 from zope.publisher.browser import TestRequest
-from zope.traversing.interfaces import IContainmentRoot
-from zope.security.proxy import Proxy
 from zope.security.checker import ProxyFactory
+from zope.security.proxy import Proxy
+from zope.traversing.interfaces import IContainmentRoot
 
 from zodbbrowser.browser import (
-    ZodbObjectAttribute, VeryCarefulView, ZodbInfoView, ZodbHistoryView,
-    getObjectType, getObjectTypeShort, getObjectPath)
+    VeryCarefulView,
+    ZodbHistoryView,
+    ZodbInfoView,
+    ZodbObjectAttribute,
+    getObjectPath,
+    getObjectType,
+    getObjectTypeShort,
+)
 from zodbbrowser.btreesupport import EmptyOOBTreeState
-from zodbbrowser.history import ZodbObjectHistory, ZodbHistory, getIterableStorage
+from zodbbrowser.history import (
+    ZodbHistory,
+    ZodbObjectHistory,
+    getIterableStorage,
+)
 from zodbbrowser.state import GenericState, ZodbObjectState
 from zodbbrowser.testing import SimpleValueRenderer
 

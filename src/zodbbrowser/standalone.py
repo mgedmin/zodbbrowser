@@ -5,29 +5,29 @@ ZODB Browser as a standalone app
 This is a pile of hacks since bootstrapping a Zope 3 based app is incredibly
 painful.
 """
+import asyncore
+import errno
+import logging
+import optparse
 import os
+import socket
 import stat
 import sys
-import asyncore
-import socket
-import optparse
-import logging
-import errno
 import traceback
 import warnings
 
+import zope.app.component.hooks
 from ZEO.ClientStorage import ClientStorage
 from ZODB.DB import DB
-from ZODB.MappingStorage import MappingStorage
 from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.interfaces import IDatabase
-from zope.app.server.servertype import IServerType
+from ZODB.MappingStorage import MappingStorage
 from zope.app.appsetup.appsetup import SystemConfigurationParticipation
-from zope.component import getUtility, queryUtility, provideUtility
-from zope.server.taskthreads import ThreadedTaskDispatcher
+from zope.app.server.servertype import IServerType
+from zope.component import getUtility, provideUtility, queryUtility
 from zope.event import notify
 from zope.exceptions import exceptionformatter
-import zope.app.component.hooks
+from zope.server.taskthreads import ThreadedTaskDispatcher
 
 from zodbbrowser.state import install_provides_hack
 
@@ -87,12 +87,12 @@ def configure(options):
     from zope.error.error import globalErrorReportingUtility
     globalErrorReportingUtility.copy_to_zlog = True
 
-    from zope.security.management import newInteraction, endInteraction
+    from zope.security.management import endInteraction, newInteraction
     endInteraction()
     newInteraction(SystemConfigurationParticipation())
     zope.app.component.hooks.setHooks()
 
-    from zope.configuration import xmlconfig, config
+    from zope.configuration import config, xmlconfig
     context = config.ConfigurationMachine()
     xmlconfig.registerCommonDirectives(context)
     for feature in options.features:

@@ -1,5 +1,5 @@
-import unittest
 import sys
+import unittest
 
 import transaction
 from BTrees.Length import Length
@@ -10,26 +10,26 @@ from zope.app.container.sample import SampleContainer
 from zope.app.testing import setup
 from zope.component import provideAdapter
 from zope.container.contained import ContainedProxy
-from zope.interface import implementer, alsoProvides, Interface
+from zope.interface import Interface, alsoProvides, implementer
 from zope.interface.interface import InterfaceClass
 from zope.interface.verify import verifyObject
 from zope.traversing.interfaces import IContainmentRoot
 
-from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.interfaces import IStateInterpreter
 from zodbbrowser.state import (
-    ZodbObjectState,
-    LoadErrorState,
+    ContainedProxyState,
+    FallbackState,
     GenericState,
+    LoadErrorState,
+    OrderedContainerState,
     PersistentDictState,
     PersistentMappingState,
     SampleContainerState,
-    OrderedContainerState,
-    ContainedProxyState,
-    FallbackState,
+    ZodbObjectState,
+    flatten_interfaces,
     install_provides_hack,
     uninstall_provides_hack,
-    flatten_interfaces,
 )
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
