@@ -22,6 +22,7 @@ from zodbbrowser.browser import (
     ZodbHistoryView,
     ZodbInfoView,
     ZodbObjectAttribute,
+    formatTime,
     getObjectPath,
     getObjectType,
     getObjectTypeShort,
@@ -654,6 +655,10 @@ class TestHelperFunctions(unittest.TestCase):
         self.assertEqual(getObjectTypeShort(ProxyFactory(NonpersistentStub())),
                          Proxy.__name__ + ' - NonpersistentStub')
 
+    def test_formatTime(self):
+        self.assertEqual(formatTime(0), '0.000s')
+        self.assertEqual(formatTime(1.5), '1.500s')
+        self.assertEqual(formatTime(60.25), '1m 0.250s')
 
 class TestHelperFunctionsWithRealDb(RealDatabaseTest):
 

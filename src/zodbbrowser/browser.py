@@ -162,7 +162,7 @@ class ZodbInfoView(VeryCarefulView):
         return self.template()
 
     def renderingTime(self):
-        return '%.3fs |' % (time.time() - self._started)
+        return formatTime(time.time() - self._started) + ' |'
 
     def _redirectToSelf(self):
         self.request.response.redirect(self.getUrl())
@@ -471,7 +471,7 @@ class ZodbHistoryView(VeryCarefulView):
         return self.template()
 
     def renderingTime(self):
-        return '%.3fs |' % (time.time() - self._started)
+        return formatTime(time.time() - self._started) + ' |'
 
     def getUrl(self, tid=None):
         url = "@@zodbbrowser_history"
@@ -600,3 +600,10 @@ def getObjectPath(obj, tid):
             break
     return ''.join(path[::-1])
 
+
+def formatTime(seconds):
+    min, sec = divmod(seconds, 60)
+    if min > 0:
+        return '%dm %.3fs' % (int(min), sec)
+    else:
+        return '%.3fs' % seconds
