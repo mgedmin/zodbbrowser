@@ -19,6 +19,9 @@ Changes
   to the query parameters, and you can force full mode by adding ``full`` to
   the query parameters.
 
+- Make it possible to turn off the (slow) history part of @@zodbbrowser
+  by adding ``nohist`` to the query parameters.
+
 
 0.16.2 (2020-11-24)
 ~~~~~~~~~~~~~~~~~~~

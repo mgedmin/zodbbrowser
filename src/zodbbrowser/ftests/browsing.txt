@@ -223,6 +223,28 @@ To go back to seeing the latest version of all objects, click on 'Latest'
     Not found: div.tid-info
 
 
+Disabling History
+-----------------
+
+The History section sometimes takes a very long time to compute, so we can
+opt out of it
+
+    >>> browser.open(browser.url + '&nohist')
+    >>> printCSSPath(browser, 'h3.expander')
+    <h3 class="expander">
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
+      Attributes
+    </h3>
+    <h3 class="expander">
+      <img alt="collapse" src="http://localhost/@@/zodbbrowser/collapse.png">
+      Items (5)
+    </h3>
+    <h3 class="expander">
+      <img alt="expand" src="http://localhost/@@/zodbbrowser/expand.png">
+      Raw pickle data
+    </h3>
+
+
 Navigation by OID
 -----------------
 

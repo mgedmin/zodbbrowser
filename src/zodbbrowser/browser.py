@@ -431,6 +431,9 @@ class ZodbInfoView(TimedMixin, VeryCarefulView):
 
     def listHistory(self):
         """List transactions that modified a persistent object."""
+        if 'nohist' in self.request:
+            return []
+
         self.debug_mark('- rendering history')
         state = self._loadHistoricalState()
         results = []
