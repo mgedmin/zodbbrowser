@@ -31,9 +31,7 @@ def linkify_bugs(text):
 
 def get_long_description():
     return linkify_bugs(
-        read_file('README.rst') +
-        '\n\n' +
-        read_file('CHANGES.rst')
+        read_file('README.rst') + '\n\n' + read_file('CHANGES.rst')
     )
 
 

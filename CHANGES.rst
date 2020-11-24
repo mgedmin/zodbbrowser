@@ -4,13 +4,16 @@ Changes
 0.16.3 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Fix @@zodbbrowser_history when using ZEO (AttributeError:
+  'TransactionIterator' object has no attribute 'close', GH #31).
 
 
 0.16.2 (2020-11-24)
 ~~~~~~~~~~~~~~~~~~~
 
-- Fix @@zodbbrowser_history when using ZEO, broken since 0.12 (GH #31).
+- Incomplete fix for @@zodbbrowser_history when using ZEO, broken since 0.12
+  (AttributeError: 'TransactionIterator' object has no attribute 'close',
+  GH #31).
 
 - Add support for Python 3.8 and 3.9.
 

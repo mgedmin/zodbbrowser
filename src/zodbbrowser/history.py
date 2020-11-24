@@ -115,7 +115,8 @@ class ZodbHistory(object):
 
     def cleanup(self):
         for it in self._iterators:
-            it.close()
+            if hasattr(it, 'close'):
+                it.close()
         self._iterators = []
 
     def __iter__(self):
