@@ -6,6 +6,9 @@ Changes
 
 - Fix @@zodbbrowser_history when using ZEO (AttributeError:
   'TransactionIterator' object has no attribute 'close', GH #31).
+- Fix OOBTree history browsing that regressed in 0.11.0: it was showing only a
+  subset of changes (those that touched the OOBTree itself) and wasn't showing
+  others (those that touched deeper OOBTreeBuckets).
 
 
 0.16.2 (2020-11-24)

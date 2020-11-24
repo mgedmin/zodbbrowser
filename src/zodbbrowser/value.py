@@ -1,22 +1,22 @@
-import logging
-import itertools
 import collections
+import itertools
+import logging
 import re
 from functools import partial
 
-from ZODB.utils import u64, oid_repr
 from persistent import Persistent
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
+from ZODB.utils import oid_repr, u64
 from zope.component import adapter
+from zope.interface import Interface, implementer
 from zope.interface.declarations import ProvidesClass
-from zope.interface import implementer, Interface
 from zope.security.proxy import removeSecurityProxy
 
-
 from zodbbrowser.compat import basestring, escape
-from zodbbrowser.interfaces import IValueRenderer, IObjectHistory
+from zodbbrowser.history import getObjectHistory
+from zodbbrowser.interfaces import IValueRenderer
 
 
 # Persistent has a __repr__ now that shows the OID, but it's shown poorly
@@ -260,7 +260,7 @@ class PersistentValue(object):
         if tid is not None:
             url += "&tid=0x%x" % u64(tid)
             try:
-                oldstate = IObjectHistory(self.context).loadState(tid)
+                oldstate = getObjectHistory(self.context).loadState(tid)
                 clone = self.context.__class__.__new__(self.context.__class__)
                 clone.__setstate__(oldstate)
                 clone._p_oid = self.context._p_oid

@@ -4,31 +4,30 @@ import pickletools
 import time
 import traceback
 
-from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
-from zope.app.publication.zopepublication import ZopePublication, Cleanup
-from zope.publisher.browser import BrowserView
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.component import adapter, queryUtility
-from zope.interface import Interface
-from zope.security.proxy import removeSecurityProxy
-from zope.cachedescriptors.property import Lazy
-from zope.exceptions.interfaces import UserError
-from ZODB.utils import p64, u64, tid_repr, oid_repr
+import transaction
+from persistent import Persistent
+from persistent.TimeStamp import TimeStamp
 from ZODB.Connection import Connection
 from ZODB.interfaces import IDatabase
 from ZODB.POSException import POSKeyError
-from persistent import Persistent
-from persistent.TimeStamp import TimeStamp
-import transaction
+from ZODB.utils import oid_repr, p64, tid_repr, u64
+from zope.app.pagetemplate.viewpagetemplatefile import ViewPageTemplateFile
+from zope.app.publication.zopepublication import Cleanup, ZopePublication
+from zope.cachedescriptors.property import Lazy
+from zope.component import adapter, queryUtility
+from zope.exceptions.interfaces import UserError
+from zope.interface import Interface
+from zope.publisher.browser import BrowserView
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.security.proxy import removeSecurityProxy
 
-from zodbbrowser import __version__, __homepage__
-from zodbbrowser.compat import escape, StringIO, BytesIO
+from zodbbrowser import __homepage__, __version__
+from zodbbrowser.compat import BytesIO, StringIO, escape
 from zodbbrowser.diff import compareDictsHTML
-from zodbbrowser.history import ZodbObjectHistory
-from zodbbrowser.interfaces import IDatabaseHistory
-from zodbbrowser.interfaces import IValueRenderer
+from zodbbrowser.history import getObjectHistory
+from zodbbrowser.interfaces import IDatabaseHistory, IValueRenderer
 from zodbbrowser.state import ZodbObjectState
-from zodbbrowser.value import pruneTruncations, TRUNCATIONS
+from zodbbrowser.value import TRUNCATIONS, pruneTruncations
 
 
 log = logging.getLogger("zodbbrowser")
@@ -132,8 +131,8 @@ class ZodbInfoView(VeryCarefulView):
         self._started = time.time()
         pruneTruncations()
         self.obj = self.selectObjectToView()
-        # Not using IObjectHistory(self.obj) because LP#1185175
-        self.history = ZodbObjectHistory(self.obj)
+        # Not using IObjectHistory(self.obj) because LP: #1185175
+        self.history = getObjectHistory(self.obj)
         self.latest = True
         if self.request.get('tid'):
             self.state = ZodbObjectState(self.obj,
@@ -410,8 +409,8 @@ class ZodbInfoView(VeryCarefulView):
                 user_location = None
                 user_id = d['user_name']
             url = self.getUrl(tid=u64(d['tid']))
-            current = (d['tid'] == self.state.tid and
-                       self.state.requestedTid is not None)
+            current = (d['tid'] == self.state.tid
+                       and self.state.requestedTid is not None)
             curState = state[n]['state']
             oldState = state[n + 1]['state']
             diff = compareDictsHTML(curState, oldState, d['tid'])

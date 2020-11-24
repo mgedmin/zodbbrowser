@@ -92,6 +92,15 @@ class ZodbObjectHistory(object):
             self._obj._p_changed = True
 
 
+def getObjectHistory(obj):
+    assert isinstance(obj, Persistent)
+    history = IObjectHistory(obj, None)
+    if history is None:
+        # See LP: #1185175
+        history = ZodbObjectHistory(obj)
+    return history
+
+
 @adapter(IConnection)
 @implementer(IDatabaseHistory)
 class ZodbHistory(object):

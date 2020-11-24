@@ -1,34 +1,33 @@
 import logging
 
+import zope.interface.declarations
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
+from ZODB.utils import u64
 from zope.component import adapter, getMultiAdapter
-from zope.interface import implementer, Interface
-from zope.interface.interfaces import IInterface
+from zope.interface import Interface, implementer
 from zope.interface.interface import InterfaceClass
+from zope.interface.interfaces import IInterface
 from zope.proxy import removeAllProxies
 from zope.traversing.interfaces import IContainmentRoot
-from ZODB.utils import u64
-
-import zope.interface.declarations
 
 # be compatible with Zope 3.4, but prefer the modern package structure
 try:
     from zope.container.sample import SampleContainer
 except ImportError:
-    from zope.app.container.sample import SampleContainer # BBB
+    from zope.app.container.sample import SampleContainer  # BBB
 try:
     from zope.container.ordered import OrderedContainer
 except ImportError:
-    from zope.app.container.ordered import OrderedContainer # BBB
+    from zope.app.container.ordered import OrderedContainer  # BBB
 try:
     from zope.container.contained import ContainedProxy
 except ImportError:
     from zope.app.container.contained import ContainedProxy # BBB
 
-from zodbbrowser.interfaces import IStateInterpreter, IObjectHistory
-from zodbbrowser.history import ZodbObjectHistory
+from zodbbrowser.history import getObjectHistory
+from zodbbrowser.interfaces import IObjectHistory, IStateInterpreter
 
 
 log = logging.getLogger(__name__)
@@ -83,8 +82,8 @@ class ZodbObjectState(object):
     def __init__(self, obj, tid=None, _history=None):
         self.obj = removeAllProxies(obj)
         if _history is None:
-            # Not using IObjectHistory(self.obj) because LP#1185175
-            _history = ZodbObjectHistory(self.obj)
+            # Not using IObjectHistory(self.obj) because LP: #1185175
+            _history = getObjectHistory(self.obj)
         else:
             assert _history._obj is self.obj
         self.history = _history
@@ -244,7 +243,7 @@ class SampleContainerState(GenericState):
         # OOBTree -- SampleContainer itself uses a plain Python dict, but
         # subclasses are supposed to overwrite the _newContainerData() method
         # and use something persistent.
-        loadedstate = IObjectHistory(data).loadState(self.tid)
+        loadedstate = getObjectHistory(data).loadState(self.tid)
         return getMultiAdapter((data, loadedstate, self.tid),
                                IStateInterpreter).listItems()
 
