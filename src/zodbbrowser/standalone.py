@@ -31,6 +31,11 @@ from zope.server.taskthreads import ThreadedTaskDispatcher
 
 from zodbbrowser.state import install_provides_hack
 
+try:
+    import faulthandler
+except ImportError:
+    faulthandler = None  # pragma: PY2
+
 
 class Options(object):
     db_filename = None
@@ -273,6 +278,9 @@ def open_db(options):
 
 def main(args=None, start_serving=True):
     logging.basicConfig(format="%(message)s")
+
+    if faulthandler is not None:
+        faulthandler.enable()   # pragma: PY3
 
     options = parse_args(args)
 
