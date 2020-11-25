@@ -13,7 +13,9 @@ install:
   - pip install zope.testrunner coverage coverage-python-version coveralls
 script:
   - coverage run -m zope.testrunner --test-path=src --tests-pattern="^f?tests$"
-  - coverage report -m --fail-under=100
+  - if [ "$TRAVIS_PYTHON_VERSION" != pypy ]; then
+      coverage report -m --fail-under=100;
+    fi
 after_success:
   - coveralls
 
