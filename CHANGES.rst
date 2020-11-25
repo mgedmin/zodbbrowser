@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.17.1 (unreleased)
+0.17.1 (2020-11-25)
 ~~~~~~~~~~~~~~~~~~~
 
 - Fix interpreter crash (BTree_rangeSearch: Assertion 'highbucket != NULL'
