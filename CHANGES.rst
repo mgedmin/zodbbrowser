@@ -4,7 +4,8 @@ Changes
 0.17.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Fix interpreter crash (BTree_rangeSearch: Assertion 'highbucket != NULL'
+  failed) in historical state computation for large OOBTrees (GH #33).
 
 
 0.17 (2020-11-24)
