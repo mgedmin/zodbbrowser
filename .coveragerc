@@ -3,6 +3,8 @@ source = zodbbrowser
 omit = */tests/*,*/ftests/*
 cover_pylib = False
 # branch = True
+plugins =
+    coverage_python_version
 
 [report]
 exclude_lines =

@@ -6,7 +6,7 @@ except NameError:
 
 try:
     from cStringIO import StringIO
-    BytesIO = StringIO
+    BytesIO = StringIO              # pragma: PY2
 except ImportError:
     # Python 3
     from io import BytesIO, StringIO  # noqa
