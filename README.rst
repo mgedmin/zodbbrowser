@@ -128,8 +128,8 @@ There's an old bugtracker at https://bugs.launchpad.net/zodbbrowser but I'd
 really rather prefer new bugs in GitHub.
 
 
-.. |buildstatus| image:: https://api.travis-ci.com/mgedmin/zodbbrowser.svg?branch=master
-.. _buildstatus: https://travis-ci.com/mgedmin/zodbbrowser
+.. |buildstatus| image:: https://github.com/mgedmin/zodbbrowser/workflows/build/badge.svg?branch=master
+.. _buildstatus: https://github.com/mgedmin/zodbbrowser/actions
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mgedmin/zodbbrowser?branch=master&svg=true
 .. _appveyor: https://ci.appveyor.com/project/mgedmin/zodbbrowser
