@@ -327,7 +327,7 @@ def stripify(s):
     had_space = s[:1].isspace()
     s = s.strip()
     if '\n' in s:
-        s = ' '.join(l.strip() for l in s.splitlines())
+        s = ' '.join(line.strip() for line in s.splitlines())
     if had_space and s:
         s = ' ' + s
     return s

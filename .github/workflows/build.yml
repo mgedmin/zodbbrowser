@@ -87,6 +87,7 @@ jobs:
     strategy:
       matrix:
         toxenv:
+          - flake8
           - isort
 
     steps:
