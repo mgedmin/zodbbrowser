@@ -98,7 +98,7 @@ class ServerController(object):
                                               kwargs=dict(interval=0.5))
         # Daemon threads are evil and cause weird errors on shutdown,
         # but we want ^C to not hang
-        self.server_thread.setDaemon(True)
+        self.server_thread.daemon = True
         self.server_thread.start()
 
     def stop(self):
