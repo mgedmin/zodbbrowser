@@ -4,7 +4,7 @@ Changes
 0.17.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Add support for Python 3.10.
 
 
 0.17.1 (2020-11-25)
