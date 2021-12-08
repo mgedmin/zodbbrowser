@@ -21,3 +21,5 @@ python
 .coverage
 coverage-reports/
 build/
+.venv/
+Data.fs*

@@ -18,39 +18,30 @@ view their attributes and historical changes made to them.
 Usage as a standalone project
 -----------------------------
 
-Install all the dependencies into the source tree with zc.buildout::
+Install zodbbrowser into a virtualenv alongside your application code ::
 
-  python bootstrap.py
-  bin/buildout
+  pip install zodbbrowser
 
-Run bin/zodbbrowser specifying either a filename or a ZEO address ::
+Run ``zodbbrowser`` specifying either a filename or a ZEO address ::
 
-  bin/zodbbrowser /path/to/Data.fs
-  bin/zodbbrowser --zeo localhost:9080
-  bin/zodbbrowser --zeo /path/to/zeosock
+  zodbbrowser /path/to/Data.fs
+  zodbbrowser --zeo localhost:9080
+  zodbbrowser --zeo /path/to/zeosock
 
 If you don't have a spare Data.fs to test with, you can create a new empty
 one with just the barest Zope 3 scaffolding in it::
 
-  bin/zodbbrowser empty.fs --rw
+  zodbbrowser empty.fs --rw
 
 Open http://localhost:8070 in a web browser.  Note that there are no
 access controls; all other users on the local machine will be able to
 access the database contents.
 
-Or you could try to use ``easy_install`` or ``pip``.  It may work or it may
-not, depending on the current state of all the dependencies (buildout.cfg
-hardcodes dependency version to a known-working-together state, called the
-"Zope 3.4 Known Good Set", so buildout-based installs are safer) ::
-
-  easy_install zodbbrowser
-  zodbbrowser /path/to/Data.fs
-
 
 Command-line options
 --------------------
 
-Run ``bin/zodbbrowser --help`` to see a full and up-to-date list of
+Run ``zodbbrowser --help`` to see a full and up-to-date list of
 command-line options::
 
   Usage: zodbbrowser [options] [FILENAME | --zeo ADDRESS]
@@ -107,7 +98,7 @@ released to the Python Package Index.
 There's also `dm.historical`__ which provides access to object history from
 an interactive Python shell.
 
-__ https://pypi.python.org/pypi/dm.historical
+__ https://pypi.org/project/dm.historical
 
 If you're not interested in history or objects that cannot be reached
 through URL traversal, you can use the built-in object inspector that

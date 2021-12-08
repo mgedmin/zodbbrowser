@@ -1,6 +1,5 @@
 include *.cfg
 exclude .installed.cfg
-include bootstrap.py
 include Makefile
 include *.rst
 include *.txt
