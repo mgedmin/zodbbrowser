@@ -6,6 +6,8 @@ Changes
 
 - Add support for Python 3.10.
 
+- Drop support for Python 3.6.
+
 
 0.17.1 (2020-11-25)
 ~~~~~~~~~~~~~~~~~~~
