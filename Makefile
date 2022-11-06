@@ -32,7 +32,7 @@ testp: bin/test                 ##: run tests in a pager
 
 .PHONY: coverage
 coverage:                       ##: measure test coverage
-	tox -e coverage
+	tox -e coverage3
 
 include release.mk
 

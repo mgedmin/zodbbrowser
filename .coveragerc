@@ -3,12 +3,11 @@ source = zodbbrowser
 omit = */tests/*,*/ftests/*
 cover_pylib = False
 # branch = True
-plugins =
-    coverage_python_version
 
 [report]
 exclude_lines =
     pragma: nocover
+    pragma: PY2
     except ImportError:
     except NameError:
     if __name__ == '__main__':
