@@ -4,7 +4,7 @@ Changes
 0.17.2 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Add support for Python 3.10.
+- Add support for Python 3.10 and 3.11.
 
 - Drop support for Python 3.6.
 
