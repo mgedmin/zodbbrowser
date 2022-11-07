@@ -8,6 +8,7 @@ cover_pylib = False
 exclude_lines =
     pragma: nocover
     pragma: PY2
+    pragma: PY3
     except ImportError:
     except NameError:
     if __name__ == '__main__':
