@@ -100,6 +100,9 @@ setup(
         # but that are dropped when you do pip install, *sigh*
         "zope.hookable",
         "RestrictedPython",
+        # ZODB depends on zc.lockfile, which dropped Python 2 compatibility but
+        # didn't add a requires_python
+        "zc.lockfile < 3.0; python_version == '2.7'"
         ],
     extras_require=dict(
         test=[
