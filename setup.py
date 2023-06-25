@@ -57,7 +57,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
@@ -66,6 +65,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
+    python_requires=">=3.7",
     packages=find_packages('src'),
     include_package_data=True,
     zip_safe=False,
@@ -100,9 +100,6 @@ setup(
         # but that are dropped when you do pip install, *sigh*
         "zope.hookable",
         "RestrictedPython",
-        # ZODB depends on zc.lockfile, which dropped Python 2 compatibility but
-        # didn't add a requires_python
-        "zc.lockfile < 3.0; python_version == '2.7'"
         ],
     extras_require=dict(
         test=[
