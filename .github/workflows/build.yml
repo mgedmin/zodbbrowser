@@ -20,13 +20,11 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "2.7"
           - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
-          - "pypy2.7"
           - "pypy3.7"
 
     steps:
@@ -61,12 +59,11 @@ jobs:
         run: coverage run -m zope.testrunner --test-path=src --tests-pattern="^f?tests$"
 
       - name: Check test coverage
-        run: coverage report -m --fail-under=${{ matrix.python-version == 'pypy2.7' && 98 || 100 }}
+        run: coverage report -m --fail-under=100
 
       - name: Report to coveralls
         run: coveralls
         continue-on-error: true
-        if: "matrix.python-version != '2.7' && matrix.python-version != 'pypy2.7'"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_SERVICE_NAME: github
