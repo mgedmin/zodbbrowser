@@ -25,7 +25,7 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
-          - "pypy3.7"
+          - "pypy3.10"
 
     steps:
       - name: Install OS dependencies
