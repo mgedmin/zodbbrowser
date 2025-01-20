@@ -6,7 +6,7 @@ Changes
 
 - Add support for Python 3.10 and 3.11.
 
-- Drop support for Python 2.7 and 3.6.
+- Drop support for Python 2.7, 3.6, and 3.7.
 
 
 0.17.1 (2020-11-25)
