@@ -8,6 +8,9 @@ Changes
 
 - Drop support for Python 2.7, 3.6, and 3.7.
 
+- Fix bits of raw markup leaking into <title> tags due to html.parser fixes in
+  Python 3.11.14.
+
 
 0.17.1 (2020-11-25)
 ~~~~~~~~~~~~~~~~~~~

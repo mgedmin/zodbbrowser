@@ -9,7 +9,7 @@ database.
     >>> browser.getLink('latest 5 transactions').click()
 
     >>> printCSSPath(browser, 'title')
-    <title> ZODB Transactions, page 1</title>
+    <title>ZODB Transactions, page 1</title>
 
 Sometimes it's slow so we can ask for fast mode that lists only object OIDs,
 but no types/paths/reprs
@@ -17,7 +17,7 @@ but no types/paths/reprs
     >>> url = browser.url
     >>> browser.open(url + '?fast=1')
     >>> printCSSPath(browser, 'title')
-    <title> ZODB Transactions, page 1</title>
+    <title>ZODB Transactions, page 1</title>
 
     >>> printCSSPath(browser, '.diff li')  # doctest: +ELLIPSIS
     <li>
