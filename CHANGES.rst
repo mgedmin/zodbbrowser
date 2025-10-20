@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.18.0 (unreleased)
+0.18.0 (2025-10-20)
 ~~~~~~~~~~~~~~~~~~~
 
 - Add support for Python 3.10 and 3.11.
