@@ -4,7 +4,7 @@ Changes
 0.18.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Drop support for Python 3.8 and 3.9.
 
 
 0.18.0 (2025-10-20)
