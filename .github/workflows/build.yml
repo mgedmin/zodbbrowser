@@ -14,8 +14,8 @@ on:
 
 jobs:
   build:
-    name: Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
@@ -23,11 +23,11 @@ jobs:
           - "3.10"
           - "3.11"
           - "pypy3.10"
+        os:
+          - ubuntu-latest
+          - windows-latest
 
     steps:
-      - name: Install OS dependencies
-        run: sudo apt install -y libxml2-dev libxslt1-dev
-
       - name: Git clone
         uses: actions/checkout@v4
 
@@ -35,25 +35,26 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python-version }}"
-
-      - name: Pip cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('tox.ini', 'setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-            ${{ runner.os }}-pip-
+          cache: pip
+          cache-dependency-path: |
+            setup.py
+            tox.ini
 
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip
           python -m pip install -U setuptools wheel
           python -m pip install -U zope.testrunner coverage coveralls
-          python -m pip install -e .[test]
+          python -m pip install -e '.[test]'
 
       - name: Run tests
         run: coverage run -m zope.testrunner --test-path=src --tests-pattern="^f?tests$"
+
+      - name: Adjust OS-specific .coveragerc configuration (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # drop the pragma: Linux so lines marked thus will be required
+          sed -i -e '/pragma: Linux/d' .coveragerc
 
       - name: Check test coverage
         run: coverage report -m --fail-under=100
