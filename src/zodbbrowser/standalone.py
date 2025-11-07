@@ -269,7 +269,7 @@ def parse_args(args=None):
 def open_db(options):
     if options.db_filename:
         storage = FileStorage(options.db_filename, read_only=options.readonly)
-    else:
+    else:  # pragma: Linux
         storage = ClientStorage(options.zeo_address,
                                 wait_timeout=options.zeo_timeout,
                                 storage=options.zeo_storage,
