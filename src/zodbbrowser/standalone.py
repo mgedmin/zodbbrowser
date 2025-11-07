@@ -244,7 +244,7 @@ def parse_args(args=None):
         else:
             # socket filename
             zeo_address = opts.zeo
-            if os.path.exists(zeo_address):
+            if os.path.exists(zeo_address):  # pragma: Linux
                 # try ZEO connection through UNIX socket
                 mode = os.stat(zeo_address)
                 if not stat.S_ISSOCK(mode.st_mode):

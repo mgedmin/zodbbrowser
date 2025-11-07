@@ -50,6 +50,12 @@ jobs:
       - name: Run tests
         run: coverage run -m zope.testrunner --test-path=src --tests-pattern="^f?tests$"
 
+      - name: Adjust OS-specific .coveragerc configuration (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # drop the pragma: Linux so lines marked thus will be required
+          sed -i -e '/pragma: Linux/d' .coveragerc
+
       - name: Check test coverage
         run: coverage report -m --fail-under=100
 
