@@ -1,7 +1,7 @@
 ZODB Browser
 ============
 
-|buildstatus|_ |appveyor|_ |coverage|_
+|buildstatus|_ |coverage|_
 
 The ZODB browser allows you to inspect persistent objects stored in the ZODB,
 view their attributes and historical changes made to them.
@@ -121,9 +121,6 @@ really rather prefer new bugs in GitHub.
 
 .. |buildstatus| image:: https://github.com/mgedmin/zodbbrowser/actions/workflows/build.yml/badge.svg?branch=master
 .. _buildstatus: https://github.com/mgedmin/zodbbrowser/actions
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mgedmin/zodbbrowser?branch=master&svg=true
-.. _appveyor: https://ci.appveyor.com/project/mgedmin/zodbbrowser
 
 .. |coverage| image:: https://coveralls.io/repos/mgedmin/zodbbrowser/badge.svg?branch=master
 .. _coverage: https://coveralls.io/r/mgedmin/zodbbrowser
