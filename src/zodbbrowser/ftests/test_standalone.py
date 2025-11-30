@@ -85,7 +85,7 @@ class ServerController(object):
         if self.server_thread is not None:
             raise AssertionError('Already running a server')
 
-        args += ('--listen', str(self.port_number))
+        args += ('--listen', '127.0.0.1:%d' % self.port_number)
         args += ('--quiet', )
         server = main(list(args), start_serving=False)
 

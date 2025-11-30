@@ -144,6 +144,7 @@ class TestStartServer(unittest.TestCase):
     def setUp(self):
         setup.placelessSetUp()
         self.options = Options()
+        self.options.listen_on = ('127.0.0.1', 8070)  # Don't want IPv6
         self.options.verbose = False
         self.db = None
 
