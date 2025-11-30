@@ -41,7 +41,7 @@ long_description = get_long_description()
 
 setup(
     name="zodbbrowser",
-    license='ZPL 2.1',
+    license='ZPL-2.1',
     author="Marius Gedminas",
     author_email="marius@pov.lt",
     maintainer="Programmers of Vilnius",
@@ -55,7 +55,6 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Zope Public License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
