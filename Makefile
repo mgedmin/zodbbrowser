@@ -62,6 +62,6 @@ bin/zope-testrunner: | bin/pip
 	bin/pip install zope.testrunner
 	ln -sfr .venv/bin/zope-testrunner bin/
 
-bin/test: | bin/zope-testrunner
-	printf '"$$(dirname "$$0")"/zope-testrunner --test-path=src --tests-pattern='"'"'^f?tests$$'"'"' "$$@"\n' > $@
+bin/test: Makefile | bin/zope-testrunner
+	printf 'PYTHONWARNINGS=ignore:PersistentDict:DeprecationWarning "$$(dirname "$$0")"/zope-testrunner --test-path=src --tests-pattern='"'"'^f?tests$$'"'"' "$$@"\n' > $@
 	chmod +x $@
