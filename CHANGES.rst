@@ -1,12 +1,18 @@
 Changes
 -------
 
-0.18.1 (unreleased)
+0.19.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
+
+- Add support for Python 3.12, 3.13, and 3.14.
 
 - Drop support for Python 3.8 and 3.9.
 
 - Use waitress instead of zope.server in standalone mode.
+
+- Allow -v/--verbose to be specified twice on the command line, for extra
+  verbosity (which currently means every log message prints the name of the
+  logger in front of the message itself.)
 
 
 0.18.0 (2025-10-20)
