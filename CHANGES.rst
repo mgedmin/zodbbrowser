@@ -6,6 +6,8 @@ Changes
 
 - Drop support for Python 3.8 and 3.9.
 
+- Use waitress instead of zope.server in standalone mode.
+
 
 0.18.0 (2025-10-20)
 ~~~~~~~~~~~~~~~~~~~

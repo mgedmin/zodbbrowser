@@ -5,7 +5,6 @@ ZODB Browser as a standalone app
 This is a pile of hacks since bootstrapping a Zope 3 based app is incredibly
 painful.
 """
-import asyncore
 import errno
 import logging
 import optparse
@@ -16,6 +15,7 @@ import sys
 import traceback
 import warnings
 
+import waitress
 import zope.app.component.hooks
 from ZEO.ClientStorage import ClientStorage
 from ZODB.DB import DB
@@ -23,11 +23,10 @@ from ZODB.FileStorage.FileStorage import FileStorage
 from ZODB.interfaces import IDatabase
 from ZODB.MappingStorage import MappingStorage
 from zope.app.appsetup.appsetup import SystemConfigurationParticipation
-from zope.app.server.servertype import IServerType
-from zope.component import getUtility, provideUtility, queryUtility
+from zope.app.wsgi import WSGIPublisherApplication
+from zope.component import provideUtility, queryUtility
 from zope.event import notify
 from zope.exceptions import exceptionformatter
-from zope.server.taskthreads import ThreadedTaskDispatcher
 
 from zodbbrowser.state import install_provides_hack
 
@@ -45,10 +44,10 @@ class Options(object):
     zeo_timeout = 30  # seconds
     readonly = True
     listen_on = ('localhost', 8070)
-    server_type = 'WSGI-HTTP'
     verbose = True
+    debug = False
     threads = 4
-    features = ('zserver', 'standalone-zodbbrowser') # maybe 'devmode' too?
+    features = ('standalone-zodbbrowser', ) # maybe 'devmode' too?
     site_definition = """
         <configure xmlns="http://namespaces.zope.org/zope"
                    i18n_domain="zodbbrowser">
@@ -56,7 +55,6 @@ class Options(object):
           <include package="zope.app.zcmlfiles" file="meta.zcml" />
 
           <include package="zope.app.zcmlfiles" />
-          <include package="zope.app.server" />
           <include package="zope.app.component" />
           <include package="zope.error"/>
           <include package="zope.publisher" />
@@ -74,7 +72,8 @@ class Options(object):
           <unauthenticatedGroup id="zope.Anybody" title="Unauthenticated Users" />
           <authenticatedGroup id="zope.Authenticated" title="Authenticated Users" />
           <everybodyGroup id="zope.Everybody" title="All Users" />
-          <securityPolicy component="zope.securitypolicy.zopepolicy.ZopeSecurityPolicy" />
+          <securityPolicy
+              component="zope.securitypolicy.zopepolicy.ZopeSecurityPolicy" />
           <role id="zope.Anonymous" title="Everybody"
                 description="All users have this role implicitly" />
           <role id="zope.Manager" title="Site Manager" />
@@ -113,60 +112,64 @@ def configure(options):
     endInteraction()
 
 
-task_dispatcher = None
-port = None
+def create_wsgi_app(options, db):
+    return WSGIPublisherApplication(db)
 
 
 def start_server(options, db):
-    global task_dispatcher, port
-    task_dispatcher = ThreadedTaskDispatcher()
-    task_dispatcher.setThreadCount(options.threads)
-
-    server_type = getUtility(IServerType, options.server_type)
+    app = create_wsgi_app(options, db)
     host, port = options.listen_on
     try:
-        server = server_type.create(name=options.server_type, ip=host,
-                                    port=port, db=db,
-                                    task_dispatcher=task_dispatcher,
-                                    verbose=options.verbose)
+        server = waitress.server.create_server(
+            app, host=host, port=port, threads=options.threads
+        )
     except socket.error as e:
         if e.errno == errno.EADDRINUSE:
             sys.exit("Cannot listen on %s:%s: %s" % (host or '0.0.0.0',
                                                      port, e))
         else:
             raise
-    else:
-        # port can be 0, which means "pick any free port".  Let's show the
-        # port that was picked
-        port = server.socket.getsockname()[1]
-
     if options.verbose:
-        print("Listening on http://%s:%d/"
-              % (host or socket.gethostname(), port))
+        server.print_listen("Listening on http://{}:{}/")
+    return server
 
 
-def serve_forever(interval=30.0):
+def serve_forever(server):
     try:
-        while asyncore.socket_map:
-            asyncore.poll(interval)
+        server.run()
     except KeyboardInterrupt:
         pass
+    finally:
+        server.close()
+        close_database()
 
 
-def stop_serving():
-    global task_dispatcher
-    task_dispatcher.shutdown(False)
-    task_dispatcher = None
-    asyncore.close_all()
+def close_database():
     db = queryUtility(IDatabase, '<target>')
     if db:
         db.close()
 
 
+def print_exception(
+    exc, /, value=None, tb=None, limit=None, file=None, chain=True, **kw
+):
+    if value is None and tb is None:
+        exc, value, tb = type(exc), exc, exc.__traceback__
+    exceptionformatter.print_exception(exc, value, tb, limit=limit, file=file)
+
+
+def format_exception(
+    exc, /, value=None, tb=None, limit=None, chain=True, **kw
+):
+    if value is None and tb is None:
+        exc, value, tb = type(exc), exc, exc.__traceback__
+    return exceptionformatter.format_exception(exc, value, tb, limit=limit)
+
+
 def monkeypatch_error_formatting():
     """Use Zope's custom traceback formatter for clearer error messages."""
-    traceback.format_exception = exceptionformatter.format_exception
-    traceback.print_exception = exceptionformatter.print_exception
+    traceback.format_exception = format_exception
+    traceback.print_exception = print_exception
 
 
 def parse_args(args=None):
@@ -185,9 +188,11 @@ def parse_args(args=None):
     parser.add_option('--listen', metavar='ADDRESS',
                       help='specify port (or host:port) to listen on',
                       default='localhost:8070')
-    parser.add_option('-q', '--quiet', action='store_false', dest='verbose',
-                      default=True,
+    parser.add_option('-q', '--quiet', action='store_const', const=0,
+                      dest='verbose', default=1,
                       help='be quiet')
+    parser.add_option('-v', '--verbose', action='count', dest='verbose',
+                      help='be more verbose')
     parser.add_option('--debug', action='store_true', dest='debug',
                       default=False,
                       help='enable debug logging')
@@ -196,11 +201,9 @@ def parse_args(args=None):
                       help='open the database read-write (default: read-only)')
     opts, args = parser.parse_args(args)
 
-    if opts.debug:  # pragma: nocover
-        logging.getLogger('zodbbrowser').setLevel(logging.DEBUG)
-
     options = Options()
     options.verbose = opts.verbose
+    options.debug = opts.debug
 
     if opts.listen:
         if ':' in opts.listen:
@@ -227,8 +230,6 @@ def parse_args(args=None):
 
     if opts.storage and not opts.zeo:
         parser.error('a ZEO storage was specified without ZEO connection')
-
-    monkeypatch_error_formatting()
 
     if opts.db:
         options.db_filename = opts.db
@@ -277,13 +278,27 @@ def open_db(options):
     return DB(storage)
 
 
-def main(args=None, start_serving=True):
-    logging.basicConfig(format="%(message)s")
+def set_up_logging(options):
+    if options.verbose >= 2:
+        format = "%(name)s: %(message)s"
+    else:
+        format = "%(message)s"
+    logging.basicConfig(format=format, level=logging.INFO)
+    if options.debug:
+        logging.getLogger('zodbbrowser').setLevel(logging.DEBUG)
+    else:
+        logging.getLogger('zope.generations').setLevel(logging.WARNING)
 
+
+def main(args=None, start_serving=True):
     if faulthandler is not None:
         faulthandler.enable()   # pragma: PY3
 
+    monkeypatch_error_formatting()
+
     options = parse_args(args)
+
+    set_up_logging(options)
 
     db = open_db(options)
 
@@ -295,14 +310,17 @@ def main(args=None, start_serving=True):
 
     notify(zope.app.appsetup.interfaces.DatabaseOpened(internal_db))
 
-    start_server(options, internal_db)
+    server = start_server(options, internal_db)
 
     notify(zope.app.appsetup.interfaces.ProcessStarting())
 
     install_provides_hack()
 
     if start_serving:
-        serve_forever()
+        serve_forever(server)
+    else:
+        # This is used in the test suite
+        return server
 
 
 if __name__ == '__main__':

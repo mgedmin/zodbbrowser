@@ -28,9 +28,8 @@ from zope.testbrowser.browser import HTTPError
 from zope.testbrowser.interfaces import IBrowser
 from zope.testing.renormalizing import RENormalizing
 
-from zodbbrowser import standalone
 from zodbbrowser.compat import StringIO, basestring, escape
-from zodbbrowser.standalone import main, serve_forever, stop_serving
+from zodbbrowser.standalone import close_database, main
 from zodbbrowser.value import resetTruncations
 
 
@@ -88,14 +87,13 @@ class ServerController(object):
 
         args += ('--listen', str(self.port_number))
         args += ('--quiet', )
-        main(list(args), start_serving=False)
+        server = main(list(args), start_serving=False)
 
-        self.port_number = standalone.port
+        self.server = server
+        self.port_number = int(self.server.effective_port)
         self.url = 'http://localhost:%d/' % self.port_number
 
-        self.server_thread = threading.Thread(name='server',
-                                              target=serve_forever,
-                                              kwargs=dict(interval=0.5))
+        self.server_thread = threading.Thread(name='server', target=server.run)
         # Daemon threads are evil and cause weird errors on shutdown,
         # but we want ^C to not hang
         self.server_thread.daemon = True
@@ -104,11 +102,13 @@ class ServerController(object):
     def stop(self):
         """Stop the background ZODB Browser web, if running."""
         if self.server_thread is not None:
-            stop_serving()
+            self.server.close()
+            self.server.task_dispatcher.shutdown()
             self.server_thread.join(1.0)
             self.server_thread = None
             self.url = None
             self.port_number = None
+            close_database()
             # XXX: leaves global Zope state, you'll need to run
             #      setup.placelessTearDown()
 

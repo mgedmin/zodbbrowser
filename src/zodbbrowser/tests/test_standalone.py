@@ -1,4 +1,5 @@
 import errno
+import logging
 import os
 import shutil
 import socket
@@ -8,20 +9,19 @@ import unittest
 
 import mock
 from ZEO.Exceptions import ClientDisconnected
-from zope.app.server.servertype import IServerType
 from zope.app.testing import setup
-from zope.component import provideUtility
-from zope.interface import implementer
 
 from zodbbrowser.compat import StringIO
 from zodbbrowser.standalone import (
     Options,
+    close_database,
+    format_exception,
     main,
     open_db,
     parse_args,
+    print_exception,
     serve_forever,
     start_server,
-    stop_serving,
 )
 from zodbbrowser.tests.realdb import RealDatabaseTest
 
@@ -37,6 +37,32 @@ class SocketMixin(object):
         sock.bind(sockfilename)
         sock.listen(0)
         return sockfilename
+
+
+class TestExceptionFormatting(unittest.TestCase):
+
+    def test_print_exception(self):
+        file = StringIO()
+        try:
+            raise Exception('hello')
+        except Exception as e:
+            print_exception(e, file=file)
+        output = file.getvalue()
+        self.assertTrue(
+            output.startswith('Traceback (most recent call last):'), output
+        )
+        self.assertTrue(
+            output.endswith('Exception: hello\n'), output
+        )
+
+    def test_format_exception(self):
+        file = StringIO()
+        try:
+            raise Exception('hello')
+        except Exception as e:
+            output = format_exception(e, file=file)
+        self.assertEqual(output[0], 'Traceback (most recent call last):\n')
+        self.assertEqual(output[-1], 'Exception: hello\n')
 
 
 class TestParseArgs(SocketMixin, unittest.TestCase):
@@ -113,39 +139,36 @@ class TestOpenDb(unittest.TestCase):
             open_db(options)
 
 
-@implementer(IServerType)
-class FakeServerType(object):
-    def create(self, **kw):
-        if kw.get('port') == 80:
-            raise socket.error(errno.EADDRINUSE, "port busy")
-        if kw.get('port') == -1:
-            raise socket.error(errno.EINVAL, "bad port")
-        sock = mock.Mock()
-        sock.getsockname.return_value = ('localhost', 8033)
-        return mock.Mock(socket=sock)
-
-
 class TestStartServer(unittest.TestCase):
 
     def setUp(self):
         setup.placelessSetUp()
-        provideUtility(FakeServerType(), name='FAKE')
         self.options = Options()
-        self.options.server_type = 'FAKE'
         self.options.verbose = False
         self.db = None
 
     def tearDown(self):
-        stop_serving()
+        close_database()
         setup.placelessTearDown()
+
+    def start_server(self, options, db):
+        server = start_server(self.options, self.db)
+        self.addCleanup(server.close)
+        self.addCleanup(server.task_dispatcher.shutdown)
+        return server
 
     def test_prints_clickable_url(self):
         self.options.verbose = True
-        with mock.patch('sys.stdout', StringIO()) as mock_stdout:
-            start_server(self.options, self.db)
-        self.assertEqual(mock_stdout.getvalue(),
-                         "Listening on http://localhost:8033/\n")
+        with self.assertLogs('waitress', level='INFO') as cm:
+            self.start_server(self.options, self.db)
+        self.assertEqual(
+            cm.output, ['INFO:waitress:Listening on http://127.0.0.1:8070/']
+        )
 
+    @mock.patch(
+        'waitress.server.create_server',
+        mock.Mock(side_effect=socket.error(errno.EADDRINUSE, "port busy")),
+    )
     def test_socket_error_handling_eaddrinuse(self):
         self.options.listen_on = ('localhost', 80)
         with self.assertRaises(SystemExit) as e:
@@ -154,6 +177,10 @@ class TestStartServer(unittest.TestCase):
             str(e.exception).startswith("Cannot listen on localhost:80"),
             str(e.exception))
 
+    @mock.patch(
+        'waitress.server.create_server',
+        mock.Mock(side_effect=socket.error(errno.EINVAL, "bad port")),
+    )
     def test_socket_error_handling_other_kind_of_error(self):
         self.options.listen_on = ('localhost', -1)
         with self.assertRaises(socket.error):
@@ -162,12 +189,16 @@ class TestStartServer(unittest.TestCase):
 
 class TestServeForever(unittest.TestCase):
 
-    @mock.patch('asyncore.socket_map', {42: None})
-    @mock.patch('asyncore.poll', mock.Mock(side_effect=KeyboardInterrupt))
     def test(self):
-        serve_forever()
+        server = mock.Mock(run=mock.Mock(side_effect=KeyboardInterrupt))
+        serve_forever(server)
+        server.close.assert_called_once()
 
 
+@mock.patch('zodbbrowser.standalone.open_db', mock.Mock())
+@mock.patch('zodbbrowser.standalone.configure', mock.Mock())
+@mock.patch('zodbbrowser.standalone.start_server', mock.Mock())
+@mock.patch('zodbbrowser.standalone.serve_forever', mock.Mock())
 class TestMain(RealDatabaseTest):
 
     open_db = False
@@ -180,10 +211,21 @@ class TestMain(RealDatabaseTest):
         RealDatabaseTest.tearDown(self)
         setup.placelessTearDown()
 
-    @mock.patch('logging.basicConfig', mock.Mock())
-    @mock.patch('zodbbrowser.standalone.open_db', mock.Mock())
-    @mock.patch('zodbbrowser.standalone.configure', mock.Mock())
-    @mock.patch('zodbbrowser.standalone.start_server', mock.Mock())
-    @mock.patch('zodbbrowser.standalone.serve_forever', mock.Mock())
-    def test(self):
+    @mock.patch('logging.basicConfig')
+    def test(self, mock_basicConfig):
         main(['--quiet', '--listen', '0', '--rw', self.db_filename])
+        mock_basicConfig.assert_called_with(
+            format="%(message)s", level=logging.INFO
+        )
+
+    @mock.patch('logging.basicConfig')
+    def test_doubly_verbose(self, mock_basicConfig):
+        main(['--quiet', '--listen', '0', '-vv', '--rw', self.db_filename])
+        mock_basicConfig.assert_called_with(
+            format="%(name)s: %(message)s", level=logging.INFO
+        )
+
+    @mock.patch('logging.basicConfig')
+    def test_debug_logging(self, mock_basicConfig):
+        main(['--quiet', '--listen', '0', '--debug', '--rw', self.db_filename])
+        self.assertEqual(logging.getLogger('zodbbrowser').level, logging.DEBUG)

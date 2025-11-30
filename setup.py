@@ -83,13 +83,13 @@ setup(
         "zope.traversing",
         "zope.cachedescriptors",
         # dependencies just for the standalone app
+        'waitress',
         "zope.app.authentication",
         "zope.app.component",
         "zope.securitypolicy",
-        "zope.app.server",
         "zope.app.session", # purely BBB for old Data.fs'es
+        "zope.app.wsgi",
         "zope.app.zcmlfiles",
-        "zope.server",
         "zope.error",
         "zope.exceptions",
         "zope.session",

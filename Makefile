@@ -2,7 +2,7 @@
 # Options
 #
 
-# Or you may want to select an explicit Python version, e.g. python3.9
+# Or you may want to select an explicit Python version, e.g. python3.14
 PYTHON = python3
 
 #
@@ -33,6 +33,10 @@ testp: bin/test                 ##: run tests in a pager
 .PHONY: coverage
 coverage:                       ##: measure test coverage
 	tox -e coverage
+
+.PHONY: lint
+lint:                           ##: run all linters
+	tox -p auto -e flake8,isort,check-python-versions,check-manifest
 
 include release.mk
 
