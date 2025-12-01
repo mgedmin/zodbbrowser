@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.19.1 (unreleased)
+0.20.0 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
 - Disable rollback for BTrees: the previous algorithm was incorrect and could
@@ -12,6 +12,9 @@ Changes
 
 - Fix system error when loading an object fails (e.g. because a bad transaction
   ID was specified in the URL; GH: #41).
+
+- Allow selecting an object to view with @@zodbbrowser?go=/path/to/object
+  (GH: #21).
 
 
 0.19.0 (2025-11-30)

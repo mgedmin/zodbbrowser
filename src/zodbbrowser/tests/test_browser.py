@@ -232,6 +232,14 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         view = ZodbInfoView(self.root, TestRequest(form={'oid': '0xdeafbeef'}))
         self.assertRaises(UserError, view.selectObjectToView)
 
+    def testSelectObjectToView_by_path(self):
+        view = ZodbInfoView(self.root, TestRequest(form={'go': '/stub'}))
+        self.assertEqual(view.selectObjectToView(), self.root['stub'])
+
+    def testSelectObjectToView_by_path_not_found(self):
+        view = ZodbInfoView(self.root, TestRequest(form={'go': '/notexist'}))
+        self.assertRaises(UserError, view.selectObjectToView)
+
     def testFindClosestPersistent(self):
         view = ZodbInfoView(self.root['stub']['member'], TestRequest())
         self.assertEqual(view.findClosestPersistent(), self.root['stub'])

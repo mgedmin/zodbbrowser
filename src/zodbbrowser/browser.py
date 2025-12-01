@@ -200,7 +200,7 @@ class ZodbInfoView(TimedMixin, VeryCarefulView):
 
     def selectObjectToView(self):
         obj = None
-        if 'oid' not in self.request:
+        if 'oid' not in self.request and 'go' not in self.request:
             obj = self.findClosestPersistent()
             # Sanity check: if we're running in standalone mode,
             # self.context is a Folder in the just-created MappingStorage,
@@ -214,6 +214,12 @@ class ZodbInfoView(TimedMixin, VeryCarefulView):
                 except ValueError:
                     raise UserError('OID is not an integer: %r' %
                                     self.request['oid'])
+            elif 'go' in self.request:
+                found = self.locate(self.request['go'])
+                if 'error' in found:
+                    raise UserError(found['error'])
+                else:
+                    oid = found['oid']
             else:
                 oid = self.getRootOid()
             try:
