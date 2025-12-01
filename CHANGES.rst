@@ -1,7 +1,7 @@
 Changes
 -------
 
-0.20.0 (unreleased)
+0.20.0 (2025-12-01)
 ~~~~~~~~~~~~~~~~~~~
 
 - Disable rollback for BTrees: the previous algorithm was incorrect and could
