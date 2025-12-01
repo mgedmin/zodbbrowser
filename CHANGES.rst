@@ -7,6 +7,9 @@ Changes
 - Disable rollback for BTrees: the previous algorithm was incorrect and could
   corrupt data.
 
+- Fix parsing of ``--zeo [::1]:8100`` on the command-line (the first : in the
+  IPv6 address was incorrectly used as the port separator)
+
 
 0.19.0 (2025-11-30)
 ~~~~~~~~~~~~~~~~~~~
