@@ -236,7 +236,7 @@ def parse_args(args=None):
     elif opts.zeo:
         if ':' in opts.zeo:
             # remote hostname:port ZEO connection
-            zeo_address = opts.zeo.split(':', 1)
+            zeo_address = opts.zeo.rsplit(':', 1)
             try:
                 zeo_address[1] = int(zeo_address[1])
             except ValueError:

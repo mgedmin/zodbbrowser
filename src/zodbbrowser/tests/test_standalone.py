@@ -104,6 +104,10 @@ class TestParseArgs(SocketMixin, unittest.TestCase):
         options = parse_args(['--zeo', 'localhost:7099'])
         self.assertEqual(options.zeo_address, ('localhost', 7099))
 
+    def test_zeo_ipv6(self):
+        options = parse_args(['--zeo', '[::1]:7099'])
+        self.assertEqual(options.zeo_address, ('[::1]', 7099))
+
     def test_zeo_bad_port(self):
         with self.assertRaises(SystemExit), mock.patch('sys.stderr'):
             parse_args(['--zeo', 'localhost:xyzzy'])
