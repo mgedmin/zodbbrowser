@@ -10,6 +10,9 @@ Changes
 - Fix parsing of ``--zeo [::1]:8100`` on the command-line (the first : in the
   IPv6 address was incorrectly used as the port separator)
 
+- Fix system error when loading an object fails (e.g. because a bad transaction
+  ID was specified in the URL; GH: #41).
+
 
 0.19.0 (2025-11-30)
 ~~~~~~~~~~~~~~~~~~~
