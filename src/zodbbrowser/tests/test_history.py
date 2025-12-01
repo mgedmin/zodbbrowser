@@ -43,6 +43,7 @@ class TestFileStorage(RealDatabaseTest):
             transaction.commit()
         history = ZodbObjectHistory(obj)
         self.assertEqual(len(history), 11)
+        self.assertTrue(history.canRollback())
 
 
 class WorkloadMixin(object):

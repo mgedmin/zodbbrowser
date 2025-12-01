@@ -263,6 +263,11 @@ class ZodbInfoView(TimedMixin, VeryCarefulView):
             pass
         return u64(root._p_oid)
 
+    def canRollback(self):
+        if self.readonly:
+            return False
+        return self.history.canRollback
+
     def locate_json(self, path): # AJAX view
         return json.dumps(self.locate(path))
 

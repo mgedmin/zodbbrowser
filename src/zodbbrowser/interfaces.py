@@ -46,6 +46,9 @@ class IObjectHistory(Interface):
         Returns the picked state as a string.
         """
 
+    def canRollback():
+        """Is it possible to roll back the object state?"""
+
     def rollback(tid):
         """Roll back object state to what it was at or before tid."""
 

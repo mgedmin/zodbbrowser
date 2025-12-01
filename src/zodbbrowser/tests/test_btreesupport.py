@@ -129,33 +129,13 @@ class TestLargeOOBTreeHistory(RealDatabaseTest):
             # POSKeyErrors.  LP#953480
             IObjectHistory(self.tree).loadStatePickle(tids[i])
 
-    def test_rollback_to_last_state_does_nothing(self):
+    def test_rollback_is_not_supported(self):
         history = IObjectHistory(self.tree)
-        history.rollback(history.lastChange())
-        self.assertEqual(len(self.tree), 100)
-        # BTrees play funky games with cached lenghts, make sure the content
-        # matches that
-        self.assertEqual(len(list(self.tree)), 100)
-        self.assertFalse(self.tree._p_changed)
-
-    def test_rollback_changes_buckets(self):
-        history = OOBTreeHistory(self.tree)
-        history.rollback(history._lastRealChange())
-        # therefore the state of the tree itself stays constant, but
-        # one or more of its buckets change
-        self.assertNotEqual(len(self.tree), 100)
-        self.assertNotEqual(len(list(self.tree)), 100)
-        self.assertFalse(self.tree._p_changed)
-
-    def test_rollback(self):
-        history = OOBTreeHistory(self.tree)
         tid = history[len(history) // 2]['tid']
-        history.rollback(tid)
-        self.assertEqual(len(self.tree), 50)
-        # BTrees play funky games with cached lenghts, make sure the content
-        # matches that
-        self.assertEqual(len(list(self.tree)), 50)
-        self.assertTrue(self.tree._p_changed)
+        self.assertFalse(history.canRollback())
+        with self.assertRaises(NotImplementedError):
+            history.rollback(tid)
+        self.assertFalse(self.tree._p_changed)
 
 
 class TestEmptyOOBTreeState(unittest.TestCase):

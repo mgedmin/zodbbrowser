@@ -78,19 +78,11 @@ class OOBTreeHistory(ZodbObjectHistory):
         # We need the real last change value.
         return self._connection.oldstate(self._obj, self._lastRealChange(tid))
 
-    def rollback(self, tid):
-        state = self.loadState(tid)
-        if state != self.loadState():
-            self._obj.__setstate__(state)
-            self._obj._p_changed = True
+    def canRollback(self):
+        return False
 
-        while state and len(state) > 1:
-            bucket = state[1]
-            bucket_history = IObjectHistory(bucket)
-            state = bucket_history.loadState(tid)
-            if state != bucket_history.loadState():
-                bucket.__setstate__(state)
-                bucket._p_changed = True
+    def rollback(self, tid):
+        raise NotImplementedError('This is too complicated/dangerous!')
 
 
 @adapter(OOBTree, tuple, None)

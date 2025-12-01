@@ -86,6 +86,9 @@ class ZodbObjectHistory(object):
     def loadState(self, tid=None):
         return self._connection.oldstate(self._obj, self.lastChange(tid))
 
+    def canRollback(self):
+        return True
+
     def rollback(self, tid):
         state = self.loadState(tid)
         if state != self.loadState():

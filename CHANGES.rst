@@ -4,7 +4,8 @@ Changes
 0.19.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Disable rollback for BTrees: the previous algorithm was incorrect and could
+  corrupt data.
 
 
 0.19.0 (2025-11-30)

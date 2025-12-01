@@ -123,7 +123,7 @@
             <span class="description" tal:content="history/description" />
           </a>
         </h4>
-        <div class="toolbox" tal:condition="python: not repeat['history'].start() and not view.readonly">
+        <div class="toolbox" tal:condition="python: not repeat['history'].start() and view.canRollback()">
           <form action="" class="rollback" method="post">
             <input type="hidden" name="oid" tal:attributes="value view/getObjectId" />
             <input type="hidden" name="tid" tal:attributes="value view/getRequestedTid" />

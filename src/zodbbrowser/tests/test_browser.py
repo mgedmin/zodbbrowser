@@ -45,6 +45,9 @@ class DatabaseStub(object):
 
     opened = 0
 
+    def __init__(self, readonly=False):
+        self._readonly = readonly
+
     def open(self):
         self.opened += 1
         return ConnectionStub(self)
@@ -53,6 +56,9 @@ class DatabaseStub(object):
 class ConnectionStub(object):
     def __init__(self, db):
         self.db = db
+
+    def isReadOnly(self):
+        return self.db._readonly
 
     def close(self):
         self.db.opened -= 1
@@ -421,12 +427,17 @@ class TestZodbInfoView(unittest.TestCase):
         if first != second:
             self.fail('\n%r !=\n%r' % (first, second))
 
-    def test_jar_uses_explicit_target_db(self):
-        stub_db = DatabaseStub()
+    def registerDB(self, db=None, **kw):
+        if not db:
+            db = DatabaseStub(**kw)
         registry = getGlobalSiteManager()
-        registry.registerUtility(stub_db, IDatabase, name='<target>')
+        registry.registerUtility(db, IDatabase, name='<target>')
         self.addCleanup(registry.unregisterUtility,
-                        stub_db, IDatabase, name='<target>')
+                        db, IDatabase, name='<target>')
+        return db
+
+    def test_jar_uses_explicit_target_db(self):
+        stub_db = self.registerDB()
         view = ZodbInfoView(object(), TestRequest())
         self.assertEqual(view.jar.db, stub_db)
         del view
@@ -520,6 +531,11 @@ class TestZodbInfoView(unittest.TestCase):
                          '1905-05-13 03:32:22.050327')
         self.assertEqual(view._tidToTimestamp('something else'),
                          "'something else'")
+
+    def test_canRollback_when_readonly(self):
+        self.registerDB(readonly=True)
+        view = ZodbInfoView(None, TestRequest())
+        self.assertFalse(view.canRollback())
 
 
 class HistoryStub(object):
