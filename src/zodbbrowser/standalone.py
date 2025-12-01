@@ -151,7 +151,7 @@ def close_database():
 
 
 def print_exception(
-    exc, /, value=None, tb=None, limit=None, file=None, chain=True, **kw
+    exc, value=None, tb=None, limit=None, file=None, chain=True, **kw
 ):
     if value is None and tb is None:
         exc, value, tb = type(exc), exc, exc.__traceback__
@@ -159,7 +159,7 @@ def print_exception(
 
 
 def format_exception(
-    exc, /, value=None, tb=None, limit=None, chain=True, **kw
+    exc, value=None, tb=None, limit=None, chain=True, **kw
 ):
     if value is None and tb is None:
         exc, value, tb = type(exc), exc, exc.__traceback__
