@@ -259,6 +259,14 @@ class TestZodbInfoViewWithRealDb(RealDatabaseTest):
         self.assertEqual(view.getStateTidNice(),
                          view._tidToTimestamp(ZodbObjectState(self.root).tid))
 
+    def testGetStateTid_after_load_error(self):
+        view = self._zodbInfoView(self.root, TestRequest())
+        # When the load fails, state.tid can be left with a None as value
+        # See https://github.com/mgedmin/zodbbrowser/issues/41
+        view.state.tid = None
+        self.assertEqual(view.getStateTid(), None)
+        self.assertEqual(view.getStateTidNice(), 'None')
+
     def testLocate(self):
         view = self._zodbInfoView(self.root, TestRequest())
         jsonResult = json.loads(view.locate_json('/'))

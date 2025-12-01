@@ -247,6 +247,8 @@ class ZodbInfoView(TimedMixin, VeryCarefulView):
         return getObjectTypeShort(self.obj)
 
     def getStateTid(self):
+        if self.state.tid is None:
+            return None
         return u64(self.state.tid)
 
     def getStateTidNice(self):
