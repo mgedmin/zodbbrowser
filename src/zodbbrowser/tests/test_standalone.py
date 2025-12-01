@@ -158,7 +158,10 @@ class TestStartServer(unittest.TestCase):
         self.addCleanup(server.task_dispatcher.shutdown)
         return server
 
-    def test_prints_clickable_url(self):
+    @mock.patch('socket.socket')
+    def test_prints_clickable_url(self, mock_socket):
+        mock_socket.return_value.getsockopt.return_value = 0
+        mock_socket.return_value.getsockname.return_value = ('127.0.0.1', 8070)
         self.options.verbose = True
         with self.assertLogs('waitress', level='INFO') as cm:
             self.start_server(self.options, self.db)
