@@ -63,11 +63,10 @@ jobs:
         run: coverage report -m --fail-under=100
 
       - name: Report to coveralls
-        run: coveralls
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_SERVICE_NAME: github
+        uses: coverallsapp/github-action@v2
+        continue-on-error: true  # coveralls is unreliable
+        with:
+          file: coverage.xml
 
   lint:
     name: ${{ matrix.toxenv }}
