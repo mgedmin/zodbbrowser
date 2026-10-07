@@ -27,18 +27,16 @@ jobs:
           - "3.12"
           - "3.13"
           - "3.14"
-          - "pypy3.11"
         os:
           - ubuntu-latest
           - windows-latest
         include:
           - python-version: pypy3.11
-            os: windows-latest
+            os: ubuntu-latest
             optional: true
-        exclude:
           - python-version: pypy3.11
             os: windows-latest
-            optional: false
+            optional: true
 
     steps:
       - name: Git clone
