@@ -4,7 +4,7 @@ Changes
 0.20.1 (unreleased)
 ~~~~~~~~~~~~~~~~~~~
 
-- Nothing changed yet.
+- Add support for Python 3.15.
 
 
 0.20.0 (2025-12-01)
