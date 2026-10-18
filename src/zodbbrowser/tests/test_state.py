@@ -191,7 +191,8 @@ class TestZodbObjectState(RealDatabaseTest):
         obj.attribute = CrashOnUnpickling()
         transaction.commit()
         state = ZodbObjectState(obj)
-        self.assertEqual(state.getError(), 'Exception: oops')
+        # StateLoadError is new in ZODB 6.4
+        self.assertIn(state.getError(), ('Exception: oops', 'StateLoadError: '))
 
     def testAdapterLookupErrorHandling(self):
         obj = self.conn.root()['obj'] = Length()
